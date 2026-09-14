@@ -1,0 +1,18 @@
+# large artifacts (tens of GB) - never commit
+data/
+models/
+out/
+venvs/
+logs/
+
+# nested upstream clones (pinned in tools/patches/README.md)
+tools/RWKV-LM/
+tools/YuE/
+
+# python / editor noise
+__pycache__/
+*.pyc
+*.orig
+*.bak
+*.bak-*
+.DS_Store

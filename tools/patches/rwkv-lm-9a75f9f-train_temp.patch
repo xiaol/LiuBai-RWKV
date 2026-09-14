@@ -1,0 +1,235 @@
+diff --git a/RWKV-v7/train_temp/cuda/rwkv7_cmix_bf16_v5.cu b/RWKV-v7/train_temp/cuda/rwkv7_cmix_bf16_v5.cu
+index e8304c3..bda48b2 100644
+--- a/RWKV-v7/train_temp/cuda/rwkv7_cmix_bf16_v5.cu
++++ b/RWKV-v7/train_temp/cuda/rwkv7_cmix_bf16_v5.cu
+@@ -18,7 +18,12 @@ __device__ inline void store_bf16x2(at::BFloat16* ptr, __nv_bfloat162 value) {
+ }
+ 
+ __device__ inline void atomic_add_float2(float* ptr, float x0, float x1) {
++#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 900
+     atomicAdd(reinterpret_cast<float2*>(ptr), make_float2(x0, x1));
++#else  // rwkv-music: float2 atomicAdd is sm_90+; A100 (sm_80) uses two scalar atomics
++    atomicAdd(ptr, x0);
++    atomicAdd(ptr + 1, x1);
++#endif
+ }
+ 
+ inline int64_t ceil_div(int64_t n, int64_t d) {
+diff --git a/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp b/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp
+index 7fb38a8..06f4dc1 100644
+--- a/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp
++++ b/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp
+@@ -14,7 +14,10 @@ void head_l2wrap_ce_reduce_loss_v4_cuda(torch::Tensor loss_rows, torch::Tensor l
+ 
+ namespace {
+ 
+-constexpr int64_t HEAD_L2WRAP_CE_VOCAB = 65536;
++#ifndef HEAD_CE_VOCAB
++#define HEAD_CE_VOCAB 65536
++#endif
++constexpr int64_t HEAD_L2WRAP_CE_VOCAB = HEAD_CE_VOCAB;  // rwkv-music: set via -DHEAD_CE_VOCAB (loops are strided, any V works)
+ #ifndef HEAD_CE_CHUNK
+ #define HEAD_CE_CHUNK 4096
+ #endif
+@@ -31,7 +34,7 @@ void check_inputs(const torch::Tensor& hidden, const torch::Tensor& weight, cons
+     check_cuda_contiguous(targets, "targets");
+     TORCH_CHECK(hidden.dim() == 3, "hidden must have shape [B,T,C]");
+     TORCH_CHECK(weight.dim() == 2, "weight must have shape [V,C]");
+-    TORCH_CHECK(weight.size(0) == HEAD_L2WRAP_CE_VOCAB, "head_l2wrap_ce_v4 currently expects vocab=65536");
++    TORCH_CHECK(weight.size(0) == HEAD_L2WRAP_CE_VOCAB, "head_l2wrap_ce_v4 was compiled for vocab=HEAD_CE_VOCAB; rebuild with -DHEAD_CE_VOCAB=<V>");
+     TORCH_CHECK(hidden.size(2) == weight.size(1), "hidden / weight shape mismatch");
+     TORCH_CHECK(targets.scalar_type() == torch::kLong, "targets must be int64");
+     TORCH_CHECK(targets.numel() == hidden.size(0) * hidden.size(1), "targets shape mismatch");
+diff --git a/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu b/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu
+index a0274af..75e2127 100644
+--- a/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu
++++ b/RWKV-v7/train_temp/cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu
+@@ -8,7 +8,10 @@
+ 
+ namespace {
+ 
+-constexpr int64_t HEAD_L2WRAP_CE_VOCAB = 65536;
++#ifndef HEAD_CE_VOCAB
++#define HEAD_CE_VOCAB 65536
++#endif
++constexpr int64_t HEAD_L2WRAP_CE_VOCAB = HEAD_CE_VOCAB;  // rwkv-music: set via -DHEAD_CE_VOCAB (loops are strided, any V works)
+ constexpr float NEG_INF_F = -3.4028234663852886e+38F;
+ 
+ template <typename scalar_t>
+diff --git a/RWKV-v7/train_temp/cuda/rwkv7_tmix_kk_pre_bf16_v5.cu b/RWKV-v7/train_temp/cuda/rwkv7_tmix_kk_pre_bf16_v5.cu
+index 20e4c5b..d929697 100644
+--- a/RWKV-v7/train_temp/cuda/rwkv7_tmix_kk_pre_bf16_v5.cu
++++ b/RWKV-v7/train_temp/cuda/rwkv7_tmix_kk_pre_bf16_v5.cu
+@@ -33,7 +33,12 @@ __device__ inline float warp_sum(float v) {
+ }
+ 
+ __device__ inline void atomic_add_float2(float* ptr, float x0, float x1) {
++#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 900
+     atomicAdd(reinterpret_cast<float2*>(ptr), make_float2(x0, x1));
++#else  // rwkv-music: float2 atomicAdd is sm_90+; A100 (sm_80) uses two scalar atomics
++    atomicAdd(ptr, x0);
++    atomicAdd(ptr + 1, x1);
++#endif
+ }
+ 
+ inline int64_t ceil_div(int64_t n, int64_t d) {
+diff --git a/RWKV-v7/train_temp/cuda/rwkv7_tmix_mix6_bf16_v5.cu b/RWKV-v7/train_temp/cuda/rwkv7_tmix_mix6_bf16_v5.cu
+index 56642f0..1295b22 100644
+--- a/RWKV-v7/train_temp/cuda/rwkv7_tmix_mix6_bf16_v5.cu
++++ b/RWKV-v7/train_temp/cuda/rwkv7_tmix_mix6_bf16_v5.cu
+@@ -17,7 +17,12 @@ __device__ inline void store_bf16x2(at::BFloat16* ptr, __nv_bfloat162 value) {
+ }
+ 
+ __device__ inline void atomic_add_float2(float* ptr, float x0, float x1) {
++#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 900
+     atomicAdd(reinterpret_cast<float2*>(ptr), make_float2(x0, x1));
++#else  // rwkv-music: float2 atomicAdd is sm_90+; A100 (sm_80) uses two scalar atomics
++    atomicAdd(ptr, x0);
++    atomicAdd(ptr + 1, x1);
++#endif
+ }
+ 
+ inline int64_t ceil_div(int64_t n, int64_t d) {
+diff --git a/RWKV-v7/train_temp/src/dataset.py b/RWKV-v7/train_temp/src/dataset.py
+index 4cec0b5..07574d2 100644
+--- a/RWKV-v7/train_temp/src/dataset.py
++++ b/RWKV-v7/train_temp/src/dataset.py
+@@ -57,7 +57,8 @@ class MyDataset(Dataset):
+         req_len = ctx_len + 1
+         magic_prime = args.magic_prime
+ 
+-        ii = 1 + epoch * self.samples_per_epoch + (idx * world_size) + rank
++        ii = 1 + epoch * self.samples_per_epoch + (idx * world_size) + rank \
++             + int(os.environ.get('RWKV_STEP_OFFSET', '0')) * args.real_bsz  # rwkv-music: resume from a step checkpoint without re-seeing windows
+ 
+         factor = (math.sqrt(5) - 1) / 2
+         factor = int(magic_prime * factor)
+diff --git a/RWKV-v7/train_temp/src/model.py b/RWKV-v7/train_temp/src/model.py
+index b4d167f..7251c92 100644
+--- a/RWKV-v7/train_temp/src/model.py
++++ b/RWKV-v7/train_temp/src/model.py
+@@ -461,8 +461,9 @@ def l2wrap_cross_entropy(logits, targets):
+ 
+ if int(os.environ["RWKV_HEAD_L2WRAP_CE_CHUNK"]) > 0:
+     HEAD_L2WRAP_CE_CHUNK = int(os.environ["RWKV_HEAD_L2WRAP_CE_CHUNK"])
+-    HEAD_L2WRAP_CE_CUDA_V4 = load(name="rwkv7_head_l2wrap_ce_bf16_v4", sources=["cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp","cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu"], extra_cflags=["-O3", f"-DHEAD_CE_CHUNK={HEAD_L2WRAP_CE_CHUNK}"],
+-         extra_cuda_cflags=['-res-usage', "--use_fast_math", "-O3", "-Xptxas -O3", "--extra-device-vectorization", f"-DHEAD_CE_CHUNK={HEAD_L2WRAP_CE_CHUNK}"],
++    HEAD_L2WRAP_CE_VOCAB = int(os.environ.get("RWKV_HEAD_CE_VOCAB", "65536"))  # rwkv-music: kernel vocab is compile-time
++    HEAD_L2WRAP_CE_CUDA_V4 = load(name=f"rwkv7_head_l2wrap_ce_bf16_v4_v{HEAD_L2WRAP_CE_VOCAB}", sources=["cuda/rwkv7_head_l2wrap_ce_bf16_v4.cpp","cuda/rwkv7_head_l2wrap_ce_bf16_v4.cu"], extra_cflags=["-O3", f"-DHEAD_CE_CHUNK={HEAD_L2WRAP_CE_CHUNK}", f"-DHEAD_CE_VOCAB={HEAD_L2WRAP_CE_VOCAB}"],
++         extra_cuda_cflags=['-res-usage', "--use_fast_math", "-O3", "-Xptxas -O3", "--extra-device-vectorization", f"-DHEAD_CE_CHUNK={HEAD_L2WRAP_CE_CHUNK}", f"-DHEAD_CE_VOCAB={HEAD_L2WRAP_CE_VOCAB}"],
+          verbose=True)
+ 
+     class HeadL2WrapCrossEntropyCUDAV4(torch.autograd.Function):
+@@ -544,23 +545,23 @@ class RWKV_Tmix_x070(MyModule):
+                 zigzag[n] = zigzag[n] * abs(zigzag[n])
+                 www[n] = -6 + 6 * (n / (C - 1)) ** (1 + 1 * ratio_0_to_1 ** 0.3)
+ 
+-            D_DECAY_LORA = max(32, int(round(  (2.5*(C**0.5))  /32)*32)) # suggestion
++            D_DECAY_LORA = int(os.environ.get('RWKV_D_DECAY_LORA', max(32, int(round(  (2.5*(C**0.5))  /32)*32)))) # rwkv-music: env override to match the g1k checkpoint (96)
+             self.w1 = nn.Parameter(torch.zeros(C, D_DECAY_LORA))
+             self.w2 = nn.Parameter(ortho_init(torch.zeros(D_DECAY_LORA, C), 0.1))
+             self.w0 = nn.Parameter(www.reshape(1,1,C) + 0.5 + zigzag*2.5)
+ 
+-            D_AAA_LORA = max(32, int(round(  (2.5*(C**0.5))  /32)*32)) # suggestion
++            D_AAA_LORA = int(os.environ.get('RWKV_D_AAA_LORA', max(32, int(round(  (2.5*(C**0.5))  /32)*32)))) # rwkv-music: env override (96)
+             self.a1 = nn.Parameter(torch.zeros(C, D_AAA_LORA))
+             self.a2 = nn.Parameter(ortho_init(torch.zeros(D_AAA_LORA, C), 0.1))
+             self.a0 = nn.Parameter(torch.zeros(1,1,C)-0.19 + zigzag*0.3 + linear*0.4)
+ 
+-            D_MV_LORA = max(32, int(round(  (1.7*(C**0.5))  /32)*32)) # suggestion
++            D_MV_LORA = int(os.environ.get('RWKV_D_MV_LORA', max(32, int(round(  (1.7*(C**0.5))  /32)*32)))) # rwkv-music: env override (64)
+             self.v1 = nn.Parameter(torch.zeros(C, D_MV_LORA))
+             self.v2 = nn.Parameter(ortho_init(torch.zeros(D_MV_LORA, C), 0.1))
+             self.v0 = nn.Parameter(torch.zeros(1,1,C)+0.73 - linear*0.4)
+ 
+             # Note: for some data, you can reduce D_GATE_LORA or even remove this gate
+-            D_GATE_LORA = max(32, int(round(  (5*(C**0.5))  /32)*32)) # suggestion
++            D_GATE_LORA = int(os.environ.get('RWKV_D_GATE_LORA', max(32, int(round(  (5*(C**0.5))  /32)*32)))) # rwkv-music: env override (320)
+             self.g1 = nn.Parameter(torch.zeros(C, D_GATE_LORA))
+             self.g2 = nn.Parameter(ortho_init(torch.zeros(D_GATE_LORA, C), 0.1))
+ 
+diff --git a/RWKV-v7/train_temp/src/trainer.py b/RWKV-v7/train_temp/src/trainer.py
+index 09d07b8..94c1b93 100644
+--- a/RWKV-v7/train_temp/src/trainer.py
++++ b/RWKV-v7/train_temp/src/trainer.py
+@@ -1,4 +1,6 @@
+-import os, math, time, datetime, subprocess
++import os, math, time, datetime, subprocess, signal, glob
++STEP_OFFSET = int(os.environ.get('RWKV_STEP_OFFSET', '0'))   # rwkv-music: step of the loaded step-N.pth
++SAVE_STEPS = int(os.environ.get('RWKV_SAVE_STEPS', '1000'))  # rwkv-music: step checkpoints (out/<proj>/step-N.pth)
+ import torch
+ from torch.utils.data import DataLoader
+ import pytorch_lightning as pl
+@@ -18,7 +20,7 @@ class train_callback(pl.Callback):
+     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
+         args = self.args
+ 
+-        real_step = trainer.global_step + args.epoch_begin * args.epoch_steps
++        real_step = trainer.global_step + args.epoch_begin * args.epoch_steps + STEP_OFFSET
+ 
+         # LR schedule
+         w_step = args.warmup_steps
+@@ -42,8 +44,8 @@ class train_callback(pl.Callback):
+                         f"{args.proj_dir}/rwkv-final.pth",
+                     )
+                     exit(0)
+-        if trainer.global_step < w_step:
+-            lr = lr * (0.01 + 0.99 * trainer.global_step / w_step)
++        if real_step < w_step:  # rwkv-music: was trainer.global_step (re-warmed after every resume)
++            lr = lr * (0.01 + 0.99 * real_step / w_step)
+ 
+         wd_now = args.weight_decay
+ 
+@@ -81,7 +83,7 @@ class train_callback(pl.Callback):
+     def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+         args = self.args
+         token_per_step = args.ctx_len * args.real_bsz
+-        real_step = trainer.global_step + args.epoch_begin * args.epoch_steps
++        real_step = trainer.global_step + args.epoch_begin * args.epoch_steps + STEP_OFFSET
+ 
+         if trainer.is_global_zero:  # logging
+             t_now = time.time_ns()
+@@ -101,12 +103,34 @@ class train_callback(pl.Callback):
+             self.log("lr", trainer.my_lr, prog_bar=True, on_step=True)
+             self.log("loss", trainer.my_epoch_loss, prog_bar=True, on_step=True)
+ 
++            if real_step % 10 == 0 or real_step < 20:  # rwkv-music: step log without wandb
++                with open(args.proj_dir + "/step_log.txt", "a") as f:
++                    f.write(f"{int(real_step)} {trainer.my_loss:.4f} {trainer.my_lr:.3e} {kt_s:.1f} "
++                            f"{real_step * token_per_step / 1e9:.4f} {datetime.datetime.now().strftime('%m-%d %H:%M:%S')}\n")
++
+             if len(args.wandb) > 0:
+                 lll = {"loss": trainer.my_loss, "lr": trainer.my_lr, "wd": trainer.my_wd, "Gtokens": real_step * token_per_step / 1e9}
+                 if kt_s > 0:
+                     lll["kt/s"] = kt_s
+                 trainer.my_wandb.log(lll, step=int(real_step))
+ 
++        # rwkv-music: stop on non-finite loss (bf16 ZeRO-2 has no overflow skip, NaN grads poison the weights);
++        # the launcher (scripts/train_stage1.sh) restarts from the newest step-N.pth
++        if trainer.is_global_zero and hasattr(trainer, "my_loss_all") and not torch.isfinite(trainer.my_loss_all.float()).all():
++            msg = f"{datetime.datetime.now()} non-finite loss at step {int(real_step)} (lr {trainer.my_lr:.3e}); killing run for resume"
++            print("[rwkv-music] " + msg, flush=True)
++            with open(args.proj_dir + "/events.txt", "a") as f:
++                f.write(msg + "\n")
++            os.killpg(os.getpgrp(), signal.SIGTERM)
++        if trainer.is_global_zero and SAVE_STEPS > 0 and real_step > STEP_OFFSET and real_step % SAVE_STEPS == 0:
++            ff = f"{args.proj_dir}/step-{int(real_step)}.pth"
++            torch.save(pl_module.state_dict(), ff + ".tmp"); os.replace(ff + ".tmp", ff)
++            olds = sorted(glob.glob(f"{args.proj_dir}/step-*.pth"), key=lambda p: int(p.rsplit("-", 1)[1][:-4]))
++            for p in olds[:-2]:  # keep the two newest
++                os.remove(p)
++            with open(args.proj_dir + "/events.txt", "a") as f:
++                f.write(f"{datetime.datetime.now()} saved {ff} loss {trainer.my_loss:.4f}\n")
++
+         if (trainer.is_global_zero) or ('deepspeed_stage_3' in args.strategy): # save pth
+             if args.magic_prime > 0:
+                 if int(real_step) == int(args.magic_prime // args.real_bsz) - 1:
+@@ -114,7 +138,7 @@ class train_callback(pl.Callback):
+                     my_save(
+                         args, trainer,
+                         to_save_dict,
+-                        f"{args.proj_dir}/rwkv-final.pth",
++                        f"{args.proj_dir}/rwkv-onepass.pth",  # rwkv-music: was rwkv-final.pth; our horizon (my_exit_tokens) is 2 passes
+                     )
+                 
+ 
