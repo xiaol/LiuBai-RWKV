@@ -23,6 +23,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dirs", nargs="+", required=True); ap.add_argument("--layers", default="12,16,20,23")
     ap.add_argument("--limit", type=int, default=0); ap.add_argument("--vae", default="YuE2-Vae")
+    ap.add_argument("--part", type=int, default=0); ap.add_argument("--nparts", type=int, default=1)
     args = ap.parse_args(); dev = "cuda"; layers = [int(x) for x in args.layers.split(",")]; tag = "".join(f"_{l}" for l in layers)
     from transformers import AutoModel, AutoFeatureExtractor
     from yue2.modeling_vae import YuE2VAE
@@ -34,6 +35,7 @@ def main():
         for t in sorted(Path(d).iterdir()):
             if not t.is_dir() or (t / f"mert_L{tag}.npy").exists(): continue
             if (t / "audio.flac").exists() or (t / "latent.npy").exists(): todo.append(t)
+    todo = [t for i, t in enumerate(todo) if i % args.nparts == args.part]
     if args.limit: todo = todo[:args.limit]
     print(f"{len(todo)} tracks to extract, layers {layers}", flush=True); t0 = time.time()
     for i, t in enumerate(todo):

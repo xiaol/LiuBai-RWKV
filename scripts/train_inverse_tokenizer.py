@@ -63,6 +63,9 @@ def main():
     ap.add_argument("--tau", type=float, default=0.05); ap.add_argument("--smooth", type=float, default=0.05)
     ap.add_argument("--eval-every", type=int, default=500); ap.add_argument("--init", default="")
     ap.add_argument("--max-tracks", type=int, default=0); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--accum", type=int, default=1, help="gradient accumulation micro-batches (each of --bs windows)")
+    ap.add_argument("--drop", type=float, default=0.1); ap.add_argument("--time-mask", type=float, default=0.0, help="fraction of frames zeroed in random spans (SpecAugment-style)")
+    ap.add_argument("--feat-drop", type=float, default=0.0, help="input channel dropout on the MERT features")
     args = ap.parse_args(); dev = "cuda"; out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     random.seed(args.seed); torch.manual_seed(args.seed); torch.backends.cuda.matmul.allow_tf32 = True
     layers = [int(x) for x in args.layers.split(",")]; tag = "".join(f"_{l}" for l in layers); K = len(layers)
@@ -83,7 +86,7 @@ def main():
     NB = torch.tensor(np.load(ROOT / "data/yue2_minted/codec_nbr_idx.npy").astype(np.int64), device=dev)
     NW = torch.softmax(torch.tensor(np.load(ROOT / "data/yue2_minted/codec_nbr_cos.npy"), device=dev) / args.tau, dim=1)
 
-    model = InverseTokenizer(K, d=args.d, nlayer=args.nlayer, nhead=args.nhead, win=args.win).to(dev)
+    model = InverseTokenizer(K, d=args.d, nlayer=args.nlayer, nhead=args.nhead, win=args.win, drop=args.drop).to(dev)
     if args.init: model.load_state_dict(torch.load(args.init, map_location=dev)["model"]); print("init from", args.init)
     nparam = sum(p.numel() for p in model.parameters()); print(f"params {nparam / 1e6:.1f} M", flush=True)
     decay = [p for n, p in model.named_parameters() if p.ndim >= 2 and "pos" not in n]; nodecay = [p for n, p in model.named_parameters() if not (p.ndim >= 2 and "pos" not in n)]
@@ -119,9 +122,17 @@ def main():
     json.dump(vars(args) | dict(params=nparam, tracks_train=len(train), tracks_val=len(val), frames_train=ntr), open(out / "config.json", "w"), indent=1)
     for st in range(1, args.steps + 1):
         for g in opt.param_groups: g["lr"] = args.lr * sched(st)
-        x, y = batch(train, args.bs)
-        with torch.autocast("cuda", dtype=torch.bfloat16): lg = model(x)
-        loss = loss_fn(lg, y); opt.zero_grad(set_to_none=True); loss.backward(); gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0); opt.step()
+        opt.zero_grad(set_to_none=True)
+        for _ in range(args.accum):
+            x, y = batch(train, args.bs)
+            if args.time_mask > 0:                       # zero ~time_mask of the frames in 25-frame (1 s) spans
+                nspan = max(1, int(args.time_mask * args.win / 25)); x = x.clone()
+                for b in range(x.shape[0]):
+                    for s0 in torch.randint(0, args.win - 25, (nspan,)).tolist(): x[b, :, s0:s0 + 25] = 0
+            if args.feat_drop > 0: x = F.dropout(x, args.feat_drop, training=True)
+            with torch.autocast("cuda", dtype=torch.bfloat16): lg = model(x)
+            loss = loss_fn(lg, y) / args.accum; loss.backward(); del lg
+        loss = loss * args.accum; gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0); opt.step()
         if st <= 5 or st % 50 == 0:
             msg = f"step {st} loss {loss.item():.4f} gn {gn:.2f} lr {opt.param_groups[0]['lr']:.2e} {time.time() - t0:.0f}s mem {torch.cuda.max_memory_allocated() / 2**30:.1f}G"
             print(msg, flush=True); log.write(msg + "\n"); log.flush()
