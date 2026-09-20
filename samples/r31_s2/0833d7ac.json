@@ -1,0 +1,61 @@
+{
+ "id": "0833d7ac-f290-428f-92c8-e12a215b83e6",
+ "title": "Carrying Things up the Mountain+mandolin",
+ "style": "mandolin",
+ "lyrics": "(Oh...oh...oh...oh...)\n(Walking up and down regularly)\n(Porters still walk up and down)\n(Hmm..hmm..hmm..hmm..)\n\nPorters are a regular job. They do it.\nCarrying things up the mountain\nThe regular job of the Srithan people\nGoing up and down is not an easy job.\n\nWalking up Phu Kradueng is difficult.\nCarrying heavy is extremely difficult.\nDoing this job for the income.\nSave it for spending, buying food.\n\nNot long now, the cable car will arrive.\nTake the cable car instead of walking.\nThe old way of walking will probably end.\nNo one will do this job anymore.\n\nPorters are a regular job, doing it\nOh, is it time to stop carrying?\nPlease divide the proportions of this job\nKeep it for the people of Srithan..\n\nNot long now, the cable car will arrive.\nTake the cable car instead of walking.\nThe old way of walking will probably end.\nNo one will do this job anymore.\n\nPorters are a regular job, doing it\nOh, is it time to stop carrying?\nPlease divide the proportions of this job\nKeep it for the people of Srithan..\n\nKeep it for the people of Srithan..\n(Hmm..hmm..hmm..hmm..)\n****************",
+ "sections": [
+  {
+   "text": "[verse]\n(Oh...oh...oh...oh...)\n(Walking up and down regularly)\n(Porters still walk up and down)\n(Hmm..hmm..hmm..hmm..)\n",
+   "f0": 0,
+   "f1": 284,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nPorters are a regular job. They do it.\nCarrying things up the mountain\nThe regular job of the Srithan people\nGoing up and down is not an easy job.\n",
+   "f0": 284,
+   "f1": 576,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nWalking up Phu Kradueng is difficult.\nCarrying heavy is extremely difficult.\nDoing this job for the income.\nSave it for spending, buying food.\n",
+   "f0": 576,
+   "f1": 1015,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nNot long now, the cable car will arrive.\nTake the cable car instead of walking.\nThe old way of walking will probably end.\nNo one will do this job anymore.\n",
+   "f0": 1015,
+   "f1": 1477,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nPorters are a regular job, doing it\nOh, is it time to stop carrying?\nPlease divide the proportions of this job\nKeep it for the people of Srithan..\n",
+   "f0": 1477,
+   "f1": 2021,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nNot long now, the cable car will arrive.\nTake the cable car instead of walking.\nThe old way of walking will probably end.\nNo one will do this job anymore.\n",
+   "f0": 2021,
+   "f1": 2839,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nPorters are a regular job, doing it\nOh, is it time to stop carrying?\nPlease divide the proportions of this job\nKeep it for the people of Srithan..\n",
+   "f0": 2839,
+   "f1": 3383,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nKeep it for the people of Srithan..\n(Hmm..hmm..hmm..hmm..)\n****************\n",
+   "f0": 3383,
+   "f1": 3994,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4245
+ }
+}

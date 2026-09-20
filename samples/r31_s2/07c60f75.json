@@ -1,0 +1,61 @@
+{
+ "id": "07c60f75-7583-4956-b371-a454bfe9c2c4",
+ "title": "Ready for the fall",
+ "style": "male vocalist, breathy verses, powerful chorus, sparse acoustic guitar, stomping beat, americana, slow build, raw intimate production, gritty emotion, space between phrases, dynamic swells, 85 bpm",
+ "lyrics": "[verse]\nTake me apart\nHold my hand\nI'll build you castles not made of sand\nYour eyes they burn\nThey pull me in\nYou're at that table\nI'm caving in\n\n[pre-chorus]\n'Cause I'm thinking you might just be the one\nThat I ravage in the moonlight all night long\n\n[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm standing on this edge\nAnd I'm ready for the fall\n\n[verse]\nI've played it safe\nI've kept it tight\nBut you walked in\nAnd wrecked my life\nYou don't ask\nYou just stare\nLike you know what's there\nBefore I get there\n\n[pre-chorus]\n'Cause I'm thinking you might just be the one\nThat I chase into the darkness just for fun\n\n[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm standing on this edge\nAnd I'm ready for the fall\n\n[bridge]\nI don't need safe\nDon't need soft\nI just want you\nTo burn it off\nEverything\n\n[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm falling off this edge\nAnd I don't mind at all\n\n[outro]\nTake me apart\nHold my hand\nTell you something true",
+ "sections": [
+  {
+   "text": "[verse]\nTake me apart\nHold my hand\nI'll build you castles not made of sand\nYour eyes they burn\nThey pull me in\nYou're at that table\nI'm caving in\n",
+   "f0": 0,
+   "f1": 1140,
+   "eoa": true
+  },
+  {
+   "text": "[pre-chorus]\n'Cause I'm thinking you might just be the one\nThat I ravage in the moonlight all night long\n",
+   "f0": 1140,
+   "f1": 1220,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm standing on this edge\nAnd I'm ready for the fall\n",
+   "f0": 1220,
+   "f1": 2154,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nI've played it safe\nI've kept it tight\nBut you walked in\nAnd wrecked my life\nYou don't ask\nYou just stare\nLike you know what's there\nBefore I get there\n",
+   "f0": 2154,
+   "f1": 2588,
+   "eoa": true
+  },
+  {
+   "text": "[pre-chorus]\n'Cause I'm thinking you might just be the one\nThat I chase into the darkness just for fun\n",
+   "f0": 2588,
+   "f1": 2953,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm standing on this edge\nAnd I'm ready for the fall\n",
+   "f0": 2953,
+   "f1": 4453,
+   "eoa": false
+  },
+  {
+   "text": "[bridge]\nI don't need safe\nDon't need soft\nI just want you\nTo burn it off\nEverything\n",
+   "f0": 4453,
+   "f1": 5953,
+   "eoa": false
+  },
+  {
+   "text": "[chorus]\nYou and me got something right\nSomething true, something with bite\nYou got all that attitude\nDark bedroom eyes\nThat see right through my walls\nNow I'm falling off this edge\nAnd I don't mind at all\n",
+   "f0": 5953,
+   "f1": 6000,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4244
+ }
+}

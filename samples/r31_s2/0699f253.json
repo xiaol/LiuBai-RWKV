@@ -1,0 +1,61 @@
+{
+ "id": "0699f253-097e-4a6b-875f-26010fea7ef8",
+ "title": "Don't Try to Understand Me",
+ "style": "punk",
+ "lyrics": "[intro]\n[fingerstyle acoustic guitar enters]\n(Hoo-ooh)\n\n[verse]\n[male tenor vocals]\nLa garantía de lo lógico\nY la espera de algo hipnótico\n(Hoo-ooh)\nSpending time at your place\nDoesn't make me a lover, yeah\n(Hoo-ooh)\n\n[chorus]\n[falsetto]\nSo please don't try to understand me\nThat's the way you love me, baby\n(Hoo-ooh, yeah)\nSo please don't try to understand me\nThat's the way you love me, baby\n(Hoo-ooh, mm)\n\n[bridge]\n[chest voice]\nSo don't stick on my skin because I forgive you\nBut this journey aren't for two people\nSo don't follow me because I don't need you\nDon't put on your knees because I will leave you\nDon't make me regret my decision\nI just mind you should choose one, two\n(Hoo-ooh, yeah)",
+ "sections": [
+  {
+   "text": "[intro]\n",
+   "f0": 0,
+   "f1": 64,
+   "eoa": true
+  },
+  {
+   "text": "[fingerstyle acoustic guitar enters]\n(Hoo-ooh)\n",
+   "f0": 64,
+   "f1": 147,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\n",
+   "f0": 147,
+   "f1": 215,
+   "eoa": true
+  },
+  {
+   "text": "[male tenor vocals]\nLa garantía de lo lógico\nY la espera de algo hipnótico\n(Hoo-ooh)\nSpending time at your place\nDoesn't make me a lover, yeah\n(Hoo-ooh)\n",
+   "f0": 215,
+   "f1": 706,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\n",
+   "f0": 706,
+   "f1": 994,
+   "eoa": true
+  },
+  {
+   "text": "[falsetto]\nSo please don't try to understand me\nThat's the way you love me, baby\n(Hoo-ooh, yeah)\nSo please don't try to understand me\nThat's the way you love me, baby\n(Hoo-ooh, mm)\n",
+   "f0": 994,
+   "f1": 1325,
+   "eoa": true
+  },
+  {
+   "text": "[bridge]\n",
+   "f0": 1325,
+   "f1": 1436,
+   "eoa": true
+  },
+  {
+   "text": "[chest voice]\nSo don't stick on my skin because I forgive you\nBut this journey aren't for two people\nSo don't follow me because I don't need you\nDon't put on your knees because I will leave you\nDon't make me regret my decision\nI just mind you should choose one, two\n(Hoo-ooh, yeah)\n",
+   "f0": 1436,
+   "f1": 2355,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4242
+ }
+}

@@ -1,0 +1,49 @@
+{
+ "id": "064e0e69-3aab-4a3c-a5fc-d672811680f2",
+ "title": "",
+ "style": "choir",
+ "lyrics": "Christmas Song: King of Glory\n\nVerse 1\nA star arose in the silent night,\nGuiding the way to the holy light.\nA child is born, the promised King,\nHeaven rejoices, let the angels sing.\n\nChorus\nHail the King of Glory, born to save,\nBringing hope to the world He gave.\nLift your hearts, let the praises ring,\nJesus Christ, our Savior and King.\n\nVerse 2\nIn a humble manger, love came down,\nA crown of grace for a thorn-filled crown.\nPeace on earth, mercy in His name,\nForevermore, His love remains.\n\nChorus\nHail the King of Glory, born to save,\nBringing hope to the world He gave.\nLift your hearts, let the praises ring,\nJesus Christ, our Savior and King.\n\nBridge\nLet the nations bow, let the earth proclaim,\nThe wonder of His holy name.\nEmmanuel, God with us,\nIn Him we place our trust.\n\nChorus\nHail the King of Glory, born to save,\nBringing hope to the world He gave.\nLift your hearts, let the praises ring,\nJesus Christ, our Savior and King.\n\nOutro\nGlory to God, His love we sing,\nForever reigning, our Savior and King.",
+ "sections": [
+  {
+   "text": "[verse]\nChristmas Song: King of Glory\n",
+   "f0": 0,
+   "f1": 437,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nVerse 1\nA star arose in the silent night,\nGuiding the way to the holy light.\nA child is born, the promised King,\nHeaven rejoices, let the angels sing.\n",
+   "f0": 437,
+   "f1": 1095,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nChorus\nHail the King of Glory, born to save,\nBringing hope to the world He gave.\nLift your hearts, let the praises ring,\nJesus Christ, our Savior and King.\n",
+   "f0": 1095,
+   "f1": 2030,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nVerse 2\nIn a humble manger, love came down,\nA crown of grace for a thorn-filled crown.\nPeace on earth, mercy in His name,\nForevermore, His love remains.\n",
+   "f0": 2030,
+   "f1": 3126,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nChorus\nHail the King of Glory, born to save,\nBringing hope to the world He gave.\nLift your hearts, let the praises ring,\nJesus Christ, our Savior and King.\n",
+   "f0": 3126,
+   "f1": 4626,
+   "eoa": false
+  },
+  {
+   "text": "[verse]\nBridge\nLet the nations bow, let the earth proclaim,\nThe wonder of His holy name.\nEmmanuel, God with us,\nIn Him we place our trust.\n",
+   "f0": 4626,
+   "f1": 6000,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4242
+ }
+}

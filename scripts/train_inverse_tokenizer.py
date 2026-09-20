@@ -38,6 +38,28 @@ def instnorm(x):                             # per track, per layer, per channel
     x = x.astype(np.float32); return (x - x.mean(1, keepdims=True)) / (x.std(1, keepdims=True) + 1e-5)
 
 
+def track_stats(path):
+    """Per-layer, per-channel mean/std of a fp16 [K,T,1024] feature file, cached next to it (memory-mapped read)."""
+    cache = Path(str(path)[:-4] + ".stats.npy")
+    if cache.exists():
+        st = np.load(cache); return st[0], st[1]
+    x = np.load(path, mmap_mode="r"); K, T, C = x.shape; s1 = np.zeros((K, C), np.float64); s2 = np.zeros((K, C), np.float64)
+    for a in range(0, T, 2000):
+        blk = np.asarray(x[:, a:a + 2000]).astype(np.float32); s1 += blk.sum(1); s2 += (blk ** 2).sum(1)
+    mu = s1 / T; sd = np.sqrt(np.maximum(s2 / T - mu ** 2, 0)) + 1e-5
+    st = np.stack([mu, sd]).astype(np.float32); np.save(cache, st); return st[0], st[1]
+
+
+class Track:
+    """Memory-mapped feature file + labels; windows are normalised on read so the corpus never has to fit in RAM."""
+    def __init__(s, feat_path, y=None, n=None):
+        s.x = np.load(feat_path, mmap_mode="r"); s.mu, s.sd = track_stats(feat_path)
+        s.n = s.x.shape[1] if n is None else min(n, s.x.shape[1]); s.y = None if y is None else y[:s.n]
+    def window(s, a, win):                   # -> float32 [K, min(win, n-a), 1024]
+        xw = np.asarray(s.x[:, a:a + win]).astype(np.float32); return (xw - s.mu[:, None]) / s.sd[:, None]
+    def full(s): return s.window(0, s.n)
+
+
 @torch.no_grad()
 def predict(model, feats, dev="cuda"):      # feats fp16 [K,T,1024] -> int64 [T]
     win = model.cfg["win"]; x = instnorm(feats); T = x.shape[1]; out = np.zeros(T, dtype=np.int64)
@@ -77,11 +99,11 @@ def main():
     if args.max_tracks: tracks = tracks[:args.max_tracks]
     held = lambda t: int(hashlib.md5(t.name.encode()).hexdigest(), 16) % 20 == 0
     def load(t):
-        x = np.load(t / f"mert_L{tag}.npy"); y = np.load(t / "semantic.npy").astype(np.int64); n = min(x.shape[1], len(y))
-        if abs(x.shape[1] - len(y)) > 3: print(f"  warn {t.name}: mert {x.shape[1]} vs tokens {len(y)}")
-        return instnorm(x[:, :n]).astype(np.float16), y[:n]
+        y = np.load(t / "semantic.npy").astype(np.int64); tr = Track(t / f"mert_L{tag}.npy", y, len(y))
+        if abs(tr.x.shape[1] - len(y)) > 3: print(f"  warn {t.name}: mert {tr.x.shape[1]} vs tokens {len(y)}")
+        return tr
     t0 = time.time(); train = [load(t) for t in tracks if not held(t)]; val = [load(t) for t in tracks if held(t)]
-    ntr = sum(len(y) for _, y in train); nva = sum(len(y) for _, y in val)
+    ntr = sum(tr.n for tr in train); nva = sum(tr.n for tr in val)
     print(f"tracks train {len(train)} ({ntr / 25 / 3600:.1f} h, {ntr:,} frames) val {len(val)} ({nva:,} frames) loaded in {time.time() - t0:.0f}s", flush=True)
     NB = torch.tensor(np.load(ROOT / "data/yue2_minted/codec_nbr_idx.npy").astype(np.int64), device=dev)
     NW = torch.softmax(torch.tensor(np.load(ROOT / "data/yue2_minted/codec_nbr_cos.npy"), device=dev) / args.tau, dim=1)
@@ -96,7 +118,7 @@ def main():
     def batch(data, bs, rng=random):
         xs, ys = [], []
         for _ in range(bs):
-            x, y = rng.choice(data); s = rng.randint(0, max(0, x.shape[1] - args.win)); xw = x[:, s:s + args.win]; yw = y[s:s + args.win]
+            tr = rng.choice(data); s = rng.randint(0, max(0, tr.n - args.win)); xw = tr.window(s, args.win); yw = tr.y[s:s + args.win]
             if xw.shape[1] < args.win:
                 pad = args.win - xw.shape[1]; xw = np.pad(xw, ((0, 0), (0, pad), (0, 0))); yw = np.pad(yw, (0, pad), constant_values=-100)
             xs.append(xw); ys.append(yw)

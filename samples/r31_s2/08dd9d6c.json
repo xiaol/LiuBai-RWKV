@@ -1,0 +1,19 @@
+{
+ "id": "08dd9d6c-45dd-4fda-8b1e-554d5d9c6243",
+ "title": "ngi ai nguh ia me kotrai ",
+ "style": "jazz",
+ "lyrics": "ngi ai nguh ia me kotrai\njing ieid jing sbun me ai\nia ngi ka jing koit jing khiah\nba ngin don lang kumne\nkum shipara\ntylli kawei ngin long\nkum ki shipai u krist\nda jing shitrhem ngin trei\nbad ia ieid markylliang\nhaba don ki jing eh jing tynjuh\nngin ai mynsiem i wei ia iwei\nngin ym kynran dien ngin tur\nshaphrang daka jing ngeit\nryngkat ka jing dwai lang",
+ "sections": [
+  {
+   "text": "[verse]\nngi ai nguh ia me kotrai\njing ieid jing sbun me ai\nia ngi ka jing koit jing khiah\nba ngin don lang kumne\nkum shipara\ntylli kawei ngin long\nkum ki shipai u krist\nda jing shitrhem ngin trei\nbad ia ieid markylliang\nhaba don ki jing eh jing tynjuh\nngin ai mynsiem i wei ia iwei\nngin ym kynran dien ngin tur\nshaphrang daka jing ngeit\nryngkat ka jing dwai lang\n",
+   "f0": 0,
+   "f1": 1500,
+   "eoa": false
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4246
+ }
+}

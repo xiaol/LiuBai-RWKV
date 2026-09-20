@@ -1,0 +1,73 @@
+{
+ "id": "07608f1b-2bc3-42af-87be-eb01e3b2f43b",
+ "title": "Speaking from the Heart (Part 2)",
+ "style": "groovy bossa nova deephouse r&b chillwave. breathy vocals, clear enunciation.",
+ "lyrics": "[verse]\nHear the beat feel the start\nWords pourin' straight from the heart\nNo need to play a part\nTruth in the light where we dart\n\n[verse]\nFlowin' like the breeze at night\nShine ya soul so bright\nNo games no fight\nPure truth pure delight\n\n[chorus]\nSpeak it from the heart\nThat's where the magic starts\nNo need to tear apart\nJust love and be smart\n\n[verse]\nGroove in the vibe we tread\nLight as a feather no dread\nWords we mean we said\nHonesty colors us red\n\n[verse]\nUnder the moon and stars\nSimple honest hearts\nNo walls no scars\nThriving like coral bars\n\n[bridge]\nFeel it in the rhythm babe\nTrue words cascade\nNo charades no shade\nJust pure love displayed\n\n[verse]\nFlowin' like the breeze at night\nShine ya soul so bright\nNo games no fight\nPure truth pure delight\n\n[chorus]\nSpeak it from the heart\nThat's where the magic starts\nNo need to tear apart\nJust love and be smart\n\n[verse]\nGroove in the vibe we tread\nLight as a feather no dread\nWords we mean we said\nHonesty colors us red\n\n[verse]\nUnder the moon and stars\nSimple honest hearts\nNo walls no scars\nThriving like coral bars\n\n[bridge]\nFeel it in the rhythm babe\nTrue words cascade\nNo charades no shade\nJust pure love displayed\n\n[chorus]\nSpeak it from the heart\nThat's where the magic starts\nNo need to tear apart\nJust love and be smart",
+ "sections": [
+  {
+   "text": "[verse]\nHear the beat feel the start\nWords pourin' straight from the heart\nNo need to play a part\nTruth in the light where we dart\n",
+   "f0": 0,
+   "f1": 948,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nFlowin' like the breeze at night\nShine ya soul so bright\nNo games no fight\nPure truth pure delight\n",
+   "f0": 948,
+   "f1": 1279,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nSpeak it from the heart\nThat's where the magic starts\nNo need to tear apart\nJust love and be smart\n",
+   "f0": 1279,
+   "f1": 1748,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nGroove in the vibe we tread\nLight as a feather no dread\nWords we mean we said\nHonesty colors us red\n",
+   "f0": 1748,
+   "f1": 2098,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nUnder the moon and stars\nSimple honest hearts\nNo walls no scars\nThriving like coral bars\n",
+   "f0": 2098,
+   "f1": 2739,
+   "eoa": true
+  },
+  {
+   "text": "[bridge]\nFeel it in the rhythm babe\nTrue words cascade\nNo charades no shade\nJust pure love displayed\n",
+   "f0": 2739,
+   "f1": 3235,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nFlowin' like the breeze at night\nShine ya soul so bright\nNo games no fight\nPure truth pure delight\n",
+   "f0": 3235,
+   "f1": 4024,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nSpeak it from the heart\nThat's where the magic starts\nNo need to tear apart\nJust love and be smart\n",
+   "f0": 4024,
+   "f1": 4995,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nGroove in the vibe we tread\nLight as a feather no dread\nWords we mean we said\nHonesty colors us red\n",
+   "f0": 4995,
+   "f1": 5996,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nUnder the moon and stars\nSimple honest hearts\nNo walls no scars\nThriving like coral bars\n",
+   "f0": 5996,
+   "f1": 6000,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4243
+ }
+}

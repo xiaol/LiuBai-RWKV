@@ -1,0 +1,73 @@
+{
+ "id": "07be3653-31d4-4edc-9560-f0e8ec72599a",
+ "title": "Ay, Qué Calor x Ay, Qué Calor (Mashup) (Mashup)",
+ "style": "breakbeat",
+ "lyrics": "[style: mutant summer tropical fusion. spanish summer party anthem inspired by classic spanish summer music from the 70s and 80s with tropical carnival energy. blend festive tropical pop, spanish fiesta rhythms, acoustic guitars, brass sections, handclaps, latin percussion and modern mutant electronic production. preserve the authentic summer song feeling while adding futuristic glitch textures, powerful bass, energetic electronic layers and unexpected sonic details. . melodic identity: extremely catchy summer melody with simple sing-along hooks, joyful tropical harmonies, humorous melodic phrases and an unforgettable chorus feeling. nostalgic, festive and instantly recognizable. . lead vocal: one male lead singer with a powerful, charismatic and playful summer entertainer voice. deep energetic tone, expressive rhythmic delivery, humorous attitude and strong crowd interaction feeling. inspired by classic spanish summer singers and tropical party performers without imitation. emotional direction: bright, ironic, warm and human. a joyful summer atmosphere with hidden emotional depth. the sound must celebrate solidarity, courage and community while keeping a fun party spirit. production: organic summer instrumentation combined with modern electronic mutation. live-feeling percussion, bright brass, warm guitars, punchy bass, playful synthesizers, festive crowd energy and a polished but not artificial mix. avoid dark or aggressive production. keep the feeling of a huge spanish summer celebration with a futuristic twist.]\n\n[intro: tropical percussion, playful brass, beach atmosphere and a funny summer announcer feeling.]\n\n¡Que llegua el verano!\n¡Sin sombrilla, ni corazón!\n\n[verse 1: short catchy lines. introduce the hot summer, dry land and the idea that the problem is not only the sun.]\n\nEl verano viene caliente,\ncon crema y protección,\npero hay fuegos que no nacen\nsolamente del sol.\n\nLa tierra está cansada,\npidiendo atención,\ny hay manos que se levantan\ncuando llega la ocasión.\n\n[pre-chorus: build energy with claps, rising rhythm and a festive summer feeling.]\n\nQue suene la guitarra,\nque empiece la canción,\nque hay gente dando el alma\nsin pedir explicación.\n\n[chorus: big summer anthem. easy sing-along hook with irony and emotion.]\n\nAy, qué calor, qué calor,\nbaila todo el vecindario,\nque hay gente jugandose la vida\npor salvar lo nuestro\n\nAy, qué calor, qué calor,\nque no pare la canción,\nque viva quien da la cara\ncuando aprieta la situación.\n\n[verse 2: focus on neighbours, villages, children and solidarity. warm and human feeling.]\n\nLlegan mantas y comida,\nllega ayuda sin preguntar,\nllega un pueblo entero unido\ncuando toca colaborar.\n\nLos niños vuelven al juego,\nvuelve la imaginación,\nporque una sonrisa también\npuede apagar el temor.\n\n[breakdown: emotional section. reduce the music. focus on firefighters, ume and emergency workers fighting the fire.]\n\nCascos frente a las llamas,\nmiradas llenas de valor,\nhay quien protege la tierra\ncon sudor y corazón.\n\nAños detrás del fuego,\nsin buscar reconocimiento,\nson gigantes del verano\naunque no salgan en cuentos.\n\n[verse 3: emotional but warm. focus on rescuing animals and protecting every living creature affected by the fire.]\n\nNo solo apagan llamas,\nno solo salvan un hogar,\ntambién rescatan silencios\nque no saben cómo hablar.\n\nUn perro busca una mano,\nun burro quiere regresar,\nun ternero mira asustado\nsin saber dónde escapar.\n\nEntre humo y entre ceniza,\ncon paciencia y con amor,\ndan agua a quien tiene sed\ny refugio al corazón.\n\n[pre-final chorus: build back the summer energy with percussion, brass and crowd vocals.]\n\nQue suene fuerte la vida,\nque vuelva la ilusión,\nque hay héroes sin capa\ncon botas y corazón.\n\n[final chorus: maximum festive energy. massive crowd feeling and celebration of human and animal solidarity.]\n\nAy, qué calor, qué calor,\nque baile toda la plaza,\nque cuando llega la tormenta\nnadie abandona la casa.\n\nAy, qué calor, qué calor,\nque siga viva la voz,\nque quien salva una vida pequeña\ntambién salva lo mejor.\n\n[outro: funny tropical ending with carnival percussion, crowd singing and a final summer celebration phrase.]",
+ "sections": [
+  {
+   "text": "[style: mutant summer tropical fusion. spanish summer party anthem inspired by classic spanish summer music from the 70s and 80s with tropical carnival energy. blend festive tropical pop, spanish fiesta rhythms, acoustic guitars, brass sections, handclaps, latin percussion and modern mutant electronic production. preserve the authentic summer song feeling while adding futuristic glitch textures, powerful bass, energetic electronic layers and unexpected sonic details. . melodic identity: extremely catchy summer melody with simple sing-along hooks, joyful tropical harmonies, humorous melodic phrases and an unforgettable chorus feeling. nostalgic, festive and instantly recognizable. . lead vocal: one male lead singer with a powerful, charismatic and playful summer entertainer voice. deep energetic tone, expressive rhythmic delivery, humorous attitude and strong crowd interaction feeling. inspired by classic spanish summer singers and tropical party performers without imitation. emotional direction: bright, ironic, warm and human. a joyful summer atmosphere with hidden emotional depth. the sound must celebrate solidarity, courage and community while keeping a fun party spirit. production: organic summer instrumentation combined with modern electronic mutation. live-feeling percussion, bright brass, warm guitars, punchy bass, playful synthesizers, festive crowd energy and a polished but not artificial mix. avoid dark or aggressive production. keep the feeling of a huge spanish summer celebration with a futuristic twist.]\n",
+   "f0": 0,
+   "f1": 1500,
+   "eoa": false
+  },
+  {
+   "text": "[intro: tropical percussion, playful brass, beach atmosphere and a funny summer announcer feeling.]\n¡Que llegua el verano!\n¡Sin sombrilla, ni corazón!\n",
+   "f0": 1500,
+   "f1": 2050,
+   "eoa": true
+  },
+  {
+   "text": "[verse 1: short catchy lines. introduce the hot summer, dry land and the idea that the problem is not only the sun.]\nEl verano viene caliente,\ncon crema y protección,\npero hay fuegos que no nacen\nsolamente del sol.\n",
+   "f0": 2050,
+   "f1": 2441,
+   "eoa": true
+  },
+  {
+   "text": "[verse 1: short catchy lines. introduce the hot summer, dry land and the idea that the problem is not only the sun.]\nLa tierra está cansada,\npidiendo atención,\ny hay manos que se levantan\ncuando llega la ocasión.\n",
+   "f0": 2441,
+   "f1": 2827,
+   "eoa": true
+  },
+  {
+   "text": "[pre-chorus: build energy with claps, rising rhythm and a festive summer feeling.]\nQue suene la guitarra,\nque empiece la canción,\nque hay gente dando el alma\nsin pedir explicación.\n",
+   "f0": 2827,
+   "f1": 3523,
+   "eoa": true
+  },
+  {
+   "text": "[chorus: big summer anthem. easy sing-along hook with irony and emotion.]\nAy, qué calor, qué calor,\nbaila todo el vecindario,\nque hay gente jugandose la vida\npor salvar lo nuestro\n",
+   "f0": 3523,
+   "f1": 3922,
+   "eoa": true
+  },
+  {
+   "text": "[chorus: big summer anthem. easy sing-along hook with irony and emotion.]\nAy, qué calor, qué calor,\nque no pare la canción,\nque viva quien da la cara\ncuando aprieta la situación.\n",
+   "f0": 3922,
+   "f1": 4115,
+   "eoa": true
+  },
+  {
+   "text": "[verse 2: focus on neighbours, villages, children and solidarity. warm and human feeling.]\nLlegan mantas y comida,\nllega ayuda sin preguntar,\nllega un pueblo entero unido\ncuando toca colaborar.\n",
+   "f0": 4115,
+   "f1": 4431,
+   "eoa": true
+  },
+  {
+   "text": "[verse 2: focus on neighbours, villages, children and solidarity. warm and human feeling.]\nLos niños vuelven al juego,\nvuelve la imaginación,\nporque una sonrisa también\npuede apagar el temor.\n",
+   "f0": 4431,
+   "f1": 5105,
+   "eoa": true
+  },
+  {
+   "text": "[breakdown: emotional section. reduce the music. focus on firefighters, ume and emergency workers fighting the fire.]\nCascos frente a las llamas,\nmiradas llenas de valor,\nhay quien protege la tierra\ncon sudor y corazón.\n",
+   "f0": 5105,
+   "f1": 6000,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4244
+ }
+}

@@ -1,0 +1,67 @@
+{
+ "id": "07dd3b1c-d7e8-417c-8580-1a300efeea7e",
+ "title": "Curly Hair 12-24-25-c",
+ "style": "motown",
+ "lyrics": "Curly hair can make you a playa.\n\nQuinton has the curliest hair.\nhe got the O-highest offer\n\nSophileeta has long wavy hair,\nshe's  working hard to make the grade\n\nElls-a-bells works to make a Frozen shade\nAnd went from build-a-bear to extension hair,\n\nHolden has curls but got it cut to be a grown up\nbut he loved the waves\nyes he loved the waves\n\nSanderosa had his cut, and sometimes misbehaves\nbut grew out the curls to be a grownup.  - achieving the highest order of self employed.\nHighest order\n\nPaul liked to shave off all curls, but got burned when everyone loved their curls more.\nLoved their curls more.\n\nTara holds the mix together,\nShe just burns food.\nJust.\nBurns.\nFood!\n\nIt's all about the curls\nIts all about the curls",
+ "sections": [
+  {
+   "text": "[verse]\nCurly hair can make you a playa.\n",
+   "f0": 0,
+   "f1": 206,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nQuinton has the curliest hair.\nhe got the O-highest offer\n",
+   "f0": 206,
+   "f1": 418,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nSophileeta has long wavy hair,\nshe's  working hard to make the grade\n",
+   "f0": 418,
+   "f1": 596,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nElls-a-bells works to make a Frozen shade\nAnd went from build-a-bear to extension hair,\n",
+   "f0": 596,
+   "f1": 939,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nHolden has curls but got it cut to be a grown up\nbut he loved the waves\nyes he loved the waves\n",
+   "f0": 939,
+   "f1": 1136,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nSanderosa had his cut, and sometimes misbehaves\nbut grew out the curls to be a grownup.  - achieving the highest order of self employed.\nHighest order\n",
+   "f0": 1136,
+   "f1": 1367,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nPaul liked to shave off all curls, but got burned when everyone loved their curls more.\nLoved their curls more.\n",
+   "f0": 1367,
+   "f1": 1784,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nTara holds the mix together,\nShe just burns food.\nJust.\nBurns.\nFood!\n",
+   "f0": 1784,
+   "f1": 1995,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nIt's all about the curls\nIts all about the curls\n",
+   "f0": 1995,
+   "f1": 2867,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4244
+ }
+}

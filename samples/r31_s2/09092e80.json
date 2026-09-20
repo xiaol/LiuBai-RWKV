@@ -1,0 +1,43 @@
+{
+ "id": "09092e80-6332-4261-94e9-9e902926ecca",
+ "title": "Old Drama+mandolin",
+ "style": "mandolin",
+ "lyrics": "(Old drama, old script)\n(Pick it up and tell)\n(Watched many times)\n(A story of a person, thick lust..oh)\n\nA big drama, many episodes\nMeandering, twisting, reflection, benefits\nGrab power, set the drawing, as you please\nThe mind is crooked, never stop, reduce, let go\n\nA big drama, play according to the script\nDo it smoothly, as the master wishes\nAn old drama, play according to the flag\nSet the script, as you want it to be\n\nThe outside is bright, but the inside is dark\nIt seems that it is better than anything\nBut the rotten smell, wafts far away\nTrying to hide it, but can't hide it\n\nA big drama, see until it's disgusting\nThe writer is full of lust, desire, pride\nHas a heart that is completely dark\nWhen the end of life, sin will follow you..\n********************",
+ "sections": [
+  {
+   "text": "[verse]\n(Old drama, old script)\n(Pick it up and tell)\n(Watched many times)\n(A story of a person, thick lust..oh)\n",
+   "f0": 0,
+   "f1": 174,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nA big drama, many episodes\nMeandering, twisting, reflection, benefits\nGrab power, set the drawing, as you please\nThe mind is crooked, never stop, reduce, let go\n",
+   "f0": 174,
+   "f1": 669,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nA big drama, play according to the script\nDo it smoothly, as the master wishes\nAn old drama, play according to the flag\nSet the script, as you want it to be\n",
+   "f0": 669,
+   "f1": 859,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nThe outside is bright, but the inside is dark\nIt seems that it is better than anything\nBut the rotten smell, wafts far away\nTrying to hide it, but can't hide it\n",
+   "f0": 859,
+   "f1": 1452,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nA big drama, see until it's disgusting\nThe writer is full of lust, desire, pride\nHas a heart that is completely dark\nWhen the end of life, sin will follow you..\n********************\n",
+   "f0": 1452,
+   "f1": 2952,
+   "eoa": false
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4246
+ }
+}

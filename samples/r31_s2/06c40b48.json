@@ -1,0 +1,55 @@
+{
+ "id": "06c40b48-ec87-4eb5-8479-bf770bd2fd0e",
+ "title": "Your action reflects your love",
+ "style": "electric guitar",
+ "lyrics": "Your Actions Reflect Your Love\n\nVerse 1\nWords can comfort for a little while,\nBut your actions carried me every mile.\nWhen I was weak, you stood by my side,\nYou never left, you were my guide.\n\nPre-Chorus\nYou gave without asking for praise,\nYou lit my darkest days.\nYour kindness spoke louder than words,\nA love that truly could be heard.\n\nChorus\nYour actions reflect your love, my brother,\nA priceless gift like no other.\nYou lifted me when I couldn't stand,\nWith a faithful heart and helping hand.\nThank you for every sacrifice you've made,\nFor every prayer and every way you stayed.\nYour actions reflect your love so true,\nAnd I'll always be grateful to you.\n\nVerse 2\nYou believed in me when I had no hope,\nYou taught me how to dream and cope.\nEvery step you took to help me rise,\nShowed the love no words could describe.\n\nBridge\nMay God reward your faithful heart,\nAnd bless your life in every part.\nThe love you've shown will never fade,\nI'll remember every sacrifice you made.\n\nFinal Chorus\nYour actions reflect your love, my brother,\nYour kindness shines above all others.\nThank you for everything you've done for me,\nYour love has helped me become who I am today.\nForever grateful, forever proud,\nI'll speak your kindness strong and loud.\nYour actions reflect your love so true,\nMy brother, this song is dedicated to you.",
+ "sections": [
+  {
+   "text": "[verse]\nYour Actions Reflect Your Love\n",
+   "f0": 0,
+   "f1": 332,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nVerse 1\nWords can comfort for a little while,\nBut your actions carried me every mile.\nWhen I was weak, you stood by my side,\nYou never left, you were my guide.\n",
+   "f0": 332,
+   "f1": 671,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nPre-Chorus\nYou gave without asking for praise,\nYou lit my darkest days.\nYour kindness spoke louder than words,\nA love that truly could be heard.\n",
+   "f0": 671,
+   "f1": 1019,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nChorus\nYour actions reflect your love, my brother,\nA priceless gift like no other.\nYou lifted me when I couldn't stand,\nWith a faithful heart and helping hand.\nThank you for every sacrifice you've made,\nFor every prayer and every way you stayed.\nYour actions reflect your love so true,\nAnd I'll always be grateful to you.\n",
+   "f0": 1019,
+   "f1": 2174,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nVerse 2\nYou believed in me when I had no hope,\nYou taught me how to dream and cope.\nEvery step you took to help me rise,\nShowed the love no words could describe.\n",
+   "f0": 2174,
+   "f1": 2724,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nBridge\nMay God reward your faithful heart,\nAnd bless your life in every part.\nThe love you've shown will never fade,\nI'll remember every sacrifice you made.\n",
+   "f0": 2724,
+   "f1": 3362,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nFinal Chorus\nYour actions reflect your love, my brother,\nYour kindness shines above all others.\nThank you for everything you've done for me,\nYour love has helped me become who I am today.\nForever grateful, forever proud,\nI'll speak your kindness strong and loud.\nYour actions reflect your love so true,\nMy brother, this song is dedicated to you.\n",
+   "f0": 3362,
+   "f1": 4268,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4243
+ }
+}

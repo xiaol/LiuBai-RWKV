@@ -2,7 +2,32 @@
 
 Goal: a **pure RWKV-7 (attention-free) lyrics+style → song model**, following the YuE
 recipe (text → semantic audio tokens → acoustic rendering), trained on the 4×A100-40GB box.
-Project root: `/root/x/rwkv-music`. Written 2026-09-12.
+Project root: `/root/x/rwkv-music`. Written 2026-09-12. Chronological record: **`docs/STATUS_LOG.md`**.
+
+## Where we are (2026-09-20) — read this first
+
+**Live pipeline (all under `venvs/yue2` unless noted):** real Suno audio → MERT-v2 L12/16/20/23 → **R1-a inverse tokenizer**
+(`out/joint/v2/head_best.pt`, real-audio joint teacher) → YuE2 semantic tokens (25 Hz, 32,768) → **RWKV-7 3B stage-1** (rwkv_py312 env,
+vocab 98,816, ctx 8,192) → YuE2 NAR + R1-a LoRA + YuE2-Vae → 48 kHz stereo. Corpus in this space: 93,058 songs (`data/yue2_corpus/suno94k`),
+opus audio kept for 40k of them, lyric↔time alignment for those 40k (`data/lyric_align/fa`, MMS forced alignment, 600× realtime).
+
+| Piece | Best artefact | Gate result | Status |
+|---|---|---|---|
+| R1 inverse tokenizer | `out/joint/v2/{head,lora}_best.pt` (R1-a) | unseen real songs: WER vs original transcript 0.33 / MERT cos 0.981 (v4 head 0.50 / 0.971) | **accepted 2026-09-16**; v3 (22k real songs, online MERT) did not beat it |
+| G3 stage-1, whole-song format | `out/stage1_yue2/rwkv-final.pth` | audio WER vs lyrics 1.37, cos 0.80; teacher-forced: ignores the lyrics (shuffled − matched = 0.10 nats) | **negative** 2026-09-18 |
+| R3.1 stage-1, section format | `out/stage1_sec/rwkv-final.pth` | teacher-forced binding appeared (permuted − matched 0.0005 → 0.106); audio WER 1.05, lyric-word overlap 10 % (G3 7 %, original 80 %), cos 0.79 | **better, still no lyric adherence** 2026-09-20 |
+| R2 NAR LoRA, R4 GRPO, R5 audio ops, R6 length, R7 ABC | – | – | not started |
+
+**Open decision (R3.2, see last entry of `docs/STATUS_LOG.md`):** line-level interleaving, higher LR / more epochs, section-only data; and,
+if the transcript overlap stays under ~30 %, an enforced objective (ASR/CTC reward on rendered audio or the joint teacher's flow loss).
+Also cheap and not yet done: align the other 53k songs (their audio was not kept; re-streaming is network-bound, ≈ 13 min/shard).
+
+**What in this document is stale (kept for the record, do not execute):** §1–§3 describe the X-Codec cb0 pipeline (frozen 2026-09-15,
+`out/stage1/step-20000.pth`); §2.3's section format is now implemented in YuE2 token space with **SOS = 65541**
+(`scripts/yue2_layout.py`, `scripts/build_yue2_sec_binidx.py`); §4's YuE1 renderer is dropped; §5's "section alignment via
+HeartTranscriptor" is done another way (MMS forced alignment, `tools/lyric_align_fa.py`; the Whisper aligner is 50× slower);
+§7.1 B2/B4 are done (G1); §8.3 R3's "lyric cursor" is not built; §8.4's G3 row has a negative result; §8.6's schedule is history.
+Disk is at 97 % (≈ 28 GB free); backups under `/models/rwkv-music/`.
 
 ## 0. Decisions already made (and why)
 
@@ -10,8 +35,8 @@ Project root: `/root/x/rwkv-music`. Written 2026-09-12.
 |---|---|---|
 | Backbone | RWKV-7, no attention layers | fits WKVM state-native engine; fixed-size state; user preference |
 | Init | continue-pretrain **rwkv-g1k-3b-temp-5441.pth** (in-progress g1k data run, L32-D2560, world vocab 65536; from `BlinkDL/temp-latest-training-models`) — user's choice 2026-09-12. `rwkv7-g1j-2.9b-20260831` is downloaded as the released fallback | competitive from scratch is impossible on 4 GPUs. Caveat: the temp checkpoint is mid-training (step 5441) and will be superseded; record its filename in every run config |
-| Audio tokens | **Current run:** X-Codec cb0 (YuE1 `m-a-p/xcodec_mini_infer`, Apache-2.0): 16 kHz, 50 Hz, 1024 entries; codebooks 0–7 kept on disk. **Target:** YuE2 semantic tokens (25 Hz, 32,768 entries, ids `151853..184620` in YuE2's vocab), reached by *distilling an inverse tokenizer* (§7 Track B), because YuE2 ships no audio→token encoder | X-Codec is the only open song tokenizer with a released encoder. YuE2 / HeartMuLa / MiniMax ship generators only: their AR models emit semantic tokens from text, no audio→token encoder, so their token spaces cannot be used as a training target without §7. YuE2's NAR only renders YuE2 tokens; X-Codec and YuE2 token spaces are unrelated (vocab, rate, meaning), no adapter exists. YuE2-Vae does include an encoder, but it yields continuous 64-dim latents, not tokens |
-| Renderer (stage-2) | **target = YuE2 quality (48 kHz stereo)**: YuE2 NAR + YuE2-Vae via Track B in §7, or own NAR → YuE2-Vae via Track A. YuE1 `YuE-s2-1B-general` + X-Codec/Vocos stays as the 16 kHz **baseline** for the current cb0 run | user decision 2026-09-14: YuE2-level output is the goal, experiments first |
+| Audio tokens | **Product token space = YuE2 semantic tokens** (decision 2026-09-15, §8.6). The X-Codec cb0 stage-1 run is **frozen at step 20,000** (`out/stage1/step-20000.pth`, kept as the R3 init candidate); cb0 tokens (codebooks 0–7, `data/tokens/suno94k`) stay on disk as a baseline. **Target:** YuE2 semantic tokens (25 Hz, 32,768 entries, ids `151853..184620` in YuE2's vocab), reached by *distilling an inverse tokenizer* (§7 Track B), because YuE2 ships no audio→token encoder | X-Codec is the only open song tokenizer with a released encoder. YuE2 / HeartMuLa / MiniMax ship generators only: their AR models emit semantic tokens from text, no audio→token encoder, so their token spaces cannot be used as a training target without §7. YuE2's NAR only renders YuE2 tokens; X-Codec and YuE2 token spaces are unrelated (vocab, rate, meaning), no adapter exists. YuE2-Vae does include an encoder, but it yields continuous 64-dim latents, not tokens |
+| Renderer (stage-2) | **target = YuE2 quality (48 kHz stereo)**: YuE2 NAR + YuE2-Vae via Track B in §7, or own NAR → YuE2-Vae via Track A. YuE1 `YuE-s2-1B-general` + X-Codec/Vocos was the 16 kHz baseline path for the cb0 run; **dropped 2026-09-15** with the cb0 run (§8.6) | user decision 2026-09-14: YuE2-level output is the goal, experiments first; 2026-09-15: focus on the SOTA RWKV model, R1 inverse tokenizer is the critical path |
 | Corpus | `webshart/suno-various-94k` original config (94,174 songs, style caption + structured lyrics) as primary; `humair025/suno-audio` (49.7k, MIT) and MTG-Jamendo (55k real tracks, tags) as secondary | only corpora with aligned lyrics+tags+full songs reachable from this host |
 | License | **deferred** (user 2026-09-14: experiments first, do not let licensing block them). Record: YuE2-3B / YuE2-Vae / YuE2-Vae-legacy / MERT-v2 are CC BY-NC 4.0; X-Codec, YuE1 s2, RWKV-7 are Apache-2.0 | **the RWKV song model is intended to be open source**, so re-check this row before any public release: a release that depends on YuE2 weights needs a permissively licensed replacement renderer first (§5) |
 | Storage | stream shards: download → tokenize → delete audio; keep tokens + metadata only | 454 GB of MP3 vs 497 GB free disk; tokens are ~140 KB/song |
@@ -267,7 +292,7 @@ Components and what each buys over YuE2 / Suno v6:
 
 - **R1 Inverse tokenizer (ours, better than v4).** Input: MERT-v2-FullSong layers {12, 16, 20, 24} (learned layer weights), 25 Hz. Model: bidirectional RWKV-7 or chunk transformer, ~100 M params, 40 s windows, soft-CE over minted labels + **NAR flow-loss teacher** on real audio (straight-through tokens, as `joint.py`). Train data: minted corpus (4.7k) + our own YuE2 minting from suno-94k captions (5k, `cot="off"`, 2 GPUs × 1 day) + real Suno audio for the teacher term. Gate: top-1 > 16 % on minted val, and round-trip CLAP/PER on 50 real Suno songs within 10 % of the originals. This gives us *audio input*, which YuE2 lacks.
 - **R2 Renderer adaptation (the acoustic-quality lever).** LoRA (rank 32–64) on YuE2's NAR branch + `vae2llm`/`llm2vae`, trained on **real Suno latents** (`YuE2VAE.encode` of suno-94k/humair025) with tokens from R1. Suno renders are mastered, stereo-wide commercial-grade mixes; YuE2's NAR learned from whatever it was trained on and scores below Suno v5 on MuLan/AllMusicCaps. Measure with SongEval on identical token sequences: base NAR vs LoRA NAR. Also distil the 32-step midpoint solver to 8 steps (consistency / rectified-flow distillation) for streaming latency.
-- **R3 Stage-1 RWKV-7 3B in YuE2 token space (replaces the cb0 model as the product).** Data: 145k real songs (suno-94k + humair025) tokenized by R1 + 4.7k minted + our minted 5k + Jamendo instrumentals; ≈ 4.5k audio tokens per 3-min song → ctx 8,192 holds text + song; ~700 M audio tokens/epoch. Init from cb0 `rwkv-final` (structure and lyric conditioning transfer; codec rows re-initialised). Format extends §2.3: `[Genre]…[Lyrics]… <EOD> <SOA><yue2codec> tokens <EOA>`, plus, once timestamps exist, YuE-style interleaved sections. **Lyric cursor:** HeartTranscriptor word timestamps on the vocal stem → per-frame index of the lyric token being sung → small auxiliary head (weight 0.05–0.1); Mothersuperior found this necessary to stop lyric drift when fine-tuning YuE2's AR, and PER is the metric where Suno leads.
+- **R3 Stage-1 RWKV-7 3B in YuE2 token space (replaces the cb0 model as the product).** Data: 145k real songs (suno-94k + humair025) tokenized by R1 + 4.7k minted + our minted 5k + Jamendo instrumentals; ≈ 4.5k audio tokens per 3-min song → ctx 8,192 holds text + song; ~700 M audio tokens/epoch. Init from cb0 `step-20000.pth` (run frozen 2026-09-15, §8.6; structure and lyric conditioning transfer; codec rows re-initialised) — or from `rwkv-init.pth` if a 500-step probe from both inits shows no transfer benefit. Format extends §2.3: `[Genre]…[Lyrics]… <EOD> <SOA><yue2codec> tokens <EOA>`, plus, once timestamps exist, YuE-style interleaved sections. **Lyric cursor:** HeartTranscriptor word timestamps on the vocal stem → per-frame index of the lyric token being sung → small auxiliary head (weight 0.05–0.1); Mothersuperior found this necessary to stop lyric drift when fine-tuning YuE2's AR, and PER is the metric where Suno leads.
 - **R4 Preference optimisation (bake in best-of-8).** GRPO/DPO on stage-1 with rewards computed on 30–45 s rendered excerpts (R2 renderer at 8 steps): SongEval musicality, caption similarity (MuLan/CLAP-style, MERT-v2 embedding vs caption-embedding probe), PER via HeartTranscriptor, plus a KL to the SFT model. YuE2's best-of-8 lifts SongBench 6.73 → 6.96; a policy that gets that on sample 1 is our clearest single-number win. The user already has a GRPO pipeline (RNN-StateTuning) to adapt.
 - **R5 Audio-conditioned operations (Suno v6 features, YuE2 lacks them).** Continue/extend: tokens of the input → state → generate. Cover/remix: input tokens as ICL prompt + new style tags. **Section edit:** train with an `<edit>` format (prefix tokens, `<section:chorus 2>` spec, new instruction, suffix tokens visible via a second pass) so one section is regenerated with both sides fixed; at inference restore the state snapshot from the section start (WKVM) instead of re-prefilling. Mashup: two inputs → interleaved ICL prompt.
 - **R6 Length and streaming.** No positional limit; NAR already runs in chunks. Target demo: a 12-minute song and a live stream at < 1× realtime on one A100 (RWKV 3B ≈ 40 tok/s needed; 25 tok/s is realtime).
@@ -285,7 +310,7 @@ Components and what each buys over YuE2 / Suno v6:
 | G5 | R5/R6 features: continuation, cover, section edit format (fine-tune 0.5 epoch with edit documents), 12-min demo, WKVM serving with state snapshots. | 2 × A100, 3 days | demos + latency table |
 | G6 | Evaluation on all 192 WildSongBench prompts with SongEval + PER (HeartTranscriptor) against YuE2 (same renderer) and Suno v6 samples from the public demo set; write-up. | 1 × A100 | report |
 
-Ordering constraint: the cb0 stage-1 run 2 owns all 4 GPUs until ~2026-09-15 21:30. G0 needs one GPU (YuE2 peak 11–14 GiB; our GPUs have 13–15 GB free next to the 25–27 GB trainer) — **G0 can start alongside training** if the trainer's headroom holds; watch for OOM. G1 downloads are network-bound and can start now with VAE/MERT encode on the shared GPU.
+Ordering constraint (superseded 2026-09-15): the cb0 stage-1 run 2 was stopped at step 20,350 (§8.6); **all 4 GPUs belong to §8 work now.** G0 is done (gate passed, §9 2026-09-14 21:30). Current allocation is in §8.6.
 
 ### 8.5 Risks (honest)
 
@@ -295,80 +320,107 @@ Ordering constraint: the cb0 stage-1 run 2 owns all 4 GPUs until ~2026-09-15 21:
 - **Stage-1 stability.** Run 2 hit a second non-finite loss at step 6,057 (LR 5.4e-5, well below run 1's 9.4e-5), supervisor resumed from `step-6000.pth` within one minute. Two NaNs at different LRs point at a kernel/data edge case rather than LR alone; before G3, test the head-CE kernel at vocab 98,816 and add per-step grad-norm logging so the trigger can be found.
 - **Compute.** Total plan ≈ 10 GPU-days on 4 A100s after the cb0 run; nothing here needs more than 40 GB per GPU (YuE2 3B in bf16 + LoRA training fits 24 GB; RWKV 3B at ctx 8k with ZeRO-2 fits as today).
 
+### 8.6 Re-focus (2026-09-15): the product is R3, the critical path is R1, the cb0 run is frozen
+
+**User decision (2026-09-15):** we are on the YuE2 pipeline; the goal is the SOTA RWKV music model, so
+focus on the inverse tokenizer (R1) and stop spending GPUs on the X-Codec cb0 stage-1 run.
+
+**Why the cb0 run stops here (stopped 21:26 at step 20,350, last save `step-20000.pth`, 1.33 B tokens, loss ≈ 3.0):**
+- Its product (cb0 tokens → YuE1 stage-2, 16 kHz) is the §4 baseline, not the model we ship. R3 uses it only
+  as an init and re-initialises the codec rows, so what transfers is the text→song-structure conditioning in
+  the body; `step-20000.pth` at LR 1.2e-5 on the cosine tail carries that as well as `rwkv-final` would have.
+  The remaining 0.36 B tokens at LR ≤ 1.2e-5 would have cost ≥ 12 h × 4 GPUs for a few hundredths of a nat.
+- Sharing GPUs cost both sides: the trainer ran at 5–9 k tok/s instead of 12.6 k, and R1 jobs ran at 30–50 %.
+- Kept: `step-20000.pth` (R3 init candidate), `step-19000.pth`, `rwkv-0.pth` (10,080-step epoch save),
+  `rwkv-init.pth` (resized g1k). Deleted `nan-rwkv-0.pth`. `rwkv-onepass.pth` can go too (duplicate of rwkv-0).
+  Resume, if ever wanted: `scripts/train_stage1.sh` picks the newest `step-N.pth`.
+- Three non-finite-loss kills at LR 1e-4 / 5.4e-5 / 2.0e-5 (steps 4,645 / 6,057 / 17,323): the trigger is not
+  the LR. Before G3: per-step grad-norm logging, a bf16 overflow guard (skip step on non-finite grad), and the
+  head-CE kernel test at vocab 98,816 (§8.5).
+
+**Is the data enough for R1? Measured so far:**
+
+| head | train tracks | held-out top-1 (minted) | 20 real songs: WER vs lyrics / MERT cos |
+|---|---:|---:|---|
+| Mothersuperior v4 | 4,765 | 16.1 % | 0.48 / 0.97 |
+| R1 v1 | 595 | 7.1 % (overfit after step 1,750) | 0.52 / 0.96 |
+| R1 v2 (`out/inverse_tok/v2/best.pt`) | 4,984 (4,720 corpus + 264 own) | **16.4 %** at step 20k, flat from 17k | **0.70 / 0.93** (`logs/yue2_roundtrip_r1v2_n20.log`) — worse than v1 |
+
+- **Minted exact match does not transfer to real audio.** v2 matches v4 on minted val (16.4 vs 16.1 %) yet on
+  real Suno songs it is far worse than v4 (WER 0.70 vs 0.48, cosine 0.93 vs 0.97) and worse than v1 (0.52 /
+  0.96); its real flow loss at joint step 0 is 1.216 vs 1.148 for v1. Reading: 20k steps on minted-only
+  audio (YuE2 renders) with dropout/time-masking fit the *minted MERT feature distribution*; real Suno audio
+  is out of that distribution. v4 generalises because it was trained jointly with the real-audio flow loss.
+  **Consequence: the real-audio joint teacher is mandatory for R1, and minted-val top-1 is only a grammar
+  sanity check, not a selection metric. Select heads by the 20-song real round trip and the real held-out
+  flow loss.** Regularised minted-only pretraining may still hurt: compare joint runs from the v2 and v1 inits
+  (`out/joint/v2`, `out/joint/v1b`).
+- Exact match scales with the number of *distinct* token sequences: 8.4× the tracks (v1 → v2) gave 2.3× the
+  top-1, and with the same ~5k tracks as v4, v2 lands at v4's number. More minted songs raise it; on a
+  dedicated A100 minting runs at **≈ 50 s per song (≈ 1,700 songs per GPU-day)**, not the 2.5 min measured
+  beside the trainer, so 10k songs ≈ 1.5 days on 4 GPUs — affordable, but by the point above it is the
+  secondary lever (CE anchor / grammar), not the one that fixes real audio.
+- Exact match is a proxy. What the product needs is (1) tokens from *real* Suno audio that the NAR renders
+  faithfully (round-trip WER/PER + MERT cosine, later SongEval) and (2) R3 trained on those tokens producing
+  songs the NAR renders well. Objective (1) is optimised directly by the **joint teacher**
+  (`scripts/train_joint_teacher.py`: head → straight-through codec embeddings → frozen YuE2 AR+NAR (+LoRA) →
+  flow-matching loss against the song's true VAE latents). Real Suno audio is unlimited (94k songs); minted
+  soft-CE stays as the grammar anchor.
+- The real constraint is **disk, not data:** 146 GB free; stored MERT L12/16/20/23 features cost 38 MB per song
+  (33 GB per ~850-song shard; `data/yue2_minted/tracks` alone is 171 GB), so at most 2–3 more real shards fit.
+  Fix: **online MERT** in the joint trainer — decode the stored latent with YuE2-Vae (or read the tar audio) and
+  run MERT-v2-FullSong on the fly; then only latents (1.8 MB/song) + prefix live on disk and all 94k songs are
+  usable. Normalisation: per-track stats from a full-track MERT pass per song per step (≈ 0.5 s on an A100) or
+  global stats (`logs/mert_stats.log`); retrain v2 with global stats to check the top-1 cost before switching.
+- Cheap minted augmentation (no AR): re-render the 4,720 corpus token sequences with new NAR seeds (≈ 15 s/song)
+  → same tokens, new audio; attacks v1-style overfitting but adds no token diversity. Second priority.
+
+**Running since 2026-09-15 21:30 (4 GPUs, no trainer):**
+- GPU 0: joint teacher from the v2 head, real shards 0–1 (1,697 songs), 6k steps → `out/joint/v2`, `logs/train_joint_v2head.log`.
+- GPU 1: v2 head round trip on the 20 real songs + eval → done 21:50 (`logs/yue2_roundtrip_r1v2_n20.log`, variant `lora_r1_v2_s32`, result in the table above); then the control joint run from the v1 head → `out/joint/v1b`, `logs/train_joint_v1bhead.log`.
+- GPUs 2–3: `yue2_mint.py --n 300` from suno shards 2 and 3 (seed bases 2000/3000; 246 + 262 songs after the length filter) → `data/yue2_minted_own/`, ≈ 50 s/song → done ~01:30; MERT extraction (`tools/yue2_extract_mert.py`) afterwards.
+
+**Joint-teacher results (2026-09-16 00:40; 6k steps, real shards 0–1, minted anchor; each head rendered with its own NAR LoRA, 32 steps):**
+
+| head | shard 0, 20 songs (seen in joint training): WER vs orig transcript / vs lyrics / cos | **shard 2, 20 unseen real songs:** WER vs orig / vs lyrics / cos | 10 fresh minted: WER vs orig / cos |
+|---|---|---|---|
+| originals (ASR floor) | – / 0.22 / – | – / 0.47 / – | – |
+| true tokens (ceiling) | – | – | 0.35 / 0.996 |
+| v4 head + v4 LoRA | 0.44 / 0.48 / 0.968 | 0.50 / 0.60 / 0.971 | 0.38 / 0.994 |
+| **joint v2** (`out/joint/v2/{head,lora}_best.pt`) | **0.29 / 0.34 / 0.980** | **0.33 / 0.52 / 0.981** | **0.38 / 0.994** |
+| joint v1b (`out/joint/v1b`) | 0.39 / 0.44 / 0.971 | 0.45 / 0.60 / 0.974 | 0.47 / 0.988 |
+| v2 minted-only | 0.67 / 0.70 / 0.933 | – | – |
+
+Logs: `logs/yue2_roundtrip_eval_joint_n20.log`, `logs/yue2_roundtrip_eval_s2.log`, `logs/yue2_roundtrip_eval_ceil10.log`; audio under `out/yue2_roundtrip{,_s2,_ceil10}/`. Shard-2 originals transcribe badly (WER 0.47 vs lyrics, several non-English / screamed songs), so compare *relative to the original's transcript*: joint v2 loses 0.33 there where v4 loses 0.50 — a third less lyric damage, and on unseen audio. On minted songs joint v2 ties v4 and sits 0.03 above the true-token ceiling. **Gate passed → R1-a = joint v2.** Two lessons: (1) minted pretraining *then* real-audio teacher is the right order (v2 init beats v1 init by 0.12 WER although v2 alone was the worst head); (2) 1.7k real songs and 6k steps already beat v4's 4.7k-song joint run, so more real audio and longer joint training are the obvious next lever, not more minting.
+
+**Online MERT: what works and what does not (2026-09-16 morning, `scripts/online_mert.py`):**
+- *VAE.decode(latent) → MERT does **not** reproduce real-audio features.* On 4 real songs, frame-level cosine
+  between stored (real audio) and decoded-latent features is 0.59–0.65 at layers 12/16, 0.70 at L20, 0.80 at L23
+  (1-s-smoothed: 0.88–0.96, so the slow content agrees, the fine frame detail does not); the R1-a head's tokens agree
+  on only **9–14 % of frames**. The VAE round trip is a different acoustic domain for MERT. Latents-only storage is
+  therefore not enough for the real-audio teacher; the head must see MERT of the *real* audio.
+- *Opus at ~80 kbps keeps the features.* Recomputing MERT from the original mp3 reproduces 99.2 % of the tokens;
+  from 24 kHz mono opus at libsndfile compression_level 0.7 (~80 kbps, **≈ 2.3 MB per song**) 79–80 %; at 0.25
+  (~130 kbps, 4–6 MB) 96 %; at 0.9 (~20 kbps, 0.5 MB) 50 %. The 80 % level is a mild augmentation, not a domain
+  shift, and 36 shards × ~2.6 GB fit the disk → **G1 now stores `shard-NNNNN.audio/<id>.opus` for shards 1–18 and
+  43–60** (`prepare_suno94k_yue2.py --audio-shards`), i.e. ≈ 40k real songs for the teacher, 40× the stored-feature set.
+- `scripts/train_joint_online.py` = the joint teacher with a producer thread that computes MERT on the GPU from
+  opus (or, with `--require-opus 0`, from decoded latents), 2 windows per decoded song, G1 shards re-scanned every
+  250 steps while G1 is still running, shards 0–2 excluded (test material). Eval unchanged (8 stored-feature
+  held-out real tracks + minted val) so numbers stay comparable with `out/joint/v2`.
+- Disk: stored MERT features for corpus tracks 1,501–4,720 deleted (111 GB freed; latents/semantic kept,
+  regenerable with `tools/yue2_extract_mert.py`); the v3 run uses the remaining 1,500 for the minted CE anchor.
+
+**Gates (concrete, as set before the runs):** R1 head "R1-a" is accepted when it beats v4 on the 20 real songs (WER vs lyrics < 0.44 with
+cosine ≥ 0.97) *and* on the 5 minted songs of the true-token ceiling test (WER 0.36 → toward 0.20). Then freeze
+it, start G1 with it (tokens + latents for suno-94k; latents are head-independent, tokens can be redone), then G3.
+
+**Near-term schedule:**
+- 09-15 night: the four jobs above.
+- 09-16: online-MERT joint trainer; latents-only prep of real shards 2–4; evaluate the joint-v2 head on the 20 songs and the ceiling test; pick R1-a or iterate (more real data via online MERT first, minting second).
+- 09-17 → 18: G1 with R1-a on 2 GPUs (network-bound, ~13 min/shard); R2 LoRA vs base NAR on 100 held-out token sequences on the other 2.
+- 09-19 → 21: G3 (R3 stage-1 v2, 4 GPUs, 2–3 days) from `step-20000.pth` or `rwkv-init.pth` (500-step probe decides); then G4–G6 as in §8.4.
+
 ## 9. Status log
 
-- **2026-09-12** Shard 0 of suno-94k tokenized: 1,135 clips, 0 failures, 64.4 h audio, 12.8 min
-  on one A100 (302× realtime), 177 MiB npz. Stats: median song 203 s (10.2k cb0 tokens), p95 327 s
-  (16.4k tokens → exceeds a 16k context: truncate or drop >5 min songs for stage-1), lyrics
-  median 1,072 chars, script mix 85 % Latin / 6 % Cyrillic / 6 % CJK, 5,054 distinct caption tags
-  in one shard, 10 % of songs share exact lyrics with another song (dedupe by lyric hash), 1,091
-  distinct creators (no creator dominates). Full run launched: shards 1–42 on GPU 0, 43–84 on GPU 1
-  (`logs/prep_suno94k_gpu{0,1}.log`); expected ≈ 9–10 h. Tokens ≈ 15 GB total, tars deleted as they finish.
-- **2026-09-12 22:15** Progress check: 19/85 shards done (0–9, 43–52), 0 clip failures, 13.2 min tokenize
-  per shard, but the wall-clock cycle was 21–23 min and rising because the worker downloads each tar
-  serially and the HF CDN edge degraded to <1 MB/s (see §0 caveat). Pinned the fast edge in `/etc/hosts`
-  (≈100 MB/s per download again) and launched `scripts/prefetch_shards.py`. Remaining 66 shards at the
-  13-min tokenize cycle → done ≈ 05:30 on 2026-09-13. Disk: 467 GB free, steady-state raw audio <25 GB;
-  user will mount additional disk before the humair025 / MTG-Jamendo phases. Leftover from the shard-0
-  test run: `data/raw/suno94k/suno-various-94k-00000.tar` (5.4 GB), safe to delete.
-- **2026-09-13 09:20** Overnight run finished 80/85 shards with 0 clip failures (14 GB of npz). Shard 84 is
-  the half-size last shard (570 clips; index lists 1,140 files = mp3+json pairs), not a truncation. Shards
-  28, 29, 71, 72, 73 were skipped: a ~1 min CDN blip around 03:15 made the worker's own `download()`
-  exhaust its 3 retries (10/20/30 s backoff) before the prefetcher had those tars. Relaunched
-  `run_all_shards.sh` (resumable; now appends to logs instead of truncating — the overnight log text was
-  lost to the old `>`), GPUs 0/1 back at 100 %; expected complete ≈ 10:05. Prefetcher still running and
-  will exit on its own. Follow-ups: raise worker download retries / backoff, then `dataset_report.py`.
-- **2026-09-13 14:00** suno-94k complete: 85/85 shards, 94,174 songs, 0 failures, 5,423 h, 976 M cb0
-  tokens, 15 GB npz, all arrays validated. Full-corpus stats: duration p50 205 s / p95 334 s, 8,819 songs
-  > 300 s, 817 < 30 s; lyrics 87 % Latin / 5.5 % Cyrillic / 5.6 % CJK; ~11.7k instrumental-only; 53k
-  creators (top share 0.5 %); Suno versions auk 37 % / fenix 34 % / crow 16 %. Stage-1 manifest:
-  84,500 kept (dropped 8,819 too long, 817 too short, 38 over ctx), **train 83,714 songs / 4,500 h /
-  845 M tokens (810 M cb0 + 35 M text)**, val 775 songs / 7.8 M tokens (11 removed for lyric overlap
-  with train). Doc length p50 10,343 / p95 14,633; text p50 395 tokens. binidx written and spot-checked
-  (decoded text == manifest text, cb0 == npz, control tokens in place). `magic_prime` train = 51,563,
-  val = 467. Download retries in `prepare_suno94k.py` raised 3 → 10. Shard-0 test tar deleted.
-  **Next (phase 3):** resize the g1k checkpoint to vocab 67,072 (`scripts/resize_vocab.py`, to write),
-  then a smoke run of RWKV-LM `train.py` on 4 GPUs: `--data_type binidx --vocab_size 67072 --ctx_len 16384
-  --magic_prime 51563`, note that `epoch_steps × real_bsz` must equal 40,320 (RWKV-LM assert), so with
-  4 GPUs × micro_bsz 1 use `--epoch_steps 10080`. The extra corpora (humair025, MTG-Jamendo) wait for
-  the additional disk the user is mounting.
-- **2026-09-13 16:15 Stage-1 training launched** (`scripts/train_stage1.sh 0,1,2,3`, log
-  `logs/train_stage1_20260913_160907.log`, per-step loss in `out/stage1/step_log.txt`: columns
-  step, loss, lr, kt/s, Gtokens, time). Getting there took: pytorch-lightning 1.9.5 + deepspeed 0.16.9
-  install, `resize_vocab.py` (emb/head → 67,072 rows), and four local patches to RWKV-LM train_temp
-  (LoRA-dim env overrides, sm_80 atomics in 3 kernels, compile-time vocab for the chunked head-CE kernel,
-  step logging in `trainer.py`; originals saved as `*.orig`, details in §3). Two false starts: the first
-  launch died on the head-CE kernel's hard-coded vocab 65,536; the second ran but logged nothing per step.
-  Measured: 4 × A100, micro_bsz 1, ctx 16,384, ZeRO-2 + grad_cp + head_chunk 65,536 → **25.6–27 GB per GPU,
-  12.6 k tokens/s total (5.2 s per 65,536-token step)**. That is ≈ 18.6 h per pass over the 845 M-token
-  train set and ≈ 37 h to the 1.69 B-token cosine horizon (`rwkv-final.pth`); first checkpoint
-  `rwkv-0.pth` after 10,080 steps ≈ 14.5 h. Loss: 16.4 at step 1 → 11.8 at step 10 (new head rows learning
-  the audio unigram), no NaN. Speed levers if wanted later: micro_bsz 2 (memory headroom ~13 GB), the
-  `@rwkv3` kernel variant, or dropping grad_cp on the last layers. To watch: `tail out/stage1/step_log.txt`;
-  to resume after a crash: rerun `train_stage1.sh` (train_stage 3 picks the newest `out/stage1/rwkv-*.pth`).
-  **Next:** an eval script over `data/binidx/suno94k_stage1_val` (cb0 loss by position, text vs audio) to
-  run on `rwkv-0.pth`, then a 20-song generation sweep through YuE1 stage-2 + X-Codec decode (§4).
-- **2026-09-14 08:30 Run 1 diverged; run 2 launched.** Loss fell 16.4 → 6.1 (step 60) → 4.5 (first 500)
-  → 3.30 (steps 3500–4640, still improving), then **NaN at step 4645** (23:00) with no spike beforehand
-  (max loss after step 1000 was 3.89) and nothing unusual in the 36 windows around it (checked token ids,
-  runs, text/audio mix). LR was 9.4e-5, just past the 1e-4 peak. bf16 ZeRO-2 has no overflow skip, so one
-  inf gradient turned 1,059/1,062 tensors NaN; the run then burned 9 h producing NaN (moved to
-  `out/stage1/nan-rwkv-0.pth`, no usable checkpoint — the only save was the 10,080-step epoch save).
-  Fixes for run 2: peak LR **6e-5 → 6e-6**; `trainer.py` saves `step-N.pth` every 1,000 steps (≈ 1.4 h,
-  keeps 2) and kills the run on a non-finite loss; `scripts/train_stage1.sh` is now a supervisor that resumes
-  from the newest `step-N.pth` with `RWKV_STEP_OFFSET=N` (LR schedule, warmup and data windows continue
-  from N; `dataset.py` patched), uses `train_stage 0` so `train.py` does not override `--load_model`, and
-  stops only when `rwkv-final.pth` (cosine horizon) exists. The trainer's own one-pass save was renamed
-  `rwkv-onepass.pth`. Events (saves, NaN kills, restarts) go to `out/stage1/events.txt`. Run 2 restarts from
-  `rwkv-init.pth` (7 h of good training lost). ETA at 12.6 k tok/s: one pass ≈ 18.6 h, horizon ≈ 37 h → ~21:30 on 2026-09-15.
-- **Disk plan (2026-09-14):** 450 GB free. Project footprint now 47 GB (tokens 15, binidx 3.2, models 16,
-  out 12). Growth if the plan is followed with streaming (raw audio deleted after tokenizing): stage-1
-  checkpoints ≤ 6 GB each, keep ~5 → 30 GB; humair025 tokens ≈ 7 GB; MTG-Jamendo tokens ≈ 8 GB; YuE1 stage-2
-  + decoders ≈ 3 GB; generated audio negligible → **≈ 100 GB total, fits without the new disk.** Keeping raw
-  audio would need 454 + 213 + 117 ≈ 785 GB → that is what the extra disk is for, if wanted.
-- **2026-09-14** Reviewed YuE2 for reuse (`docs/yue2_reference/`): no audio→semantic-token encoder is released (inference-only pipeline), the NAR only renders YuE2's own 32,768-entry semantic tokens, and all weights are CC BY-NC 4.0. Decision at the time: stay on X-Codec + YuE1 stage-2 (Apache-2.0); YuE2 evaluation-only. Added License row to §0 and renderer note to §5.
-- **2026-09-14 (later)** User decision: **target YuE2-level quality, licensing deferred, experiments first.** Added §7 (Track B inverse-tokenizer distillation, Track A own NAR → YuE2-Vae, GPU schedule), rewrote §0 Audio-tokens / Renderer / License rows, marked §4 YuE1 path as baseline. Stage-1 cb0 run 2 left running (step 5160, loss 3.29 at 16:06). YuE2 weights still to download. Status log renumbered to §8.
-- **2026-09-14 18:10 Generation-2 design (§8).** User goal restated: build on YuE2 with the RWKV backbone and surpass YuE2 and Suno v6. Researched: Suno v6 family released 2026-09-09 (v6 / v6-wild / v6-mini; 8-min songs, plain-language section edits, mashups, image-to-song, licensed data; scores *below* Suno v5 and YuE2 on WildSongBench per YuE2's page). Found the missing audio→YuE2-token encoder as a third-party release (Mothersuperior v4 head on MERT-v2-FullSong L20, 16.1 % top-1, plus NAR LoRA for real audio and a 4,720-song paired minted corpus); confirmed YuE2's own tokenizer is a causal MERT-v2 branch. Wrote §8 (three axes: lyric/caption adherence + RL, audio-input & state-based editing & unbounded length, Suno-v6 product features; phases G0–G6 with gates). Downloaded YuE2-Vae, YuE2-Vae-legacy, MERT-v2-FullSong to `models/yue2/`; YuE2-3B (7.26 GB) downloading (`HF_HUB_DISABLE_XET=1` required). Stage-1 cb0 run 2: second NaN at step 6,057 (LR 5.4e-5), auto-resumed from `step-6000.pth`, loss 3.03–3.08 at step 6,330. **Next:** G0 — YuE2 venv (torch 2.10), fetch Mothersuperior head/LoRA + minted tokens, round-trip 20 suno val songs.
-- **2026-09-14 20:50 G0 round trips work (6 real Suno songs, shard 0).** Setup: `venvs/yue2` (Python 3.12, torch 2.10.0+cu128 aarch64 from download.pytorch.org via aria2c, transformers 4.57.6, `tools/YuE` = yue2-infer 0.1.6 cloned through gh-proxy.com); weights in `models/yue2/` (YuE2-3B, YuE2-Vae, YuE2-Vae-legacy, MERT-v2-FullSong, `mothersuperior_v4/` head + NAR LoRA); shard-0 tar re-downloaded to `data/raw/suno94k/` (kept, 5.4 GB) for real audio. Scripts: `tools/yue2_roundtrip.py` (audio → MERT L20 → v4 head → NAR(±LoRA) → VAE; also writes the VAE-only round trip), `tools/yue2_roundtrip_eval.py` (HeartTranscriptor WER vs lyrics and vs the original's transcript; MERT-v2 recording-embedding cosine), `tools/yue2_mint.py` (B2 minting from suno prompts). Runs fit next to the trainer: ~8.5 GiB peak, 6 songs in 158 s on a shared A100 (NAR 32 steps ≈ 15 s/song). **Results (mean of 6):** WER vs lyrics — original 0.27, VAE-only 0.35, token round trip 0.48 (NAR+LoRA) / 0.44 (stock NAR); WER vs the original's own transcript 0.42 / 0.44; MERT cosine to the original 0.97 for both round trips (VAE-only 0.99, unrelated song 0.64); token repeat rate 0.115; per-frame latent MSE ≈ 1.3 at latent variance ≈ 0.95 (flow matching resamples, so this is not a useful metric). Reading: style/identity survive the 32k-token bottleneck; lyric intelligibility roughly halves with the v4 head (16 % top-1), and the v4 NAR LoRA gives no WER gain on Suno audio. **Gate: on-style yes, intelligible partially → proceed with R1 (better inverse tokenizer) as the first lever; R2 to be re-judged on our own LoRA.** Files: `out/yue2_roundtrip/<id>/{A_original,B_vae_only,C_roundtrip_lora_s32,C_roundtrip_base_s32}.flac` for listening. Running: `yue2_mint.py --n 5` on GPU 0 (true-token ceiling test: render minted songs from true vs predicted tokens), 20-song round trip + eval on GPU 1 (`logs/yue2_roundtrip_n20.log`). Minted-corpus per-track files (`data/yue2_minted/tracks/`) trickle in at 5–80 KB/s (new CDN host `us.aws.cdn.hf.co`, all edges slow); the regularizer pack (all 4,732 token sequences + prompts, 100 MB) is complete.
-- **2026-09-14 21:30 G0 confirmed on 20 songs; the inverse tokenizer is the bottleneck, not the renderer.** 20 real Suno songs (shard 0): WER vs lyrics 0.22 original / 0.26 VAE-only / 0.48 (v4 head + v4 NAR LoRA) / 0.46 (v4 head + stock NAR); WER vs the original's transcript 0.17 / 0.44 / 0.44; MERT cosine 0.99 / 0.97 / 0.97 (unrelated song 0.64). **Ceiling test on 5 YuE2-minted songs** (`tools/yue2_mint.py`, cot=off, suno shard-1 prompts, ~1.3× realtime on a shared A100): rendering from the *true* tokens gives WER-vs-original 0.20 and cosine 0.99; from v4-predicted tokens 0.36 and 0.92 (one rap song collapsed: head top-1 0.8 % vs 13–18 % on the others). So NAR+VAE reproduce a song from its tokens nearly losslessly for ASR purposes and the v4 head loses about half the lyric intelligibility → **R1 first.** R1 pipeline built and running: `tools/yue2_extract_mert.py` (MERT-v2-FullSong layers 12/16/20/23 at 25 Hz; corpus tracks are re-synthesised from `latent.npy` with YuE2-Vae, which equals their flac, so the 160 GB audio is not needed), `scripts/train_inverse_tokenizer.py` (112 M params, 4-layer softmax mix → 12-layer bidirectional transformer, 40 s windows, soft-CE over 8 codec-embedding neighbours from `data/yue2_minted/codec_nbr_*.npy`), first run `out/inverse_tok/v1` on GPU 2 (590 corpus tracks + 5 own, 6k steps) — `logs/train_inverse_tok_v1.log`; compare with `yue2_roundtrip.py --head-ckpt out/inverse_tok/v1/best.pt` on the same 20 songs. Overnight: `yue2_mint.py --n 400` on GPU 0 (`data/yue2_minted_own/`, ~2.5 min/song → ~17 h), minted-corpus trickle download, extraction to rerun on new tracks. **Cost:** the cb0 trainer runs at 5–7 k tok/s instead of 12.5 k while GPUs 0–2 are shared (ZeRO waits for the slowest card); its horizon slides accordingly (step 8,300 at 21:09, loss ≈ 3.1–3.3).
-- **2026-09-15 11:45 R1 v1 negative, v2 queued; real-audio prep running.** v1 (590 minted tracks, 112 M params, 6k steps): held-out top-1 peaked at **7.1 %** at step 1,750 (top-5 20 %), then overfit (train loss 6.5 → 2.7 while val fell to 6.1 %); on the 20 real songs it is *worse* than the v4 head (WER vs lyrics 0.52 vs 0.48, MERT cosine 0.96 vs 0.97). Expected: v4 trained on 4,765 tracks; exact-match accuracy needs data, not depth. All 4,720 corpus tracks (latent + semantic) finished downloading overnight, plus 264 own minted songs (`data/yue2_minted_own/`, 259 new). MERT features for all of them extracting on GPUs 2/3 (~2,200 tracks each, ~1 h). **v2** queued after that on GPU 2: same model, ~5k tracks, 20k steps, dropout 0.2, 1-s time masking, 10 % feature dropout (`logs/train_inverse_tok_v2.log`). Also started `tools/yue2_prep_real.py --shard 0` on GPU 0: 873 real Suno songs → MERT L12/16/20/23 + true VAE latents + cot=off prefix (`data/yue2_real/shard-00000/`), the inputs for the NAR-teacher flow loss (joint head + NAR-LoRA training, next script). Stage-1 cb0 trainer: step 15,510, loss ≈ 2.95–3.1, back at 12.5 k tok/s when GPUs were free this morning.
+Moved to **`docs/STATUS_LOG.md`** (2026-09-20). Append new entries there, newest last; keep this file for design, decisions and the current-state block at the top.

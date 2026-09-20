@@ -1,0 +1,31 @@
+{
+ "id": "06fc0b11-4c09-4216-86a9-c16491b40f26",
+ "title": "noche de verano ",
+ "style": "cello",
+ "lyrics": "Era de noche\nel insomnio me mataba lentamente\nhace calor... mucho calor\nsalgo afuera\nlibreta en mano\nmiro al cielo\n\nEs una noche sin luna\nlas estrellas como diamantes\nempiezo a escribir\nsilencio...\nsolo mí birome sobre el papel\ntrazando garabatos en forma de letras\nme relaja ese sonido\n\nEn el balcón de mí casa\nlogro encontrar la paz en la nada\nen el silencio\nen las estrellas sin nombre\ny el sonido del cuaderno\nque guarda poesía",
+ "sections": [
+  {
+   "text": "[verse]\nEra de noche\nel insomnio me mataba lentamente\nhace calor... mucho calor\nsalgo afuera\nlibreta en mano\nmiro al cielo\n",
+   "f0": 0,
+   "f1": 1129,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nEs una noche sin luna\nlas estrellas como diamantes\nempiezo a escribir\nsilencio...\nsolo mí birome sobre el papel\ntrazando garabatos en forma de letras\nme relaja ese sonido\n",
+   "f0": 1129,
+   "f1": 2629,
+   "eoa": false
+  },
+  {
+   "text": "[verse]\nEn el balcón de mí casa\nlogro encontrar la paz en la nada\nen el silencio\nen las estrellas sin nombre\ny el sonido del cuaderno\nque guarda poesía\n",
+   "f0": 2629,
+   "f1": 4129,
+   "eoa": false
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4243
+ }
+}

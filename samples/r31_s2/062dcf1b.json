@@ -1,0 +1,67 @@
+{
+ "id": "062dcf1b-af0a-4631-81f6-8ef585280ebe",
+ "title": "Get to get (together)",
+ "style": "disco",
+ "lyrics": "[intro]\n[acoustic guitar strumming with percussive backbeat]\n\n[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\n\n[verse]\nWe are, I see your beautiful shadow\nIn the night\nI see you are so beautiful\nAnd it makes me fright\nAnd I see that you are so beautiful\nI know it's true\nYou know it's true\nYou know it's true\nYou know it's true\nSo I say\n\n[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nBa-da-pa-pa-pa\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nAnd I said why don't we-e-e\nGet-to-get-to-get together\nAh-ha-ha-ha-ha\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\n\n[verse]\nAnd I see your beautiful body\nAnd I smile\nAnd I wonder if you have a boyfriend\nHow far is a mile?\nAnd I just hope that you will be my lady\nIf I do the things\nThat you want\nThat you need\nThat I know you want to hear\nIt's so-ho true\n'Cause I say\n\n[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nBa-da-pa-pa-pa\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\n[vocal fades to humming]\n[guitar final strum]",
+ "sections": [
+  {
+   "text": "[intro]\n",
+   "f0": 0,
+   "f1": 107,
+   "eoa": true
+  },
+  {
+   "text": "[acoustic guitar strumming with percussive backbeat]\n",
+   "f0": 107,
+   "f1": 216,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\n",
+   "f0": 216,
+   "f1": 627,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nWe are, I see your beautiful shadow\nIn the night\nI see you are so beautiful\nAnd it makes me fright\nAnd I see that you are so beautiful\nI know it's true\nYou know it's true\nYou know it's true\nYou know it's true\nSo I say\n",
+   "f0": 627,
+   "f1": 2048,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nBa-da-pa-pa-pa\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nAnd I said why don't we-e-e\nGet-to-get-to-get together\nAh-ha-ha-ha-ha\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\n",
+   "f0": 2048,
+   "f1": 3410,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nAnd I see your beautiful body\nAnd I smile\nAnd I wonder if you have a boyfriend\nHow far is a mile?\nAnd I just hope that you will be my lady\nIf I do the things\nThat you want\nThat you need\nThat I know you want to hear\nIt's so-ho true\n'Cause I say\n",
+   "f0": 3410,
+   "f1": 3906,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nWhy don't we-e-e\nGet-to-get-to-get together\nBa-da-pa-pa-pa\nWhy don't we-e-e [falsetto]\nGet-to-get-to-get together\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\nOh-ho-ho-ho-ho\n",
+   "f0": 3906,
+   "f1": 5406,
+   "eoa": false
+  },
+  {
+   "text": "[vocal fades to humming]\n",
+   "f0": 5406,
+   "f1": 5461,
+   "eoa": true
+  },
+  {
+   "text": "[guitar final strum]\n",
+   "f0": 5461,
+   "f1": 5524,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4242
+ }
+}

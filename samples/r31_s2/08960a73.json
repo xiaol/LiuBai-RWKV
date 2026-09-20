@@ -1,0 +1,115 @@
+{
+ "id": "08960a73-0ce7-41a0-abfa-743b13247e76",
+ "title": "Motown du comptable",
+ "style": "motown",
+ "lyrics": "Standing here in the bathroom....\n\nTrying trying to pierce my nose.......\nYes........\nI said nose.......\nThe needle went through......\nBut why all this liquid boogers......\nJeez....\n\nIt won't stop......\n\nAnd I tried to get a girl to do it for me.....\nNo wonder she said no.......,\nNo way I stood a chance after.......\nWell it looks good.....\nBut it pops back up.......\nHow do I put a thing in the back......\nWait the stud went through halfway.....\nNo wonder.......\nIt took me all day a.d a video to realize .......\nMy stud had to be bent to be able to stay and not pop up......\nWow ......\nTalk about a doopty doop......\nI bought a gun .....\nNo I gotta wait till Monday to arrive.......\nAnd that was my nose ring story....\nFreaking awesome huh.......\nTherapeutic Santiago Flores Arkansas\nThe doopty doop! No victor\n\nBut why all this liquid boogers......\nJeez....\n\nIt won't stop......\n\nAnd I tried to get a girl to do it for me.....\nNo wonder she said no.......,\nNo way I stood a chance after.......\nWell it looks good.....\nBut it pops back up.......\nHow do I put a thing in the back......\nWait the stud went through halfway.....\nNo wonder.......\nIt took me all day a.d a video to realize .......\nMy stud had to be bent to be able to stay and not pop up......\nWow ......\nTalk about a doopty doop......\nI bought a gun .....\nNo I gotta wait till Monday to arrive.......\nAnd that was my nose ring story....\nFreaking awesome huh.......\nTherapeutic Santiago Flores Arkansas\nThe doopty doop! No victor\n\nDoopty doop......yeah.....\nNo.....\n\nDoodoodoo...doopty doop.........\n\nNo victor.....\n\nChiffre, chiffre, chiffre\nMet les nombres dans le tableur\n\nChiffre, chiffre, chiffre\nMet les nombres dans le tableur\n\nTa vie c'est derrière un ordinateur\n\nEt tu balances des sucres, des sucres, des sucre !\n\nSucre à gauche, woo !\n\nSucre à droite, wow !\n\nSucre en arrière, yeah !",
+ "sections": [
+  {
+   "text": "[verse]\nStanding here in the bathroom....\n",
+   "f0": 0,
+   "f1": 745,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nTrying trying to pierce my nose.......\nYes........\nI said nose.......\nThe needle went through......\nBut why all this liquid boogers......\nJeez....\n",
+   "f0": 745,
+   "f1": 998,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nIt won't stop......\n",
+   "f0": 998,
+   "f1": 1062,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nAnd I tried to get a girl to do it for me.....\nNo wonder she said no.......,\nNo way I stood a chance after.......\nWell it looks good.....\nBut it pops back up.......\nHow do I put a thing in the back......\nWait the stud went through halfway.....\nNo wonder.......\nIt took me all day a.d a video to realize .......\nMy stud had to be bent to be able to stay and not pop up......\nWow ......\nTalk about a doopty doop......\nI bought a gun .....\nNo I gotta wait till Monday to arrive.......\nAnd that was my nose ring story....\nFreaking awesome huh.......\nTherapeutic Santiago Flores Arkansas\nThe doopty doop! No victor\n",
+   "f0": 1062,
+   "f1": 2562,
+   "eoa": false
+  },
+  {
+   "text": "[verse]\nBut why all this liquid boogers......\nJeez....\n",
+   "f0": 2562,
+   "f1": 2826,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nIt won't stop......\n",
+   "f0": 2826,
+   "f1": 2890,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nAnd I tried to get a girl to do it for me.....\nNo wonder she said no.......,\nNo way I stood a chance after.......\nWell it looks good.....\nBut it pops back up.......\nHow do I put a thing in the back......\nWait the stud went through halfway.....\nNo wonder.......\nIt took me all day a.d a video to realize .......\nMy stud had to be bent to be able to stay and not pop up......\nWow ......\nTalk about a doopty doop......\nI bought a gun .....\nNo I gotta wait till Monday to arrive.......\nAnd that was my nose ring story....\nFreaking awesome huh.......\nTherapeutic Santiago Flores Arkansas\nThe doopty doop! No victor\n",
+   "f0": 2890,
+   "f1": 4214,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nDoopty doop......yeah.....\nNo.....\n",
+   "f0": 4214,
+   "f1": 4333,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nDoodoodoo...doopty doop.........\n",
+   "f0": 4333,
+   "f1": 4634,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nNo victor.....\n",
+   "f0": 4634,
+   "f1": 4744,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nChiffre, chiffre, chiffre\nMet les nombres dans le tableur\n",
+   "f0": 4744,
+   "f1": 4887,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nChiffre, chiffre, chiffre\nMet les nombres dans le tableur\n",
+   "f0": 4887,
+   "f1": 5506,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nTa vie c'est derrière un ordinateur\n",
+   "f0": 5506,
+   "f1": 5564,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nEt tu balances des sucres, des sucres, des sucre !\n",
+   "f0": 5564,
+   "f1": 5720,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nSucre à gauche, woo !\n",
+   "f0": 5720,
+   "f1": 5783,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nSucre à droite, wow !\n",
+   "f0": 5783,
+   "f1": 5868,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nSucre en arrière, yeah !\n",
+   "f0": 5868,
+   "f1": 6000,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4246
+ }
+}

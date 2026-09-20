@@ -1,0 +1,37 @@
+{
+ "id": "08288cb0-363c-4448-b36b-21fef1c9bf98",
+ "title": "De Profundo(Tenor version)",
+ "style": "gregorian chant, latin gospel, atmospheric hymn, slow tempo, cathedral organ, children choir, solo male voice, string quartet pizzicato, hand drums, bowed bass, tape saturation, plate reverb, distant room mic, sparse opening, emotional build-up, crescendo layering, 72 bpm, reverent hope, ballade",
+ "lyrics": "Domine, miserére nobis in imbre magno;\ncor tardum ne derelínquas,\nclamórem de profundo\nad lucem tuam revóca.\n\nDe profundo clamávimus ad te, Dómine;\nvox tarda tamen ad aures tuas pérvenit.\n\nIn siléntio sub terra germinát spes tarda,\net nova vita nascítur.\n\nIn imbre magno manus tua nos érigit;\nde profundo ad lucem tuam surgémus.",
+ "sections": [
+  {
+   "text": "[verse]\nDomine, miserére nobis in imbre magno;\ncor tardum ne derelínquas,\nclamórem de profundo\nad lucem tuam revóca.\n",
+   "f0": 0,
+   "f1": 872,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nDe profundo clamávimus ad te, Dómine;\nvox tarda tamen ad aures tuas pérvenit.\n",
+   "f0": 872,
+   "f1": 1259,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nIn siléntio sub terra germinát spes tarda,\net nova vita nascítur.\n",
+   "f0": 1259,
+   "f1": 1811,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nIn imbre magno manus tua nos érigit;\nde profundo ad lucem tuam surgémus.\n",
+   "f0": 1811,
+   "f1": 3083,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4245
+ }
+}

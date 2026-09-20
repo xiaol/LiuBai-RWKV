@@ -1,0 +1,37 @@
+{
+ "id": "0649ecd8-cbb7-4bfb-9f20-f9c3fe384371",
+ "title": "We Here (just three)",
+ "style": "bass-heavy tech house club track with punchy drums, dark bouncy bassline, minimal synth stabs, confident chant-style female vocals, playful party attitude, and sweaty late-night dancefloor energy. fun, bold, repetitive, and instantly catchy.",
+ "lyrics": "[verse]\nNow\nWe up\nWho here with me? Me\nMyself\nAnd I\nJust three\nThe night is young\nMmm\nMmm\nI look like a star in the making\nThey all know me\nIt ain't no mistakin'\nUh-uh-uh-uh\nMmm\n\n[chorus]\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\n[verse]\nI can see it all so clear\nIt's time that we up\nMy\nMy\nMy\nOh\nMy\nWho here with me? Me\nMyself\nAnd I\nJust three\nI see it in your eyes\nMmm\nMmm\nSo tell me if you know what I mean\nThey all know me\nIt ain't no mistakin'\nUh-uh-uh-uh\nMmm\n\n[chorus]\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here",
+ "sections": [
+  {
+   "text": "[verse]\nNow\nWe up\nWho here with me? Me\nMyself\nAnd I\nJust three\nThe night is young\nMmm\nMmm\nI look like a star in the making\nThey all know me\nIt ain't no mistakin'\nUh-uh-uh-uh\nMmm\n",
+   "f0": 0,
+   "f1": 912,
+   "eoa": true
+  },
+  {
+   "text": "[chorus]\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\n",
+   "f0": 912,
+   "f1": 1178,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nI can see it all so clear\nIt's time that we up\nMy\nMy\nMy\nOh\nMy\nWho here with me? Me\nMyself\nAnd I\nJust three\nI see it in your eyes\nMmm\nMmm\nSo tell me if you know what I mean\nThey all know me\nIt ain't no mistakin'\nUh-uh-uh-uh\nMmm\n",
+   "f0": 1178,
+   "f1": 2678,
+   "eoa": false
+  },
+  {
+   "text": "[chorus]\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\nNow\nWe here\nWe here\nWe here\nWe here\n",
+   "f0": 2678,
+   "f1": 4178,
+   "eoa": false
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4242
+ }
+}

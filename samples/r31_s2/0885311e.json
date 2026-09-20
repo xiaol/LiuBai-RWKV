@@ -1,0 +1,37 @@
+{
+ "id": "0885311e-e6e3-4c43-af7d-70467719eab6",
+ "title": "db82xUr",
+ "style": "a high-energy industrial metal track with a driving tempo of 120 bpm in a minor key. the song features a prominent distorted electric guitar riff that establishes the main melodic and rhythmic motif. the drums provide a powerful, consistent beat with a strong emphasis on the kick and snare, utilizing a standard rock pattern with occasional fills. a synth bass provides a deep, resonant low end, often mirroring the guitar's root notes. the vocals are delivered by a male vocalist with a deep, guttural growl, maintaining a consistent aggressive tone throughout. production elements include heavy distortion on guitars and vocals, creating a dense, powerful soundscape. the mix is characterized by a forward-leaning drum and guitar presence, with the vocals sitting prominently in the center. the song structure follows a typical verse-chorus format, with instrumental breaks featuring the main guitar riff. there are no discernible chord progressions beyond the implied power chords from the guitar riff.",
+ "lyrics": "[verse]\nI am the man who holds the keys\nI sow the seeds and I got what you need\nI live in fire, I am discord\nI destroy, I am a demon\n\n[chorus]\nRide on the world, the prize of a fighter\nWhen they decide where you make your stand\nRise up, resist and disorder\nRise up, resist and disorder\n\n[verse]\nI'm the little man inside my den\nEverything burns, everything burns\nI want you down, I'll track you face down\nEverything burns, everything burns\n\n[verse]\nBehind the veil is the machine\nIt steals your soul, devour",
+ "sections": [
+  {
+   "text": "[verse]\nI am the man who holds the keys\nI sow the seeds and I got what you need\nI live in fire, I am discord\nI destroy, I am a demon\n",
+   "f0": 0,
+   "f1": 1500,
+   "eoa": false
+  },
+  {
+   "text": "[chorus]\nRide on the world, the prize of a fighter\nWhen they decide where you make your stand\nRise up, resist and disorder\nRise up, resist and disorder\n",
+   "f0": 1500,
+   "f1": 3000,
+   "eoa": false
+  },
+  {
+   "text": "[verse]\nI'm the little man inside my den\nEverything burns, everything burns\nI want you down, I'll track you face down\nEverything burns, everything burns\n",
+   "f0": 3000,
+   "f1": 3662,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nBehind the veil is the machine\nIt steals your soul, devour\n",
+   "f0": 3662,
+   "f1": 4904,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4245
+ }
+}

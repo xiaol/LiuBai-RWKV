@@ -1,0 +1,37 @@
+{
+ "id": "08e4f4ab-b48a-4a7a-a9f1-86c3a7022a5b",
+ "title": "Não Gosto de Frutas",
+ "style": "ambient",
+ "lyrics": "Frutas são legais, mas também saudáveis,\nSe eu gostasse, seria tão legal.\nTodo mundo diz: \"Vai experimentar!\",\nMas eu prefiro nem chegar.\n\nMaçã e banana podem até brilhar,\nMas não conseguem me conquistar.\nMelancia, manga, uva e limão,\nNão fazem parte da minha paixão.\n\nNão gosto de frutas, fazer o quê?\nCada um tem um gosto, pode acontecer.\nQuem sabe um dia eu mude de ideia,\nMas hoje eu passo... pode levar a bandeja!\n\nTalvez amanhã eu queira provar,\nOu talvez eu continue sem gostar.\nTudo bem ser diferente também,\nRespeitar o gosto dos outros faz bem!",
+ "sections": [
+  {
+   "text": "[verse]\nFrutas são legais, mas também saudáveis,\nSe eu gostasse, seria tão legal.\nTodo mundo diz: \"Vai experimentar!\",\nMas eu prefiro nem chegar.\n",
+   "f0": 0,
+   "f1": 704,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nMaçã e banana podem até brilhar,\nMas não conseguem me conquistar.\nMelancia, manga, uva e limão,\nNão fazem parte da minha paixão.\n",
+   "f0": 704,
+   "f1": 1448,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nNão gosto de frutas, fazer o quê?\nCada um tem um gosto, pode acontecer.\nQuem sabe um dia eu mude de ideia,\nMas hoje eu passo... pode levar a bandeja!\n",
+   "f0": 1448,
+   "f1": 2892,
+   "eoa": true
+  },
+  {
+   "text": "[verse]\nTalvez amanhã eu queira provar,\nOu talvez eu continue sem gostar.\nTudo bem ser diferente também,\nRespeitar o gosto dos outros faz bem!\n",
+   "f0": 2892,
+   "f1": 3764,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4246
+ }
+}

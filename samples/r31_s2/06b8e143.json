@@ -1,0 +1,97 @@
+{
+ "id": "06b8e143-646c-4a19-addc-6209314876df",
+ "title": "Baila comigo (Laranja)🧡",
+ "style": "male vocals, reggaeton",
+ "lyrics": "Intro]\nYeah-yeah\nHoje o sol não vai dormir\nVen conmigo...\n\n[verso]\nPé descalço na areia quente\nVocê chegou e mudou o ambiente\nCabelo molhado, sorriso inocente\nSeu olhar ficou na minha mente\n\nO mar batendo no nosso pé\nVocê me olhando, eu perdendo a fé\nDe que eu consigo ficar de longe\nMas vou até você onde estiver\n\n[pré-refrão]\nE deixa o mundo lá fora\nQue hoje a noite demora\nSem ter hora pra ir embora\nAproveita porque a festa é nossa\n\n[refrão]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa anoitecer\nSe o verão acabar, eu quero você\n\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você\n\n[verso]\nLuz dourada refletindo em você\nO céu laranja começando a escurecer\nMas a nossa noite acaba de nascer\nE eu já sei que não quero esquecer\n\nTeu perfume misturado com maresia\nEssa química não pede teoria\nSe isso for loucura, eu quero todo dia\nVocê sorrindo e provocando minha alegria\n\n[ponte]\nVem mais perto\nSem medo\nDeixa o ritmo falar\nSe amanhã for segredo\nHoje a gente vai lembrar\n\n[refrão final]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você\n\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você...",
+ "sections": [
+  {
+   "text": "[verse]\nIntro]\nYeah-yeah\nHoje o sol não vai dormir\nVen conmigo...\n",
+   "f0": 0,
+   "f1": 397,
+   "eoa": true
+  },
+  {
+   "text": "[verso]\nPé descalço na areia quente\nVocê chegou e mudou o ambiente\nCabelo molhado, sorriso inocente\nSeu olhar ficou na minha mente\n",
+   "f0": 397,
+   "f1": 964,
+   "eoa": true
+  },
+  {
+   "text": "[verso]\nO mar batendo no nosso pé\nVocê me olhando, eu perdendo a fé\nDe que eu consigo ficar de longe\nMas vou até você onde estiver\n",
+   "f0": 964,
+   "f1": 1384,
+   "eoa": true
+  },
+  {
+   "text": "[pré-refrão]\nE deixa o mundo lá fora\nQue hoje a noite demora\nSem ter hora pra ir embora\nAproveita porque a festa é nossa\n",
+   "f0": 1384,
+   "f1": 1718,
+   "eoa": true
+  },
+  {
+   "text": "[refrão]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa anoitecer\nSe o verão acabar, eu quero você\n",
+   "f0": 1718,
+   "f1": 1983,
+   "eoa": true
+  },
+  {
+   "text": "[refrão]\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você\n",
+   "f0": 1983,
+   "f1": 2469,
+   "eoa": true
+  },
+  {
+   "text": "[verso]\nLuz dourada refletindo em você\nO céu laranja começando a escurecer\nMas a nossa noite acaba de nascer\nE eu já sei que não quero esquecer\n",
+   "f0": 2469,
+   "f1": 2712,
+   "eoa": true
+  },
+  {
+   "text": "[verso]\nTeu perfume misturado com maresia\nEssa química não pede teoria\nSe isso for loucura, eu quero todo dia\nVocê sorrindo e provocando minha alegria\n",
+   "f0": 2712,
+   "f1": 3138,
+   "eoa": true
+  },
+  {
+   "text": "[ponte]\nVem mais perto\nSem medo\nDeixa o ritmo falar\nSe amanhã for segredo\nHoje a gente vai lembrar\n",
+   "f0": 3138,
+   "f1": 3680,
+   "eoa": true
+  },
+  {
+   "text": "[refrão final]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n",
+   "f0": 3680,
+   "f1": 4040,
+   "eoa": true
+  },
+  {
+   "text": "[refrão final]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n",
+   "f0": 4040,
+   "f1": 4120,
+   "eoa": true
+  },
+  {
+   "text": "[refrão final]\nBaila no sol, vem bailar comigo\nTeu sorriso de encontro ao meu, que lindo\nBaila no sol, deixa acontecer\nSe o verão acabar, eu quero você\n",
+   "f0": 4120,
+   "f1": 4373,
+   "eoa": true
+  },
+  {
+   "text": "[refrão final]\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você\n",
+   "f0": 4373,
+   "f1": 4954,
+   "eoa": true
+  },
+  {
+   "text": "[refrão final]\nDale, dale, não para não\nCalor na pele, fogo no coração\nBaila nesse som até amanhecer\nHoje eu só quero dançar com você...\n",
+   "f0": 4954,
+   "f1": 5042,
+   "eoa": true
+  }
+ ],
+ "sampling": {
+  "T": 1.0,
+  "top_p": 0.95,
+  "seed": 4243
+ }
+}
