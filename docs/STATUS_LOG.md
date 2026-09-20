@@ -149,3 +149,25 @@ and a short current-state summary). Newest entry last. Dates are local (CST). Ev
   transcript-overlap above ~30 %, the binding has to be enforced with an objective — an ASR (HeartTranscriptor) or CTC-posterior
   reward on rendered audio, or the joint teacher's flow loss through NAR+VAE — rather than more LM tokens. Disk: 28 GB free
   (out/stage1_sec holds rwkv-final, rwkv-0, rwkv-onepass = 18.6 GB; rwkv-0 and rwkv-onepass can go once the user agrees).
+- **2026-09-20 12:05 Is R3.1 trained enough? No — and the limit is data, not steps. R3.2 started.** Evidence from `out/stage1_sec/step_log.txt`:
+  train loss by 2k-step window 3.53 / 3.56 / 3.55 / 3.43 / **3.20** / 3.18 / 3.20 / 3.21 — the drop sits at step ≈ 7.1k, exactly where the second
+  pass over the 233 M-token corpus begins (magic-prime sampling visits every slot once per pass), and the loss is flat afterwards while the
+  held-out code CE stays at 4.32 (G3: train 3.59 vs val 4.21). So the second epoch was memorisation of the 26k aligned songs, not
+  learning; more epochs on the same data would widen that gap. Budget so far: G3 1.28 B + R3.1 0.47 B tokens on a 3 B model — small
+  for the task, but the binding that exists (permuted gap 0.106) came from 26k songs seen twice; the cheap lever is more aligned songs
+  and a tighter format, not more passes. Three actions, all running:
+  1. **Re-stream the 54k songs whose audio was not kept** (`tools/fetch_opus_shards.py --shards 19-42,61-84`, CPU only: tar via
+     hf-mirror + cas-bridge pin at ~80 MB/s → 24 kHz mono opus 0.7 into `shard-NNNNN.audio/`, tar deleted; shards 19–21: ~1,100 songs,
+     1–2 min download, 6.3–7.1 min total, 2.2 GiB each) → ≈ 5.5 h for 48 shards, ≈ 110 GB on `/models`. `scripts/r32_align_chain.sh` then
+     forced-aligns them on 4 GPUs once the probe below has released them (≈ 2 h) → ~80k aligned songs.
+  2. **Line-level format** (`build_yue2_sec_binidx.py --unit line`, one SOS block per lyric line, marker on the first line of its section;
+     `rwkv_generate.py --unit line` mirrors it): `data/binidx/yue2_line_stage1_train` = 25,640 docs, 144.3 M tokens, section-only
+     (`--whole-frac 0`), median 34 sections/song of 1.8 / 3.4 / 8.6 s (p10/50/90); 2,507 songs over ctx. magic_prime 17,609.
+  3. **R3.2a probe** `scripts/train_stage1_line.sh 0,1,2,3 1` → `out/stage1_line/` from `out/stage1_sec/rwkv-final.pth`, LR 3e-5 → 3e-6,
+     1 epoch = 144 M tokens ≈ 4.4k steps ≈ 4.5 h alone (first steps: loss 3.0–3.2, 11.1 k tok/s, 24.6 GB/GPU); log
+     `logs/train_stage1_line_20260920_120514.log`. Gate: `rwkv_eval_loss_sec.py --data data/binidx/yue2_line_stage1_val` — permuted − matched
+     must beat R3.1's 0.106 clearly (the permuted control is harsher at line level: neighbouring lines are the wrong text but the right
+     song) before line-level is used for the full R3.2 run on ~80k songs.
+  Storage: `out/`, `data/`, `models/` moved to `/models/rwkv-music/` (rsync + checksum verify, then symlinks; `scripts/move_to_models.sh`,
+  `logs/move_to_models.log`); root disk 97 % → 49 % (476 GB free). Samples of the 20 R3.1 songs + 8 G3 songs pushed as MP3 to GitHub
+  (`samples/`, commit df337cf).

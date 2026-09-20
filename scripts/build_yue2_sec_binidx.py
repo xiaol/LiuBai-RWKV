@@ -46,6 +46,18 @@ FPS = 25
 MARKER = re.compile(r"^\s*\[([^\]]*)\]\s*$")
 
 
+def line_units(al):
+    """Line-level units: one unit per lyric line (the [marker] is prepended to the first line of its section); marker-only
+    sections become text-less units. Times come straight from the aligner's per-line start/end."""
+    units, last_sec = [], None
+    for s in al["sections"]:
+        ls = [l for l in al["lines"] if l["section"] == s["section"]]
+        if not ls: units.append(dict(marker=s["marker"], texts=[], start=None, end=None, n_align=0, head=True)); continue
+        for j, l in enumerate(ls):
+            units.append(dict(marker=s["marker"], texts=[l["text"]], start=l["start"], end=l["end"], n_align=l["n_align"], head=(j == 0)))
+    return units
+
+
 def units_from(al, raw_lyrics):
     """Alignment units = stanzas: a section (at each [marker]) is split further at blank lines, so marker-less lyrics
     (half of Suno songs) still become several short sections. Text lines of the raw lyrics correspond 1:1, in order, to
@@ -68,11 +80,21 @@ def units_from(al, raw_lyrics):
 
 
 def unit_text(u):
-    return f"[{u['marker']}]\n" + ("\n".join(u["texts"]) + "\n" if u["texts"] else "")
+    head = f"[{u['marker']}]\n" if u.get("head", True) else ""
+    return head + ("\n".join(u["texts"]) + "\n" if u["texts"] else "")
 
 
-def text_units(lyrics):
-    """Inference-time counterpart of units_from: section texts from raw lyrics alone ([marker] blocks, split at blank lines)."""
+def text_units(lyrics, unit="stanza"):
+    """Inference-time counterpart of units_from / line_units: section texts from raw lyrics alone ([marker] blocks split at blank
+    lines, or one unit per line with the marker on the first line of its section)."""
+    if unit == "line":
+        out, marker, first = [], None, True
+        for r in lyrics.splitlines():
+            m = MARKER.match(r)
+            if m: marker = m.group(1).strip().lower(); first = True; continue
+            if not r.strip(): continue
+            out.append((f"[{marker or 'verse'}]\n" if first else "") + r.strip() + "\n"); first = False
+        return out or ["[verse]\n"]
     units, cur, marker, blank = [], None, None, False
     for r in lyrics.splitlines():
         m = MARKER.match(r)
@@ -110,9 +132,9 @@ def boundaries(secs, duration, margin=0.5):
     return out
 
 
-def build_sections(al, raw_lyrics, n_frames, min_sec_frames=FPS):
+def build_sections(al, raw_lyrics, n_frames, min_sec_frames=FPS, unit="stanza"):
     """-> list of (text, frame_start, frame_end) covering [0, n_frames) exactly; short sections merged forward."""
-    secs = units_from(al, raw_lyrics); dur = n_frames / FPS
+    secs = line_units(al) if unit == "line" else units_from(al, raw_lyrics); dur = n_frames / FPS
     b = [int(round(x * FPS)) for x in boundaries(secs, dur)]; b[0] = 0; b[-1] = n_frames
     out, pending = [], ""
     for k, s in enumerate(secs):
@@ -133,6 +155,8 @@ def main():
     ap.add_argument("--min-score", type=float, default=0.04); ap.add_argument("--min-frac", type=float, default=0.8); ap.add_argument("--min-spw", type=float, default=0.12)
     ap.add_argument("--shuffle-seed", type=int, default=0); ap.add_argument("--tag", default="yue2_sec"); ap.add_argument("--whole-song", type=int, default=1, help="1 = keep unaligned songs as whole-song docs")
     ap.add_argument("--whole-frac", type=float, default=0.3, help="fraction of the unaligned songs kept as whole-song docs (by id hash; 1.0 = all)")
+    ap.add_argument("--unit", default="stanza", choices=["stanza", "line"], help="section granularity: stanza (blank-line blocks) or line (one lyric line per SOS block)")
+    ap.add_argument("--min-sec-seconds", type=float, default=1.0, help="sections shorter than this are merged into the next one")
     args = ap.parse_args(); t0 = time.time()
     test = parse_shards(args.test_shards) or set(); only = parse_shards(args.shards)
     tok = TRIE_TOKENIZER(str(VOCAB_TXT))
@@ -158,7 +182,7 @@ def main():
         rec = dict(id=r["id"], shard=r["shard"], n_frames=r["n_frames"], n_header=n_header, instrumental=inst, creator=r.get("creator"),
                    lyric_hash=None if inst else lyric_hash(lyrics), audio_seconds=d, header=header, layout="whole", align_reason=reason)
         if ok:
-            secs = build_sections(al, lyrics, r["n_frames"]); sec_tok = [tok.encode(t) for t, _, _ in secs]
+            secs = build_sections(al, lyrics, r["n_frames"], min_sec_frames=int(args.min_sec_seconds * FPS), unit=args.unit); sec_tok = [tok.encode(t) for t, _, _ in secs]
             n_doc = n_header + 1 + sum(1 + len(st) + 2 + (f1 - f0) + 1 for st, (_, f0, f1) in zip(sec_tok, secs)) + 1
             if n_doc > args.ctx: drop["over_ctx_sec"] += 1; ok = False; why["over_ctx_sec"] += 1
             else: rec.update(layout="sections", n_doc=n_doc, sections=[dict(text=t, f0=f0, f1=f1, n_text=len(st)) for (t, f0, f1), st in zip(secs, sec_tok)], align_score=al["score"])
@@ -205,7 +229,7 @@ def main():
                     verify=dict(doc=j, len=int(d0.size), n_header=te, after_eod=d0[te + 1:te + 4].tolist(), n_sos=int((d0 == SOS).sum()), n_eoa=int((d0 == EOA).sum()), tail=d0[-3:].tolist()))
 
     sec_kept = [k for k in kept if k["layout"] == "sections"]
-    info = dict(tag=args.tag, ctx=args.ctx, vocab_size=VOCAB_SIZE, layout="header EOD (SOS text SOA YUE2CODEC codes EOA)* 0 | whole: header EOD SOA YUE2CODEC codes EOA 0",
+    info = dict(tag=args.tag, unit=args.unit, ctx=args.ctx, vocab_size=VOCAB_SIZE, layout="header EOD (SOS text SOA YUE2CODEC codes EOA)* 0 | whole: header EOD SOA YUE2CODEC codes EOA 0",
                 ids=dict(EOD=EOD, SOA=SOA, EOA=EOA, YUE2CODEC=YUE2CODEC, SOS=SOS, YUE2_BASE=YUE2_BASE), thresholds=dict(min_score=args.min_score, min_frac=args.min_frac, min_spw=args.min_spw),
                 shards_used=sorted({r["shard"] for r in recs}), test_shards=sorted(test), n_meta=len(recs), dropped=dict(drop), alignment=dict(why), kept=len(kept), aligned=len(sec_kept),
                 sections_per_song_p50_p90=[float(np.percentile([len(k["sections"]) for k in sec_kept], q)) for q in (50, 90)] if sec_kept else None,

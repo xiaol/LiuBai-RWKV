@@ -134,6 +134,7 @@ def main():
     ap.add_argument("--part", type=int, default=0); ap.add_argument("--nparts", type=int, default=1); ap.add_argument("--tag", default="")
     ap.add_argument("--sections", type=int, default=0, help="1 = R3.1 section-interleaved decoding: header EOD, then per lyric section SOS text SOA YUE2CODEC codes... EOA")
     ap.add_argument("--min-sec-frames", type=int, default=50); ap.add_argument("--max-sec-frames", type=int, default=1500)
+    ap.add_argument("--unit", default="stanza", choices=["stanza", "line"], help="section granularity for --sections 1 (must match the training corpus)")
     args = ap.parse_args(); dev = "cuda"; out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     meta = {m["id"]: m for m in (json.loads(l) for l in open(ROOT / f"data/meta/suno94k/shard-{args.shard:05d}.jsonl"))}
     if args.ids: ids = [i for i in args.ids.split(",") if i]
@@ -151,7 +152,7 @@ def main():
         prompt = tok.encode(text) + [EOD, SOA, YUE2CODEC]
         gen = torch.Generator(device=dev).manual_seed(args.seed + n); t0 = time.time(); bounds = []
         if args.sections:
-            units = ["[instrumental]\n"] if inst else text_units(lyrics); prompt = tok.encode(text) + [EOD]
+            units = ["[instrumental]\n"] if inst else text_units(lyrics, args.unit); prompt = tok.encode(text) + [EOD]
             state = model.new_state(); model.forward(prompt, state); codes = []
             for u in units:
                 logits = model.forward([SOS] + tok.encode(u) + [SOA, YUE2CODEC], state); n0 = len(codes)
