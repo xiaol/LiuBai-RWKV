@@ -1,0 +1,1592 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LiuBai-RWKV — generated songs (R3.1, 2026-09-20)</title>
+<style>
+body{font:15px/1.45 system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#222;background:#fafafa}
+h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:2.2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
+.song{background:#fff;border:1px solid #e3e3e3;border-radius:8px;padding:.8rem 1rem;margin:.7rem 0}
+.head{margin-bottom:.4rem}.id{color:#888;font-family:monospace;font-size:.85em}.style{color:#555}
+audio{width:100%}details{margin-top:.4rem}summary{cursor:pointer;color:#357}pre{white-space:pre-wrap;font:13px/1.35 monospace;color:#444;max-height:16rem;overflow:auto}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.pair .song{margin:0}@media(max-width:640px){.pair{grid-template-columns:1fr}}
+.note{background:#fff8e6;border:1px solid #f0d99a;border-radius:8px;padding:.6rem 1rem}
+</style></head><body>
+<h1>LiuBai-RWKV — RWKV-7 3B song LM, generated songs</h1>
+<p>Milestone <b>R3.1, 2026-09-20</b>. 20 prompts (style + lyrics of real Suno songs, unseen in training), sampled by the RWKV-7 model in
+YuE2 token space and rendered with YuE2 NAR + R1-a LoRA + VAE. Sorted best first by lyric WER (lower is better; the real Suno recordings
+score 0.47 on the same ASR). Code and details: <a href="https://github.com/xiaol/LiuBai-RWKV">github.com/xiaol/LiuBai-RWKV</a>.</p>
+<p class="note">Honest note: style, instrumentation and language follow the prompt and the vocals are fluent, but the sung words are mostly
+<i>not</i> the prompt lyrics yet (10&nbsp;% word overlap vs 80&nbsp;% for real songs). That is the open problem being worked on (R3.2).</p>
+<h2>R3.1 — section-interleaved model (this milestone)</h2>
+<article class="song">
+  <div class="head"><b>Get to get (together)</b> <span class="id">062dcf1b</span><br><span class="style">disco</span> · lyric WER 0.90</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/062dcf1b.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[intro]
+[acoustic guitar strumming with percussive backbeat]
+
+[chorus]
+Why don&#x27;t we-e-e
+Get-to-get-to-get together
+Oh-ho-ho-ho-ho
+Why don&#x27;t we-e-e [falsetto]
+Get-to-get-to-get together
+Oh-ho-ho-ho-ho
+
+[verse]
+We are, I see your beautiful shadow
+In the night
+I see you are so beautiful
+And it makes me fright
+And I see that you are so beautiful
+I know it&#x27;s true
+You know it&#x27;s true
+You know it&#x27;s true
+You know it&#x27;s true
+So I say
+
+[chorus]
+Why don&#x27;t we-e-e
+Get-to-get-to-get together
+Ba-da-pa-pa-pa
+Why don&#x27;t we-e-e [falsetto]
+Get-to-get-to-get together
+Oh-ho-ho-ho-ho
+And I said why don&#x27;t we-e-e
+Get-to-get-to-get together
+Ah-ha-ha-ha-ha
+Why don&#x27;t we-e-e [falsetto]
+Get-to-get-to-get together
+Oh-ho-ho-ho-ho
+
+[verse]
+And I see your beautiful body
+And I smile
+And I wonder if you have a boyfriend
+How far is a mile?
+And I just hope that you will be my lady
+If I do the things
+That you want
+That you need
+That I know you want to hear
+It&#x27;s so-ho true
+&#x27;Cause I say
+
+[chorus]
+Why don&#x27;t we-e-e
+Get-to-get-to-get together
+Ba-da-pa-pa-pa
+Why don&#x27;t we-e-e [falsetto]
+Get-to-get-to-get together
+Oh-ho-ho-ho-ho
+Oh-ho-ho-ho-ho
+Oh-ho-ho-ho-ho
+Oh-ho-ho-ho-ho
+[vocal fades to humming]
+[guitar final strum]</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>db82xUr</b> <span class="id">0885311e</span><br><span class="style">a high-energy industrial metal track with a driving tempo of 120 bpm in a minor key. the song features a prominent distorted electric guitar</span> · lyric WER 0.90</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0885311e.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[verse]
+I am the man who holds the keys
+I sow the seeds and I got what you need
+I live in fire, I am discord
+I destroy, I am a demon
+
+[chorus]
+Ride on the world, the prize of a fighter
+When they decide where you make your stand
+Rise up, resist and disorder
+Rise up, resist and disorder
+
+[verse]
+I&#x27;m the little man inside my den
+Everything burns, everything burns
+I want you down, I&#x27;ll track you face down
+Everything burns, everything burns
+
+[verse]
+Behind the veil is the machine
+It steals your soul, devour</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>We Here (just three)</b> <span class="id">0649ecd8</span><br><span class="style">bass-heavy tech house club track with punchy drums, dark bouncy bassline, minimal synth stabs, confident chant-style female vocals, playful </span> · lyric WER 0.91</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0649ecd8.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[verse]
+Now
+We up
+Who here with me? Me
+Myself
+And I
+Just three
+The night is young
+Mmm
+Mmm
+I look like a star in the making
+They all know me
+It ain&#x27;t no mistakin&#x27;
+Uh-uh-uh-uh
+Mmm
+
+[chorus]
+Now
+We here
+We here
+We here
+We here
+Now
+We here
+We here
+We here
+We here
+[verse]
+I can see it all so clear
+It&#x27;s time that we up
+My
+My
+My
+Oh
+My
+Who here with me? Me
+Myself
+And I
+Just three
+I see it in your eyes
+Mmm
+Mmm
+So tell me if you know what I mean
+They all know me
+It ain&#x27;t no mistakin&#x27;
+Uh-uh-uh-uh
+Mmm
+
+[chorus]
+Now
+We here
+We here
+We here
+We here
+Now
+We here
+We here
+We here
+We here
+Now
+We here
+We here
+We here
+We here
+Now
+We here
+We here
+We here
+We here</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Don&#x27;t Try to Understand Me</b> <span class="id">0699f253</span><br><span class="style">punk</span> · lyric WER 0.93</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0699f253.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[intro]
+[fingerstyle acoustic guitar enters]
+(Hoo-ooh)
+
+[verse]
+[male tenor vocals]
+La garantía de lo lógico
+Y la espera de algo hipnótico
+(Hoo-ooh)
+Spending time at your place
+Doesn&#x27;t make me a lover, yeah
+(Hoo-ooh)
+
+[chorus]
+[falsetto]
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, yeah)
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, mm)
+
+[bridge]
+[chest voice]
+So don&#x27;t stick on my skin because I forgive you
+But this journey aren&#x27;t for two people
+So don&#x27;t follow me because I don&#x27;t need you
+Don&#x27;t put on your knees because I will leave you
+Don&#x27;t make me regret my decision
+I just mind you should choose one, two
+(Hoo-ooh, yeah)</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Ay, Qué Calor x Ay, Qué Calor (Mashup) (Mashup)</b> <span class="id">07be3653</span><br><span class="style">breakbeat</span> · lyric WER 0.94</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/07be3653.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[style: mutant summer tropical fusion. spanish summer party anthem inspired by classic spanish summer music from the 70s and 80s with tropical carnival energy. blend festive tropical pop, spanish fiesta rhythms, acoustic guitars, brass sections, handclaps, latin percussion and modern mutant electronic production. preserve the authentic summer song feeling while adding futuristic glitch textures, powerful bass, energetic electronic layers and unexpected sonic details. . melodic identity: extremely catchy summer melody with simple sing-along hooks, joyful tropical harmonies, humorous melodic phrases and an unforgettable chorus feeling. nostalgic, festive and instantly recognizable. . lead vocal: one male lead singer with a powerful, charismatic and playful summer entertainer voice. deep energetic tone, expressive rhythmic delivery, humorous attitude and strong crowd interaction feeling. inspired by classic spanish summer singers and tropical party performers without imitation. emotional direction: bright, ironic, warm and human. a joyful summer atmosphere with hidden emotional depth. the sound must celebrate solidarity, courage and community while keeping a fun party spirit. production: organic summer instrumentation combined with modern electronic mutation. live-feeling percussion, bright brass, warm guitars, punchy bass, playful synthesizers, festive crowd energy and a polished but not artificial mix. avoid dark or aggressive production. keep the feeling of a huge spanish summer celebration with a futuristic twist.]
+
+[intro: tropical percussion, playful brass, beach atmosphere and a funny summer announcer feeling.]
+
+¡Que llegua el verano!
+¡Sin sombrilla, ni corazón!
+
+[verse 1: short catchy lines. introduce the hot summer, dry land and the idea that the problem is not only the sun.]
+
+El verano viene caliente,
+con crema y protección,
+pero hay fuegos que no nacen
+solamente del sol.
+
+La tierra está cansada,
+pidiendo atención,
+y hay manos que se levantan
+cuando llega la ocasión.
+
+[pre-chorus: build energy with claps, rising rhythm and a festive summer feeling.]
+
+Que suene la guitarra,
+que empiece la canción,
+que hay gente dando el alma
+sin pedir explicación.
+
+[chorus: big summer anthem. easy sing-along hook with irony and emotion.]
+
+Ay, qué calor, qué calor,
+baila todo el vecindario,
+que hay gente jugandose la vida
+por salvar lo nuestro
+
+Ay, qué calor, qué calor,
+que no pare la canción,
+que viva quien da la cara
+cuando aprieta la situación.
+
+[verse 2: focus on neighbours, villages, children and solidarity. warm and human feeling.]
+
+Llegan mantas y comida,
+llega ayuda sin preguntar,
+llega un pueblo entero unido
+cuando toca colaborar.
+
+Los niños vuelven al juego,
+vuelve la imaginación,
+porque una sonrisa también
+puede apagar el temor.
+
+[breakdown: emotional section. reduce the music. focus on firefighters, ume and emergency workers fighting the fire.]
+
+Cascos frente a las llamas,
+miradas llenas de valor,
+hay quien protege la tierra
+con sudor y corazón.
+
+Años detrás del fuego,
+sin buscar reconocimiento,
+son gigantes del verano
+aunque no salgan en cuentos.
+
+[verse 3: emotional but warm. focus on rescuing animals and protecting every living creature affected by the fire.]
+
+No solo apagan llamas,
+no solo salvan un hogar,
+también rescatan silencios
+que no saben cómo hablar.
+
+Un perro busca una mano,
+un burro quiere regresar,
+un ternero mira asustado
+sin saber dónde escapar.
+
+Entre humo y entre ceniza,
+con paciencia y con amor,
+dan agua a quien tiene sed
+y refugio al corazón.
+
+[pre-final chorus: build back the summer energy with percussion, brass and crowd vocals.]
+
+Que suene fuerte la vida,
+que vuelva la ilusión,
+que hay héroes sin capa
+con botas y corazón.
+
+[final chorus: maximum festive energy. massive crowd feeling and celebration of human and animal solidarity.]
+
+Ay, qué calor, qué calor,
+que baile toda la plaza,
+que cuando llega la tormenta
+nadie abandona la casa.
+
+Ay, qué calor, qué calor,
+que siga viva la voz,
+que quien salva una vida pequeña
+también salva lo mejor.
+
+[outro: funny tropical ending with carnival percussion, crowd singing and a final summer celebration phrase.]</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Selencio Mortal</b> <span class="id">086aa970</span><br><span class="style">drill rap, male voice, beat, rap, male vocals, bounce drop, epic, powerful, drum, drum and bass, upbeat, trap</span> · lyric WER 0.94</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/086aa970.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Mortal
+Selencio Mortal Dego 4  8  9
+La ville est trop bruyante, même quand tout le monde dort,
+on se tourne dans le lit, on ne veut pas appeler le repos à l&#x27;aide.
+Les pensées tournent en rond, les anciennes erreurs brûlent comme du sel,
+on se demande quand on a réellement perdu le contrôle du gouvernail.
+Tout le monde veut quelque chose de toi, tout le monde tire sur la laisse,
+à la fin de la journée, on se retrouve seul dans sa chambre.
+Ne plus porter de masque, ne plus fonctionner,
+juste évacuer un instant son esprit face au monde.
+On fonctionne sur commande, on bâtit des murs en béton,
+en attendant une issue qui ne vient jamais au bon moment.
+Et les rues sont froides quand la pluie s&#x27;abat,
+pendant qu&#x27;à l&#x27;intérieur de la tête, l&#x27;inquiétude continue de tourner.
+Je ne veux pas être parfait, je veux juste avoir la paix,
+ne pas devoir faire un million de choses chaque jour.
+C&#x27;est le regard dans le miroir qui te montre sans pitié
+combien de toi-même reste en chemin.
+Les gens parlent d&#x27;avenir, de projets et de bonheur,
+pendant que tu cherches en cachette un morceau perdu.
+De ce que tu étais avant que la pression ne commence,
+avant que les jours ne se dissolvent dans le brouillard gris.
+Je m&#x27;écris cela de l&#x27;âme, parce que la pression sinon étouffe,
+parce qu&#x27;on devient fou bien trop vite dans ce système.
+Parfois, le silence est la seule réponse qui reste,
+quand la vie t&#x27;écrit des lignes en plein visage.
+Pas d&#x27;applaudissements, pas de scène, pas de faux visage.
+Je reste fidèle à moi-même. Et il ne faut rien de plus.
+Selencio Mortal Dego 4  8</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Speaking from the Heart (Part 2)</b> <span class="id">07608f1b</span><br><span class="style">groovy bossa nova deephouse r&amp;b chillwave. breathy vocals, clear enunciation.</span> · lyric WER 0.95</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/07608f1b.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[verse]
+Hear the beat feel the start
+Words pourin&#x27; straight from the heart
+No need to play a part
+Truth in the light where we dart
+
+[verse]
+Flowin&#x27; like the breeze at night
+Shine ya soul so bright
+No games no fight
+Pure truth pure delight
+
+[chorus]
+Speak it from the heart
+That&#x27;s where the magic starts
+No need to tear apart
+Just love and be smart
+
+[verse]
+Groove in the vibe we tread
+Light as a feather no dread
+Words we mean we said
+Honesty colors us red
+
+[verse]
+Under the moon and stars
+Simple honest hearts
+No walls no scars
+Thriving like coral bars
+
+[bridge]
+Feel it in the rhythm babe
+True words cascade
+No charades no shade
+Just pure love displayed
+
+[verse]
+Flowin&#x27; like the breeze at night
+Shine ya soul so bright
+No games no fight
+Pure truth pure delight
+
+[chorus]
+Speak it from the heart
+That&#x27;s where the magic starts
+No need to tear apart
+Just love and be smart
+
+[verse]
+Groove in the vibe we tread
+Light as a feather no dread
+Words we mean we said
+Honesty colors us red
+
+[verse]
+Under the moon and stars
+Simple honest hearts
+No walls no scars
+Thriving like coral bars
+
+[bridge]
+Feel it in the rhythm babe
+True words cascade
+No charades no shade
+Just pure love displayed
+
+[chorus]
+Speak it from the heart
+That&#x27;s where the magic starts
+No need to tear apart
+Just love and be smart</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>All About Peace</b> <span class="id">0827b65b</span><br><span class="style">gritty male vocal</span> · lyric WER 0.97</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0827b65b.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>the truth of life is
+its not about money
+its not about what you got
+its not about your car
+its not about your house
+its not about your job
+its not about what you drink
+its not about what you smoke
+its not about getting drunk
+its not about getting hi
+its not about your clothes
+its not about your shoes
+its not even about you
+we go thru this life valuing the things that we think we need.
+we go thru life holding on to things that cant hold us but only hold us back we go thru life valuing things that dont value us we walk a path of selfishness never looking to help no one or even thinking of doing what&#x27;s right
+we stair at our phones looking at pictures
+of the beauty thats right out side. we let others dictate the way we feel and how we act for what and why. because we feel like we need to be accepted by everyone. if we could just let it all go and go back to how comfortable it felt to be a child and stop worrying about the things that dont matter and nothing you possess on this planet is going with you but your memories and i pray your memories have nothing to do with physical things only feelings. only then
+we would know that its all about
+peace
+its all about faith
+its all about hope
+its all about love
+its all about god
+that its all about
+peace
+its all about faith
+its all about hope
+its all about love
+its all about god
+that its all about
+peace
+its all about faith
+its all about hope
+its all about love
+its all about god</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Motown du comptable</b> <span class="id">08960a73</span><br><span class="style">motown</span> · lyric WER 0.97</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08960a73.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Standing here in the bathroom....
+
+Trying trying to pierce my nose.......
+Yes........
+I said nose.......
+The needle went through......
+But why all this liquid boogers......
+Jeez....
+
+It won&#x27;t stop......
+
+And I tried to get a girl to do it for me.....
+No wonder she said no.......,
+No way I stood a chance after.......
+Well it looks good.....
+But it pops back up.......
+How do I put a thing in the back......
+Wait the stud went through halfway.....
+No wonder.......
+It took me all day a.d a video to realize .......
+My stud had to be bent to be able to stay and not pop up......
+Wow ......
+Talk about a doopty doop......
+I bought a gun .....
+No I gotta wait till Monday to arrive.......
+And that was my nose ring story....
+Freaking awesome huh.......
+Therapeutic Santiago Flores Arkansas
+The doopty doop! No victor
+
+But why all this liquid boogers......
+Jeez....
+
+It won&#x27;t stop......
+
+And I tried to get a girl to do it for me.....
+No wonder she said no.......,
+No way I stood a chance after.......
+Well it looks good.....
+But it pops back up.......
+How do I put a thing in the back......
+Wait the stud went through halfway.....
+No wonder.......
+It took me all day a.d a video to realize .......
+My stud had to be bent to be able to stay and not pop up......
+Wow ......
+Talk about a doopty doop......
+I bought a gun .....
+No I gotta wait till Monday to arrive.......
+And that was my nose ring story....
+Freaking awesome huh.......
+Therapeutic Santiago Flores Arkansas
+The doopty doop! No victor
+
+Doopty doop......yeah.....
+No.....
+
+Doodoodoo...doopty doop.........
+
+No victor.....
+
+Chiffre, chiffre, chiffre
+Met les nombres dans le tableur
+
+Chiffre, chiffre, chiffre
+Met les nombres dans le tableur
+
+Ta vie c&#x27;est derrière un ordinateur
+
+Et tu balances des sucres, des sucres, des sucre !
+
+Sucre à gauche, woo !
+
+Sucre à droite, wow !
+
+Sucre en arrière, yeah !</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Ready for the fall</b> <span class="id">07c60f75</span><br><span class="style">male vocalist, breathy verses, powerful chorus, sparse acoustic guitar, stomping beat, americana, slow build, raw intimate production, gritt</span> · lyric WER 0.98</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/07c60f75.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[verse]
+Take me apart
+Hold my hand
+I&#x27;ll build you castles not made of sand
+Your eyes they burn
+They pull me in
+You&#x27;re at that table
+I&#x27;m caving in
+
+[pre-chorus]
+&#x27;Cause I&#x27;m thinking you might just be the one
+That I ravage in the moonlight all night long
+
+[chorus]
+You and me got something right
+Something true, something with bite
+You got all that attitude
+Dark bedroom eyes
+That see right through my walls
+Now I&#x27;m standing on this edge
+And I&#x27;m ready for the fall
+
+[verse]
+I&#x27;ve played it safe
+I&#x27;ve kept it tight
+But you walked in
+And wrecked my life
+You don&#x27;t ask
+You just stare
+Like you know what&#x27;s there
+Before I get there
+
+[pre-chorus]
+&#x27;Cause I&#x27;m thinking you might just be the one
+That I chase into the darkness just for fun
+
+[chorus]
+You and me got something right
+Something true, something with bite
+You got all that attitude
+Dark bedroom eyes
+That see right through my walls
+Now I&#x27;m standing on this edge
+And I&#x27;m ready for the fall
+
+[bridge]
+I don&#x27;t need safe
+Don&#x27;t need soft
+I just want you
+To burn it off
+Everything
+
+[chorus]
+You and me got something right
+Something true, something with bite
+You got all that attitude
+Dark bedroom eyes
+That see right through my walls
+Now I&#x27;m falling off this edge
+And I don&#x27;t mind at all
+
+[outro]
+Take me apart
+Hold my hand
+Tell you something true</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>ngi ai nguh ia me kotrai </b> <span class="id">08dd9d6c</span><br><span class="style">jazz</span> · lyric WER 0.99</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08dd9d6c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>ngi ai nguh ia me kotrai
+jing ieid jing sbun me ai
+ia ngi ka jing koit jing khiah
+ba ngin don lang kumne
+kum shipara
+tylli kawei ngin long
+kum ki shipai u krist
+da jing shitrhem ngin trei
+bad ia ieid markylliang
+haba don ki jing eh jing tynjuh
+ngin ai mynsiem i wei ia iwei
+ngin ym kynran dien ngin tur
+shaphrang daka jing ngeit
+ryngkat ka jing dwai lang</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>(untitled)</b> <span class="id">064e0e69</span><br><span class="style">choir</span> · lyric WER 0.90</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/064e0e69.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Christmas Song: King of Glory
+
+Verse 1
+A star arose in the silent night,
+Guiding the way to the holy light.
+A child is born, the promised King,
+Heaven rejoices, let the angels sing.
+
+Chorus
+Hail the King of Glory, born to save,
+Bringing hope to the world He gave.
+Lift your hearts, let the praises ring,
+Jesus Christ, our Savior and King.
+
+Verse 2
+In a humble manger, love came down,
+A crown of grace for a thorn-filled crown.
+Peace on earth, mercy in His name,
+Forevermore, His love remains.
+
+Chorus
+Hail the King of Glory, born to save,
+Bringing hope to the world He gave.
+Lift your hearts, let the praises ring,
+Jesus Christ, our Savior and King.
+
+Bridge
+Let the nations bow, let the earth proclaim,
+The wonder of His holy name.
+Emmanuel, God with us,
+In Him we place our trust.
+
+Chorus
+Hail the King of Glory, born to save,
+Bringing hope to the world He gave.
+Lift your hearts, let the praises ring,
+Jesus Christ, our Savior and King.
+
+Outro
+Glory to God, His love we sing,
+Forever reigning, our Savior and King.</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Baila comigo (Laranja)🧡</b> <span class="id">06b8e143</span><br><span class="style">male vocals, reggaeton</span> · lyric WER 1.00</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/06b8e143.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Intro]
+Yeah-yeah
+Hoje o sol não vai dormir
+Ven conmigo...
+
+[verso]
+Pé descalço na areia quente
+Você chegou e mudou o ambiente
+Cabelo molhado, sorriso inocente
+Seu olhar ficou na minha mente
+
+O mar batendo no nosso pé
+Você me olhando, eu perdendo a fé
+De que eu consigo ficar de longe
+Mas vou até você onde estiver
+
+[pré-refrão]
+E deixa o mundo lá fora
+Que hoje a noite demora
+Sem ter hora pra ir embora
+Aproveita porque a festa é nossa
+
+[refrão]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa anoitecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+[verso]
+Luz dourada refletindo em você
+O céu laranja começando a escurecer
+Mas a nossa noite acaba de nascer
+E eu já sei que não quero esquecer
+
+Teu perfume misturado com maresia
+Essa química não pede teoria
+Se isso for loucura, eu quero todo dia
+Você sorrindo e provocando minha alegria
+
+[ponte]
+Vem mais perto
+Sem medo
+Deixa o ritmo falar
+Se amanhã for segredo
+Hoje a gente vai lembrar
+
+[refrão final]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você...</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>De Profundo(Tenor version)</b> <span class="id">08288cb0</span><br><span class="style">gregorian chant, latin gospel, atmospheric hymn, slow tempo, cathedral organ, children choir, solo male voice, string quartet pizzicato, han</span> · lyric WER 1.05</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08288cb0.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Domine, miserére nobis in imbre magno;
+cor tardum ne derelínquas,
+clamórem de profundo
+ad lucem tuam revóca.
+
+De profundo clamávimus ad te, Dómine;
+vox tarda tamen ad aures tuas pérvenit.
+
+In siléntio sub terra germinát spes tarda,
+et nova vita nascítur.
+
+In imbre magno manus tua nos érigit;
+de profundo ad lucem tuam surgémus.</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Your action reflects your love</b> <span class="id">06c40b48</span><br><span class="style">electric guitar</span> · lyric WER 1.06</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/06c40b48.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Your Actions Reflect Your Love
+
+Verse 1
+Words can comfort for a little while,
+But your actions carried me every mile.
+When I was weak, you stood by my side,
+You never left, you were my guide.
+
+Pre-Chorus
+You gave without asking for praise,
+You lit my darkest days.
+Your kindness spoke louder than words,
+A love that truly could be heard.
+
+Chorus
+Your actions reflect your love, my brother,
+A priceless gift like no other.
+You lifted me when I couldn&#x27;t stand,
+With a faithful heart and helping hand.
+Thank you for every sacrifice you&#x27;ve made,
+For every prayer and every way you stayed.
+Your actions reflect your love so true,
+And I&#x27;ll always be grateful to you.
+
+Verse 2
+You believed in me when I had no hope,
+You taught me how to dream and cope.
+Every step you took to help me rise,
+Showed the love no words could describe.
+
+Bridge
+May God reward your faithful heart,
+And bless your life in every part.
+The love you&#x27;ve shown will never fade,
+I&#x27;ll remember every sacrifice you made.
+
+Final Chorus
+Your actions reflect your love, my brother,
+Your kindness shines above all others.
+Thank you for everything you&#x27;ve done for me,
+Your love has helped me become who I am today.
+Forever grateful, forever proud,
+I&#x27;ll speak your kindness strong and loud.
+Your actions reflect your love so true,
+My brother, this song is dedicated to you.</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>noche de verano </b> <span class="id">06fc0b11</span><br><span class="style">cello</span> · lyric WER 1.09</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/06fc0b11.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Era de noche
+el insomnio me mataba lentamente
+hace calor... mucho calor
+salgo afuera
+libreta en mano
+miro al cielo
+
+Es una noche sin luna
+las estrellas como diamantes
+empiezo a escribir
+silencio...
+solo mí birome sobre el papel
+trazando garabatos en forma de letras
+me relaja ese sonido
+
+En el balcón de mí casa
+logro encontrar la paz en la nada
+en el silencio
+en las estrellas sin nombre
+y el sonido del cuaderno
+que guarda poesía</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Curly Hair 12-24-25-c</b> <span class="id">07dd3b1c</span><br><span class="style">motown</span> · lyric WER 1.17</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/07dd3b1c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Curly hair can make you a playa.
+
+Quinton has the curliest hair.
+he got the O-highest offer
+
+Sophileeta has long wavy hair,
+she&#x27;s  working hard to make the grade
+
+Ells-a-bells works to make a Frozen shade
+And went from build-a-bear to extension hair,
+
+Holden has curls but got it cut to be a grown up
+but he loved the waves
+yes he loved the waves
+
+Sanderosa had his cut, and sometimes misbehaves
+but grew out the curls to be a grownup.  - achieving the highest order of self employed.
+Highest order
+
+Paul liked to shave off all curls, but got burned when everyone loved their curls more.
+Loved their curls more.
+
+Tara holds the mix together,
+She just burns food.
+Just.
+Burns.
+Food!
+
+It&#x27;s all about the curls
+Its all about the curls</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Carrying Things up the Mountain+mandolin</b> <span class="id">0833d7ac</span><br><span class="style">mandolin</span> · lyric WER 1.21</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0833d7ac.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Oh...oh...oh...oh...)
+(Walking up and down regularly)
+(Porters still walk up and down)
+(Hmm..hmm..hmm..hmm..)
+
+Porters are a regular job. They do it.
+Carrying things up the mountain
+The regular job of the Srithan people
+Going up and down is not an easy job.
+
+Walking up Phu Kradueng is difficult.
+Carrying heavy is extremely difficult.
+Doing this job for the income.
+Save it for spending, buying food.
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Keep it for the people of Srithan..
+(Hmm..hmm..hmm..hmm..)
+****************</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Não Gosto de Frutas</b> <span class="id">08e4f4ab</span><br><span class="style">ambient</span> · lyric WER 1.35</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08e4f4ab.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Frutas são legais, mas também saudáveis,
+Se eu gostasse, seria tão legal.
+Todo mundo diz: &quot;Vai experimentar!&quot;,
+Mas eu prefiro nem chegar.
+
+Maçã e banana podem até brilhar,
+Mas não conseguem me conquistar.
+Melancia, manga, uva e limão,
+Não fazem parte da minha paixão.
+
+Não gosto de frutas, fazer o quê?
+Cada um tem um gosto, pode acontecer.
+Quem sabe um dia eu mude de ideia,
+Mas hoje eu passo... pode levar a bandeja!
+
+Talvez amanhã eu queira provar,
+Ou talvez eu continue sem gostar.
+Tudo bem ser diferente também,
+Respeitar o gosto dos outros faz bem!</pre></details>
+</article>
+<article class="song">
+  <div class="head"><b>Old Drama+mandolin</b> <span class="id">09092e80</span><br><span class="style">mandolin</span> · lyric WER 1.79</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/09092e80.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Old drama, old script)
+(Pick it up and tell)
+(Watched many times)
+(A story of a person, thick lust..oh)
+
+A big drama, many episodes
+Meandering, twisting, reflection, benefits
+Grab power, set the drawing, as you please
+The mind is crooked, never stop, reduce, let go
+
+A big drama, play according to the script
+Do it smoothly, as the master wishes
+An old drama, play according to the flag
+Set the script, as you want it to be
+
+The outside is bright, but the inside is dark
+It seems that it is better than anything
+But the rotten smell, wafts far away
+Trying to hide it, but can&#x27;t hide it
+
+A big drama, see until it&#x27;s disgusting
+The writer is full of lust, desire, pride
+Has a heart that is completely dark
+When the end of life, sin will follow you..
+********************</pre></details>
+</article>
+<h2>Same prompt: R3.1 (left) vs the previous whole-song model G3 (right)</h2><p>R3.1 wins 15 of 20 prompts and has no collapsed songs.</p>
+<div class="pair"><article class="song">
+  <div class="head"><b>Don&#x27;t Try to Understand Me</b> <span class="id">0699f253</span><br><span class="style">punk</span> · lyric WER 0.93 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0699f253.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[intro]
+[fingerstyle acoustic guitar enters]
+(Hoo-ooh)
+
+[verse]
+[male tenor vocals]
+La garantía de lo lógico
+Y la espera de algo hipnótico
+(Hoo-ooh)
+Spending time at your place
+Doesn&#x27;t make me a lover, yeah
+(Hoo-ooh)
+
+[chorus]
+[falsetto]
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, yeah)
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, mm)
+
+[bridge]
+[chest voice]
+So don&#x27;t stick on my skin because I forgive you
+But this journey aren&#x27;t for two people
+So don&#x27;t follow me because I don&#x27;t need you
+Don&#x27;t put on your knees because I will leave you
+Don&#x27;t make me regret my decision
+I just mind you should choose one, two
+(Hoo-ooh, yeah)</pre></details>
+</article><article class="song">
+  <div class="head"><b>Don&#x27;t Try to Understand Me</b> <span class="id">0699f253</span><br><span class="style">punk</span> · lyric WER 1.42 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/0699f253.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>[intro]
+[fingerstyle acoustic guitar enters]
+(Hoo-ooh)
+
+[verse]
+[male tenor vocals]
+La garantía de lo lógico
+Y la espera de algo hipnótico
+(Hoo-ooh)
+Spending time at your place
+Doesn&#x27;t make me a lover, yeah
+(Hoo-ooh)
+
+[chorus]
+[falsetto]
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, yeah)
+So please don&#x27;t try to understand me
+That&#x27;s the way you love me, baby
+(Hoo-ooh, mm)
+
+[bridge]
+[chest voice]
+So don&#x27;t stick on my skin because I forgive you
+But this journey aren&#x27;t for two people
+So don&#x27;t follow me because I don&#x27;t need you
+Don&#x27;t put on your knees because I will leave you
+Don&#x27;t make me regret my decision
+I just mind you should choose one, two
+(Hoo-ooh, yeah)</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Curly Hair 12-24-25-c</b> <span class="id">07dd3b1c</span><br><span class="style">motown</span> · lyric WER 1.17 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/07dd3b1c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Curly hair can make you a playa.
+
+Quinton has the curliest hair.
+he got the O-highest offer
+
+Sophileeta has long wavy hair,
+she&#x27;s  working hard to make the grade
+
+Ells-a-bells works to make a Frozen shade
+And went from build-a-bear to extension hair,
+
+Holden has curls but got it cut to be a grown up
+but he loved the waves
+yes he loved the waves
+
+Sanderosa had his cut, and sometimes misbehaves
+but grew out the curls to be a grownup.  - achieving the highest order of self employed.
+Highest order
+
+Paul liked to shave off all curls, but got burned when everyone loved their curls more.
+Loved their curls more.
+
+Tara holds the mix together,
+She just burns food.
+Just.
+Burns.
+Food!
+
+It&#x27;s all about the curls
+Its all about the curls</pre></details>
+</article><article class="song">
+  <div class="head"><b>Curly Hair 12-24-25-c</b> <span class="id">07dd3b1c</span><br><span class="style">motown</span> · lyric WER 3.40 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/07dd3b1c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Curly hair can make you a playa.
+
+Quinton has the curliest hair.
+he got the O-highest offer
+
+Sophileeta has long wavy hair,
+she&#x27;s  working hard to make the grade
+
+Ells-a-bells works to make a Frozen shade
+And went from build-a-bear to extension hair,
+
+Holden has curls but got it cut to be a grown up
+but he loved the waves
+yes he loved the waves
+
+Sanderosa had his cut, and sometimes misbehaves
+but grew out the curls to be a grownup.  - achieving the highest order of self employed.
+Highest order
+
+Paul liked to shave off all curls, but got burned when everyone loved their curls more.
+Loved their curls more.
+
+Tara holds the mix together,
+She just burns food.
+Just.
+Burns.
+Food!
+
+It&#x27;s all about the curls
+Its all about the curls</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>ngi ai nguh ia me kotrai </b> <span class="id">08dd9d6c</span><br><span class="style">jazz</span> · lyric WER 0.99 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08dd9d6c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>ngi ai nguh ia me kotrai
+jing ieid jing sbun me ai
+ia ngi ka jing koit jing khiah
+ba ngin don lang kumne
+kum shipara
+tylli kawei ngin long
+kum ki shipai u krist
+da jing shitrhem ngin trei
+bad ia ieid markylliang
+haba don ki jing eh jing tynjuh
+ngin ai mynsiem i wei ia iwei
+ngin ym kynran dien ngin tur
+shaphrang daka jing ngeit
+ryngkat ka jing dwai lang</pre></details>
+</article><article class="song">
+  <div class="head"><b>ngi ai nguh ia me kotrai </b> <span class="id">08dd9d6c</span><br><span class="style">jazz</span> · lyric WER 1.86 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/08dd9d6c.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>ngi ai nguh ia me kotrai
+jing ieid jing sbun me ai
+ia ngi ka jing koit jing khiah
+ba ngin don lang kumne
+kum shipara
+tylli kawei ngin long
+kum ki shipai u krist
+da jing shitrhem ngin trei
+bad ia ieid markylliang
+haba don ki jing eh jing tynjuh
+ngin ai mynsiem i wei ia iwei
+ngin ym kynran dien ngin tur
+shaphrang daka jing ngeit
+ryngkat ka jing dwai lang</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Carrying Things up the Mountain+mandolin</b> <span class="id">0833d7ac</span><br><span class="style">mandolin</span> · lyric WER 1.21 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/0833d7ac.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Oh...oh...oh...oh...)
+(Walking up and down regularly)
+(Porters still walk up and down)
+(Hmm..hmm..hmm..hmm..)
+
+Porters are a regular job. They do it.
+Carrying things up the mountain
+The regular job of the Srithan people
+Going up and down is not an easy job.
+
+Walking up Phu Kradueng is difficult.
+Carrying heavy is extremely difficult.
+Doing this job for the income.
+Save it for spending, buying food.
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Keep it for the people of Srithan..
+(Hmm..hmm..hmm..hmm..)
+****************</pre></details>
+</article><article class="song">
+  <div class="head"><b>Carrying Things up the Mountain+mandolin</b> <span class="id">0833d7ac</span><br><span class="style">mandolin</span> · lyric WER 2.02 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/0833d7ac.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Oh...oh...oh...oh...)
+(Walking up and down regularly)
+(Porters still walk up and down)
+(Hmm..hmm..hmm..hmm..)
+
+Porters are a regular job. They do it.
+Carrying things up the mountain
+The regular job of the Srithan people
+Going up and down is not an easy job.
+
+Walking up Phu Kradueng is difficult.
+Carrying heavy is extremely difficult.
+Doing this job for the income.
+Save it for spending, buying food.
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Not long now, the cable car will arrive.
+Take the cable car instead of walking.
+The old way of walking will probably end.
+No one will do this job anymore.
+
+Porters are a regular job, doing it
+Oh, is it time to stop carrying?
+Please divide the proportions of this job
+Keep it for the people of Srithan..
+
+Keep it for the people of Srithan..
+(Hmm..hmm..hmm..hmm..)
+****************</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Não Gosto de Frutas</b> <span class="id">08e4f4ab</span><br><span class="style">ambient</span> · lyric WER 1.35 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/08e4f4ab.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Frutas são legais, mas também saudáveis,
+Se eu gostasse, seria tão legal.
+Todo mundo diz: &quot;Vai experimentar!&quot;,
+Mas eu prefiro nem chegar.
+
+Maçã e banana podem até brilhar,
+Mas não conseguem me conquistar.
+Melancia, manga, uva e limão,
+Não fazem parte da minha paixão.
+
+Não gosto de frutas, fazer o quê?
+Cada um tem um gosto, pode acontecer.
+Quem sabe um dia eu mude de ideia,
+Mas hoje eu passo... pode levar a bandeja!
+
+Talvez amanhã eu queira provar,
+Ou talvez eu continue sem gostar.
+Tudo bem ser diferente também,
+Respeitar o gosto dos outros faz bem!</pre></details>
+</article><article class="song">
+  <div class="head"><b>Não Gosto de Frutas</b> <span class="id">08e4f4ab</span><br><span class="style">ambient</span> · lyric WER 1.79 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/08e4f4ab.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Frutas são legais, mas também saudáveis,
+Se eu gostasse, seria tão legal.
+Todo mundo diz: &quot;Vai experimentar!&quot;,
+Mas eu prefiro nem chegar.
+
+Maçã e banana podem até brilhar,
+Mas não conseguem me conquistar.
+Melancia, manga, uva e limão,
+Não fazem parte da minha paixão.
+
+Não gosto de frutas, fazer o quê?
+Cada um tem um gosto, pode acontecer.
+Quem sabe um dia eu mude de ideia,
+Mas hoje eu passo... pode levar a bandeja!
+
+Talvez amanhã eu queira provar,
+Ou talvez eu continue sem gostar.
+Tudo bem ser diferente também,
+Respeitar o gosto dos outros faz bem!</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Old Drama+mandolin</b> <span class="id">09092e80</span><br><span class="style">mandolin</span> · lyric WER 1.79 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/09092e80.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Old drama, old script)
+(Pick it up and tell)
+(Watched many times)
+(A story of a person, thick lust..oh)
+
+A big drama, many episodes
+Meandering, twisting, reflection, benefits
+Grab power, set the drawing, as you please
+The mind is crooked, never stop, reduce, let go
+
+A big drama, play according to the script
+Do it smoothly, as the master wishes
+An old drama, play according to the flag
+Set the script, as you want it to be
+
+The outside is bright, but the inside is dark
+It seems that it is better than anything
+But the rotten smell, wafts far away
+Trying to hide it, but can&#x27;t hide it
+
+A big drama, see until it&#x27;s disgusting
+The writer is full of lust, desire, pride
+Has a heart that is completely dark
+When the end of life, sin will follow you..
+********************</pre></details>
+</article><article class="song">
+  <div class="head"><b>Old Drama+mandolin</b> <span class="id">09092e80</span><br><span class="style">mandolin</span> · lyric WER 2.46 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/09092e80.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>(Old drama, old script)
+(Pick it up and tell)
+(Watched many times)
+(A story of a person, thick lust..oh)
+
+A big drama, many episodes
+Meandering, twisting, reflection, benefits
+Grab power, set the drawing, as you please
+The mind is crooked, never stop, reduce, let go
+
+A big drama, play according to the script
+Do it smoothly, as the master wishes
+An old drama, play according to the flag
+Set the script, as you want it to be
+
+The outside is bright, but the inside is dark
+It seems that it is better than anything
+But the rotten smell, wafts far away
+Trying to hide it, but can&#x27;t hide it
+
+A big drama, see until it&#x27;s disgusting
+The writer is full of lust, desire, pride
+Has a heart that is completely dark
+When the end of life, sin will follow you..
+********************</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Baila comigo (Laranja)🧡</b> <span class="id">06b8e143</span><br><span class="style">male vocals, reggaeton</span> · lyric WER 1.00 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/06b8e143.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Intro]
+Yeah-yeah
+Hoje o sol não vai dormir
+Ven conmigo...
+
+[verso]
+Pé descalço na areia quente
+Você chegou e mudou o ambiente
+Cabelo molhado, sorriso inocente
+Seu olhar ficou na minha mente
+
+O mar batendo no nosso pé
+Você me olhando, eu perdendo a fé
+De que eu consigo ficar de longe
+Mas vou até você onde estiver
+
+[pré-refrão]
+E deixa o mundo lá fora
+Que hoje a noite demora
+Sem ter hora pra ir embora
+Aproveita porque a festa é nossa
+
+[refrão]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa anoitecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+[verso]
+Luz dourada refletindo em você
+O céu laranja começando a escurecer
+Mas a nossa noite acaba de nascer
+E eu já sei que não quero esquecer
+
+Teu perfume misturado com maresia
+Essa química não pede teoria
+Se isso for loucura, eu quero todo dia
+Você sorrindo e provocando minha alegria
+
+[ponte]
+Vem mais perto
+Sem medo
+Deixa o ritmo falar
+Se amanhã for segredo
+Hoje a gente vai lembrar
+
+[refrão final]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você...</pre></details>
+</article><article class="song">
+  <div class="head"><b>Baila comigo (Laranja)🧡</b> <span class="id">06b8e143</span><br><span class="style">male vocals, reggaeton</span> · lyric WER 0.95 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/06b8e143.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Intro]
+Yeah-yeah
+Hoje o sol não vai dormir
+Ven conmigo...
+
+[verso]
+Pé descalço na areia quente
+Você chegou e mudou o ambiente
+Cabelo molhado, sorriso inocente
+Seu olhar ficou na minha mente
+
+O mar batendo no nosso pé
+Você me olhando, eu perdendo a fé
+De que eu consigo ficar de longe
+Mas vou até você onde estiver
+
+[pré-refrão]
+E deixa o mundo lá fora
+Que hoje a noite demora
+Sem ter hora pra ir embora
+Aproveita porque a festa é nossa
+
+[refrão]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa anoitecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+[verso]
+Luz dourada refletindo em você
+O céu laranja começando a escurecer
+Mas a nossa noite acaba de nascer
+E eu já sei que não quero esquecer
+
+Teu perfume misturado com maresia
+Essa química não pede teoria
+Se isso for loucura, eu quero todo dia
+Você sorrindo e provocando minha alegria
+
+[ponte]
+Vem mais perto
+Sem medo
+Deixa o ritmo falar
+Se amanhã for segredo
+Hoje a gente vai lembrar
+
+[refrão final]
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Baila no sol, vem bailar comigo
+Teu sorriso de encontro ao meu, que lindo
+Baila no sol, deixa acontecer
+Se o verão acabar, eu quero você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você
+
+Dale, dale, não para não
+Calor na pele, fogo no coração
+Baila nesse som até amanhecer
+Hoje eu só quero dançar com você...</pre></details>
+</article></div>
+<div class="pair"><article class="song">
+  <div class="head"><b>Your action reflects your love</b> <span class="id">06c40b48</span><br><span class="style">electric guitar</span> · lyric WER 1.06 (R3.1)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/r31_s2/06c40b48.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Your Actions Reflect Your Love
+
+Verse 1
+Words can comfort for a little while,
+But your actions carried me every mile.
+When I was weak, you stood by my side,
+You never left, you were my guide.
+
+Pre-Chorus
+You gave without asking for praise,
+You lit my darkest days.
+Your kindness spoke louder than words,
+A love that truly could be heard.
+
+Chorus
+Your actions reflect your love, my brother,
+A priceless gift like no other.
+You lifted me when I couldn&#x27;t stand,
+With a faithful heart and helping hand.
+Thank you for every sacrifice you&#x27;ve made,
+For every prayer and every way you stayed.
+Your actions reflect your love so true,
+And I&#x27;ll always be grateful to you.
+
+Verse 2
+You believed in me when I had no hope,
+You taught me how to dream and cope.
+Every step you took to help me rise,
+Showed the love no words could describe.
+
+Bridge
+May God reward your faithful heart,
+And bless your life in every part.
+The love you&#x27;ve shown will never fade,
+I&#x27;ll remember every sacrifice you made.
+
+Final Chorus
+Your actions reflect your love, my brother,
+Your kindness shines above all others.
+Thank you for everything you&#x27;ve done for me,
+Your love has helped me become who I am today.
+Forever grateful, forever proud,
+I&#x27;ll speak your kindness strong and loud.
+Your actions reflect your love so true,
+My brother, this song is dedicated to you.</pre></details>
+</article><article class="song">
+  <div class="head"><b>Your action reflects your love</b> <span class="id">06c40b48</span><br><span class="style">electric guitar</span> · lyric WER 0.96 (G3)</div>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/xiaol/LiuBai-RWKV/main/samples/g3_s2/06c40b48.mp3"></audio>
+  <details><summary>prompt lyrics</summary><pre>Your Actions Reflect Your Love
+
+Verse 1
+Words can comfort for a little while,
+But your actions carried me every mile.
+When I was weak, you stood by my side,
+You never left, you were my guide.
+
+Pre-Chorus
+You gave without asking for praise,
+You lit my darkest days.
+Your kindness spoke louder than words,
+A love that truly could be heard.
+
+Chorus
+Your actions reflect your love, my brother,
+A priceless gift like no other.
+You lifted me when I couldn&#x27;t stand,
+With a faithful heart and helping hand.
+Thank you for every sacrifice you&#x27;ve made,
+For every prayer and every way you stayed.
+Your actions reflect your love so true,
+And I&#x27;ll always be grateful to you.
+
+Verse 2
+You believed in me when I had no hope,
+You taught me how to dream and cope.
+Every step you took to help me rise,
+Showed the love no words could describe.
+
+Bridge
+May God reward your faithful heart,
+And bless your life in every part.
+The love you&#x27;ve shown will never fade,
+I&#x27;ll remember every sacrifice you made.
+
+Final Chorus
+Your actions reflect your love, my brother,
+Your kindness shines above all others.
+Thank you for everything you&#x27;ve done for me,
+Your love has helped me become who I am today.
+Forever grateful, forever proud,
+I&#x27;ll speak your kindness strong and loud.
+Your actions reflect your love so true,
+My brother, this song is dedicated to you.</pre></details>
+</article></div>
+<p style="color:#777;margin-top:2rem">MP3 ≈ 128 kbps VBR from 48 kHz stereo FLAC. Original Suno recordings are not redistributed.</p></body></html>
