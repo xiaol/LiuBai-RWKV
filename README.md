@@ -92,7 +92,9 @@ style caption + lyrics ──► RWKV-7 3B (ctx 8,192, vocab 98,816)
 | **R3.1 stage-1, section format** | `out/stage1_sec/rwkv-final.pth` | binding appeared (permuted − matched 0.0005 → 0.106 nats); audio WER 1.05, lyric-word overlap 10 %, cos 0.79 | **better, still no lyric adherence**, 2026-09-20 |
 | R3.2 line-level format + 80 k aligned songs | `out/stage1_line/` | probe running | in progress |
 
-Checkpoints and data are not in this repository (tens of GB); the repo holds the code, the plan, the log and the rendered samples.
+**Checkpoints are on Hugging Face: [xiaol/LiuBai-RWKV](https://huggingface.co/xiaol/LiuBai-RWKV)** (R3.1 and G3 RWKV-7 3B, R1-a head + LoRA,
+training logs, samples, model card; CC BY-NC 4.0, 13 GB). Its layout mirrors `out/`, so `hf download xiaol/LiuBai-RWKV --local-dir out`
+puts the files where the scripts below expect them. Data is not distributed; this repo holds the code, the plan, the log and the rendered samples.
 
 ## Status and next step
 
@@ -136,6 +138,7 @@ git clone https://github.com/BlinkDL/RWKV-LM.git tools/RWKV-LM && git -C tools/R
 git -C tools/RWKV-LM apply ../../tools/patches/rwkv-lm-9a75f9f-train_temp.patch
 git clone https://github.com/multimodal-art-projection/YuE.git tools/YuE && git -C tools/YuE checkout 0edaf2f
 
+# weights: hf download xiaol/LiuBai-RWKV --local-dir out --exclude "samples/*"
 # generate 20 shard-2 prompts with the R3.1 checkpoint (section decoding), render, score
 python scripts/rwkv_generate.py --ckpt out/stage1_sec/rwkv-final.pth --sections 1 --shard 2 --n 20 --out out/gen/r31_s2_sec
 venvs/yue2/bin/python tools/yue2_render_tokens.py --gen out/gen/r31_s2_sec --tag rwkv_r31 --eval-root out/yue2_roundtrip_s2
@@ -143,7 +146,7 @@ venvs/yue2/bin/python tools/yue2_roundtrip_eval.py --root out/yue2_roundtrip_s2 
 ```
 
 Two Python environments are used: `rwkv_py312` (RWKV-LM training / sampling, CUDA kernels) and `venvs/yue2` (YuE2, MERT, ASR).
-Model weights needed: YuE2 AR/NAR/VAE, MERT-v2-FullSong, HeartTranscriptor, plus our R1-a head/LoRA and RWKV checkpoints (not distributed yet).
+Model weights needed: YuE2 AR/NAR/VAE, MERT-v2-FullSong, HeartTranscriptor, plus our R1-a head/LoRA and RWKV checkpoints from [xiaol/LiuBai-RWKV](https://huggingface.co/xiaol/LiuBai-RWKV).
 
 ## Credits
 
