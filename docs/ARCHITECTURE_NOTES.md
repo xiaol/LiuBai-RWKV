@@ -181,3 +181,123 @@ the same small state, consistent with G3's near-zero binding (shuffled − match
 (R3.1) shortens that distance. This is not proof the architecture is the cause: YuE/YuE2 are transformers and
 also needed section interleaving. A natural hybrid here: RWKV for the audio stream plus cross-attention to the
 lyric/prompt tokens only (~500 tokens, bounded cache), keeping constant memory, streaming and state snapshots.
+
+## 6. Closing the recall gap with the state, for music post-training
+
+Caveat first: in the line-level format (R3.2) the line being sung was read 2–6 s earlier (50–150 frames). A 64×64
+state per head holds one line over that distance easily, and R3.1 bound weakly (permuted gap 0.106 nats) even
+with the stanza right before its audio. So the remaining problem may be *using* the text (learning text → sung
+sound), not *keeping* it. Those need different fixes; measure first.
+
+**Step 0 — diagnose (≈ 1 GPU-hour).** Linear probe on frozen hidden states: at each audio frame, predict the
+lyric line (or phonemes) currently being sung, labels from the forced alignment (`data/lyric_align/fa`).
+Plot accuracy against distance from the text, whole-song vs line format.
+
+- Probe fails → the state does not hold the lyrics → recall problem → options 2–4.
+- Probe succeeds but generation ignores the lyrics → usage problem → options 5–6.
+
+Options, cheapest first:
+
+1. **Put the text where it is needed (format only).** Line-level interleaving already does this; at inference the
+   current line can always be local. Variants: insert the next line's text shortly before its frames, or repeat
+   the whole lyrics in the header ("Just Read Twice", Arora et al. 2024). Costs a few hundred tokens.
+
+2. **>>> RECOMMENDED FIRST: train the state to keep the lyrics — lyric-cursor auxiliary loss. <<<**
+   See section 7 for the full design.
+
+3. **Lyric memory heads: gate writes by token type.** In a few heads per layer, audio tokens do not write
+   (k = 0, no erase) and decay is held near 1; only text tokens write, and SOS clears them. A protected lyric
+   store the audio stream can read but not overwrite. Mask on k and a for the chosen heads, fine-tuned from the
+   existing checkpoint. Capacity: 4 heads × 32 layers × 64×64 vs ~500 lyric tokens.
+
+4. **State bank addressed by pointer.** Lyric recall is monotonic (line j after line j−1): snapshot the state after
+   each lyric line; while singing line j, read snapshot j plus the live audio state. Pointer = the cursor from
+   option 2, or SOS boundaries. WKVM / Multi-state RWKV idea applied to an ordered memory. More engineering.
+
+5. **Distill from YuE2.** Same semantic token space, so YuE2's AR (3B transformer, exact attention to the lyrics)
+   gives per-frame logits on the same documents; train RWKV on them with KL. Dense lyric-conditioned supervision
+   on every frame; attention-to-state distillation (LoLCATs, Mamba-in-the-Llama) without a vocabulary mismatch.
+   Cost: one teacher pass per document (~24 GB), prompt built in YuE2's format.
+
+6. **RL on lyric accuracy (R4).** GRPO with a phoneme-error-rate reward (HeartTranscriptor on rendered 30 s
+   excerpts) plus KL to the SFT model. Adds no capacity; makes the model use what it has. GRPO pipeline exists
+   in RNN-StateTuning.
+
+7. **If all fail: gated cross-attention to the lyrics.** A few cross-attention layers over lyric/prompt tokens
+   only, zero-initialised gate (Flamingo-style) so the checkpoint is unchanged at start. Bounded cache (~500
+   tokens), streaming and constant memory survive.
+
+Not useful here: **state tuning** (learned initial state). It is one constant for all songs, so it cannot carry a
+given song's lyrics, and it does not change the gates that decide what is kept. Helps format/style, not recall.
+
+Suggested order:
+
+| Step | What | Cost |
+|---|---|---|
+| 1 | Linear probe on R3.1 / R3.2a hidden states | ~1 GPU-hour |
+| 2 | **Line-level format + lyric-cursor loss, continued from R3.1 (option 2)** | one R3.2-sized run |
+| 3 | If the probe shows decay: lyric memory heads (option 3) | small patch, same run |
+| 4 | YuE2 logit distillation (option 5) | teacher passes, 2 GPUs |
+| 5 | GRPO with phoneme-error reward (option 6) | planned R4 |
+
+Options 2 and 3 can share one run.
+
+## 7. ★ Option 2 in detail: lyric-cursor auxiliary loss ★
+
+**Why this one first.** It is the most direct way to *train the state* for recall: no architecture change, fits
+continued training of R3.1/R3.2, and the labels already exist. Mothersuperior found the same kind of cursor
+necessary to stop lyric drift when fine-tuning YuE2's AR — and lyric adherence (PER) is exactly where Suno leads.
+
+**What it does.** A small head reads the hidden state at every audio frame and must say *which lyric unit is being
+sung right now*. To answer, the state must still contain the lyrics at that frame. The gradient of this loss
+flows back into the RWKV-7 gates that decide what the state keeps:
+
+```
+w  (decay)       how fast old content fades
+a  (in-context learning rate / erase strength)
+k  (write direction)
+```
+
+so the model learns a write policy that protects lyric content from being overwritten by the stream of
+high-entropy audio tokens. The main LM loss alone gives this signal only weakly (0.1-nat binding in G3/R3.1).
+
+**Targets (from data we already have).**
+
+- MMS forced alignment (`tools/lyric_align_fa.py`, `data/lyric_align/fa`) gives per-line and per-word times.
+- 25 Hz frames → per-frame label. Choices, from coarse to fine:
+  - line index within the song (cheap, but positional),
+  - word id / word index inside the current line,
+  - phoneme or character sequence of the current line, scored with CTC (best: forces content, not position).
+- Frames with no vocal (intro, instrumental breaks) → blank / ignore.
+- For the real-song corpus, LRC timestamps give line times for free (see `tools/ingest_lrc_corpus.py`).
+
+**Head and loss.**
+
+```
+h_t        = hidden state after the last block (before ln_out/head), audio positions only
+cursor_t   = Linear(2560 → n_units)(h_t)                # or a 2-layer MLP, ≤ 5 M params
+L_total    = L_LM  +  λ · L_cursor                       # λ ≈ 0.05–0.1
+L_cursor   = CE(cursor_t, label_t)                       # word/line target
+          or CTC(cursor over frames of a line, phonemes of that line)
+```
+
+- A second variant attaches the head to a middle layer too (e.g. layer 16), so lower layers are pushed to keep the
+  lyrics, not only the top.
+- Content, not position: the target must require the *words*. A pure line-index target can be solved by counting
+  frames; use word/phoneme targets, or at least word identity, so the only way to win is to remember the text.
+
+**Training.** Continue from `out/stage1_sec/rwkv-final.pth` (R3.1) on the line-level corpus
+(`data/binidx/yue2_line_stage1_*`), same LR schedule as R3.2a (3e-5 → 3e-6). Needs: per-document frame labels
+stored next to the binidx (a side array of int16 per audio token), a data-loader change to return them, and the
+extra head and loss term in `training_step`. The head is dropped at inference — or kept, since it gives a free
+live lyric cursor for section edits and streaming UI.
+
+**Gates (all already measurable).**
+
+1. Cursor accuracy on held-out songs, and its decay with distance from the text (should stay flat across a line).
+2. Teacher-forced binding: `scripts/rwkv_eval_loss_sec.py` permuted − matched must clearly exceed R3.1's 0.106.
+3. Audio: 20 shard-2 prompts rendered and scored — WER vs lyrics below R3.1's 1.05, transcript lyric-word overlap
+   well above 10 % (originals 80 %).
+
+**Risks.** λ too high costs audio LM quality (watch code-token CE on val); alignment noise on screamed / non-English
+songs (filter by alignment score); the head can learn timing shortcuts unless targets are content-based.
