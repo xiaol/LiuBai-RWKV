@@ -301,3 +301,113 @@ live lyric cursor for section edits and streaming UI.
 
 **Risks.** λ too high costs audio LM quality (watch code-token CE on val); alignment noise on screamed / non-English
 songs (filter by alignment score); the head can learn timing shortcuts unless targets are content-based.
+
+## 8. New axes for the WKV state
+
+Today: one 64×64 matrix per head per layer. Our 3B: 32 layers × 40 heads → 5.2M numbers (≈ 10 MB). Each added
+axis targets a different weakness.
+
+| Axis | Idea | Fixes | State size | Fit for music |
+|---|---|---|---|---|
+| Slot | M memories S[m]; a router (or SOS) picks which slot a token writes; reads mix slots | capacity, ordered recall | ×M | **best** |
+| Modality | separate S_text / S_audio; audio never writes the text state | audio overwriting lyrics | ×2 | **best, simplest** |
+| Time-scale | O(log T) states, Fenwick tree over time (log-linear attention, Guo/Yang 2025) | far recall, e.g. a returning chorus | ×log T | good, second stage |
+| Micro-step | n Householder transitions per token (DeltaProduct, Siems/Grazzi 2025) | state tracking | ×1 (n× compute) | low |
+| Order | 3-tensor state, write v⊗k⊗k' | triple interaction | ×64 at head 64 | skip |
+| Nonlinear | state = MLP weights, one gradient step per token (TTT, Titans) | capacity per number | varies | later research |
+
+Formulas:
+
+```
+slot:      S_t[m] = S_{t-1}[m] · A_t + v_t k_tᵀ      only for the slot(s) the router picks
+           y_t    = Σ_m g_t[m] · S_t[m] · r_t
+modality:  S_text  written by text tokens only, decay ≈ 1 during audio
+           S_audio written by audio tokens, normal decay
+           y_t = S_text · r_t + S_audio · r_t
+time:      y_t = Σ_level λ_t[level] · S_t[level] · r_t
+micro:     A_t = H_t,1 · H_t,2 · … · H_t,n
+```
+
+Prior work for the slot axis: MoM "Mixture-of-Memories" (Du et al. 2025), Multi-state RWKV, the WKVM span bank.
+
+### 8.1 Prototype: slot + modality axes as protected heads (implemented)
+
+Recommendation: combine modality + slot + the lyric-cursor loss (section 7). Text writes into a protected state
+indexed by lyric line; audio keeps its own state; the cursor head says which line is being sung. "Remember all the
+lyrics in 4,096 numbers per head" becomes "read the current line from its own slot". Memory stays bounded.
+
+First prototype needs **no kernel change**: slots are existing heads.
+
+- `src/model.py` (tools/RWKV-LM, recorded in tools/patches): `RWKV_SLOT_HEADS=K`, `RWKV_SLOT_M=M`.
+  The last K heads of every layer are protected lyric memory, split into M slots of K/M heads.
+- Hold rule, computed from token ids (`slot_hold_mask`), per token and head:
+
+  ```
+  hold = True  →  k = 0, erase term (kka) = 0, decay w = 1     (state passes through unchanged)
+  audio tokens (codes, SOA, YUE2CODEC, EOA), header, EOD, separator 0  →  hold all K slot heads
+  line text (SOS ... up to SOA)                                         →  write only slot (#SOS so far) mod M
+  ```
+
+- Reads are untouched: every token reads every head, so audio frames read the protected lyric heads.
+- M = 1 → modality axis only. K = 0 → stock RWKV-7.
+- The hold is implemented by masking the kernel inputs (k, kka, w), so the stock `rwkv7_clampw` kernel is reused
+  and gradients flow normally through the non-held positions.
+- Limits of this prototype: slot assignment is round-robin by line (line j and j+M share a slot), there is no learned
+  router, and the protected heads are taken out of the general-purpose budget. A dedicated multi-slot kernel
+  (state [H, M, N, N]) would remove the last limit.
+
+Unit test `scripts/test_state_axes.py` (2026-10-09, K = 4, M = 2):
+
+- mask: slot heads write only on their own line's text, hold on header / audio / markers; stock heads never hold;
+- kernel: a held head gives identical output at two held steps with the same r (|Δy| = 0 vs 4.4 on a free head);
+- 2-layer model forward + backward with the patch on.
+
+### 8.2 Experiment plan (236M A/B setup, `scripts/train_arch_ab.sh`, line format)
+
+| Run | Command | Question |
+|---|---|---|
+| baseline | `bash scripts/train_arch_ab.sh rwkv line GPU` | stock state |
+| modality | `SLOT_HEADS=4 SLOT_M=1 bash scripts/train_arch_ab.sh rwkv line GPU` | does protecting text from audio help? |
+| slot + modality | `SLOT_HEADS=4 SLOT_M=4 bash scripts/train_arch_ab.sh rwkv line GPU` | do per-line slots add to it? |
+| attention reference | `bash scripts/train_arch_ab.sh attn line GPU` | how far from exact recall? |
+
+Score with `scripts/arch_ab_eval.py --fmt line [--slot-heads K --slot-m M]`: code CE, binding gaps (shuffled − matched,
+permuted − matched), first-50-frame CE. Success = permuted − matched clearly above the baseline at equal code CE.
+If positive, port to the 3B (continue from R3.1 with K = 4 of 40 heads) together with the lyric-cursor loss.
+
+### 8.3 Results (2026-10-10)
+
+Setup: 236M (L12 D768, 12 heads of 64), from scratch, 1 epoch of the line-format corpus (144M tokens, 4,405 steps,
+micro_bsz 4, ctx 8192, LR 6e-4 → 6e-5), one A100 each, ≈ 50 min (attention) / 70 min (RWKV). Scored on 100 held-out
+line documents (`logs/arch_ab_eval_*.log`, `out/arch_ab/<run>/rwkv-final.eval_line.json`). Slot runs use K = 4 of 12
+heads. CE in nats.
+
+| Run | code CE matched | shuffled | permuted | no text | gap shuffled | **gap permuted** | first-50 gap permuted | lyric-text CE |
+|---|---|---|---|---|---|---|---|---|
+| RWKV-7 stock | **4.906** | 5.380 | 5.318 | 5.163 | **0.474** | **0.412** | **0.679** | 2.747 |
+| RWKV-7 + modality (4×1) | 4.915 | 5.364 | 5.292 | 5.157 | 0.449 | 0.376 | 0.629 | 2.696 |
+| RWKV-7 + slot + modality (4×4) | 4.912 | 5.366 | 5.307 | 5.155 | 0.453 | 0.394 | 0.651 | 2.759 |
+| Attention (RoPE, QK-norm) | 4.978 | 5.406 | 5.259 | 5.290 | 0.428 | 0.281 | 0.483 | **1.849** |
+
+Final train loss (mean of last 500 steps): 4.584 / 4.584 / 4.592 / 4.548.
+
+Reading:
+
+1. **At line level, lyric binding is not limited by the state.** Stock RWKV-7 binds *more* than attention
+   (permuted gap 0.41 vs 0.28; at the start of a line 0.68 vs 0.48) and has lower code CE (4.906 vs 4.978).
+   Every one of the 100 songs has a positive gap in all four runs. The line text sits 2–6 s before its audio,
+   well inside what a 64×64 state holds, so the caveat in section 6 holds: the gap to close here is not recall.
+2. **The state axes did not help.** Modality and slot+modality are within ±0.04 of stock on every metric, slightly
+   below it on binding. Taking 4 of 12 heads out of the general budget costs about what protecting them gains.
+   One seed per run, so differences of this size are not distinguishable from noise.
+3. **The recall gap does show up — on copying text, not on binding audio.** The header contains the full lyrics,
+   so each line's text can be copied from thousands of tokens earlier. Attention predicts that text at 1.85 nats,
+   RWKV-7 at 2.70–2.76: a 0.9-nat gap, exactly the exact-recall weakness of sections 2–4. The slot heads cannot help
+   there because, by design, they do not write during the header.
+4. **These are teacher-forced numbers at 236M.** They say the 3B's poor lyric adherence in audio (R3.1 WER 1.05)
+   is not explained by state recall at line distance. The levers are those that teach the text → sung-sound mapping:
+   the lyric-cursor loss (section 7), more aligned songs, and RL on phoneme error (option 6).
+
+Decision: do not port the slot/modality heads to the 3B. Keep the patch (off by default, `RWKV_SLOT_HEADS=0`).
+Revisit the slot axis only for long-range targets where recall *is* the problem: returning choruses (melody recall
+across minutes), or a whole-song format without line interleaving.
