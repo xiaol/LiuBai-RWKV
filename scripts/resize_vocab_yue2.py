@@ -5,7 +5,10 @@ From a cb0 stage-1 checkpoint (vocab 67,072, e.g. out/stage1/step-20000.pth): ro
 EOD/SOA/EOA/XCODEC/YUE2CODEC slots) are copied; rows >= YUE2_BASE (the old cb0 code rows, meaningless in the new
 layout) are dropped and all code rows are re-initialised to mean + N(0, 0.02 std) of the world rows.
 From the raw g1k checkpoint (vocab 65,536) everything above 65,536 is new. Other tensors are copied unchanged.
-usage: resize_vocab_yue2.py --src out/stage1/step-20000.pth --dst out/stage1_yue2/rwkv-init.pth [--seed 0]
+--rows-from CKPT (2026-10-09, new base): after growing, copy emb/head rows >= WORLD_VOCAB (specials + 32,768 YuE2 code rows) from an
+already-trained checkpoint in the same layout (e.g. R3.1 out/stage1_sec/rwkv-final.pth, same G1k 3B lineage), so the new base starts
+with trained audio-code rows instead of random ones.
+usage: resize_vocab_yue2.py --src out/stage1/step-20000.pth --dst out/stage1_yue2/rwkv-init.pth [--seed 0] [--rows-from CKPT]
 """
 import argparse, json, sys
 from pathlib import Path
@@ -24,12 +27,18 @@ def grow(w, keep, vocab, gen, noise=0.02):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--src", required=True); ap.add_argument("--dst", required=True); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--rows-from", default="", help="copy rows >= WORLD_VOCAB of emb/head from this checkpoint (vocab VOCAB_SIZE)")
     a = ap.parse_args(); sd = torch.load(a.src, map_location="cpu", mmap=True, weights_only=True)
     old = sd["emb.weight"].shape[0]; assert sd["head.weight"].shape[0] == old and old >= WORLD_VOCAB, old
     keep = min(old, YUE2_BASE); gen = torch.Generator().manual_seed(a.seed); out = {}
     for k, v in sd.items(): out[k] = grow(v, keep, VOCAB_SIZE, gen) if k in ("emb.weight", "head.weight") else v.clone()
+    if a.rows_from:
+        donor = torch.load(a.rows_from, map_location="cpu", mmap=True, weights_only=True)
+        for k in ("emb.weight", "head.weight"):
+            assert donor[k].shape == out[k].shape, (k, donor[k].shape, out[k].shape)
+            out[k][WORLD_VOCAB:] = donor[k][WORLD_VOCAB:].to(out[k].dtype)
     Path(a.dst).parent.mkdir(parents=True, exist_ok=True); torch.save(out, a.dst)
-    info = dict(src=a.src, dst=a.dst, old_vocab=old, kept_rows=keep, new_vocab=VOCAB_SIZE, seed=a.seed, dtype=str(out["emb.weight"].dtype),
+    info = dict(src=a.src, dst=a.dst, rows_from=a.rows_from, old_vocab=old, kept_rows=keep, new_vocab=VOCAB_SIZE, seed=a.seed, dtype=str(out["emb.weight"].dtype),
                 ids=dict(EOD=EOD, SOA=SOA, EOA=EOA, XCODEC=XCODEC, YUE2CODEC=YUE2CODEC, YUE2_BASE=YUE2_BASE), n_params=sum(v.numel() for v in out.values()))
     json.dump(info, open(str(Path(a.dst).with_suffix("")) + ".resize.json", "w"), indent=2); print(json.dumps(info, indent=2))
 

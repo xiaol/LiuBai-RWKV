@@ -31,7 +31,7 @@ def load_model(ckpt, mixer, n_layer, n_embd, vocab, ctx, slot_heads=0, slot_m=1)
     args = SimpleNamespace(n_layer=n_layer, n_embd=n_embd, dim_att=n_embd, dim_ffn=n_embd * 4, head_size=64, vocab_size=vocab,
                            ctx_len=ctx, my_testing="x070", grad_cp=0)
     m = RWKV(args); sd = torch.load(ckpt, map_location="cpu", weights_only=True)
-    m.load_state_dict({k.replace("_forward_module.", ""): v for k, v in sd.items()}); return m.cuda().bfloat16().eval()
+    m.load_state_dict({k.replace("_forward_module.", ""): v for k, v in sd.items() if "aux_heads." not in k}); return m.cuda().bfloat16().eval()
 
 
 @torch.no_grad()

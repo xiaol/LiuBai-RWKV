@@ -24,9 +24,14 @@ def load_mono(path, sr_out):
     return a
 
 
+CJK = r"\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af"
+
+
 def norm_text(s):
-    s = re.sub(r"\[[^\]]*\]", " ", s); s = re.sub(r"\([^)]*\)", " ", s)
-    s = s.lower(); s = re.sub(r"[^a-z0-9' ]+", " ", s); return re.sub(r"\s+", " ", s).strip()
+    """Latin words stay words; every CJK character becomes its own token, so jiwer.wer on CJK text is a character error rate."""
+    s = re.sub(r"\[[^\]]*\]", " ", s); s = re.sub(r"[(（][^)）]*[)）]", " ", s)
+    s = s.lower(); s = re.sub(f"[^a-z0-9' {CJK}]+", " ", s); s = re.sub(f"([{CJK}])", r" \1 ", s)
+    return re.sub(r"\s+", " ", s).strip()
 
 
 def main():
@@ -35,11 +40,13 @@ def main():
     ap.add_argument("--variants", default="lora_s32,base_s32", help="C_roundtrip_<variant>.flac suffixes to score")
     ap.add_argument("--transcriptor", default=str(ROOT / "models/HeartTranscriptor-oss"))
     ap.add_argument("--mert", default=str(ROOT / "models/yue2/MERT-v2-FullSong"))
+    ap.add_argument("--manifest", default="", help="lyrics from a tools/ingest_lrc_corpus.py jsonl instead of data/meta/suno94k")
+    ap.add_argument("--language", default="en", help="Whisper language; 'auto' = detect per 30 s window (mixed zh/en corpora)")
     args = ap.parse_args(); dev = "cuda"; root = Path(args.root)
     import jiwer
     from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoModel, AutoFeatureExtractor
     meta = {}
-    for f in (ROOT / "data/meta/suno94k").glob("shard-0000*.jsonl"):
+    for f in ([Path(args.manifest)] if args.manifest else (ROOT / "data/meta/suno94k").glob("shard-0000*.jsonl")):
         for l in open(f):
             m = json.loads(l); meta[m["id"]] = m
     songs = sorted(d for d in root.iterdir() if d.is_dir() and (d / "A_original.flac").exists())
@@ -66,7 +73,7 @@ def main():
             if len(seg) < 16000: break
             feats = proc(seg, sampling_rate=16000, return_tensors="pt").input_features.to(dev, torch.float16)
             with torch.inference_mode():
-                ids = asr.generate(feats, language="en", task="transcribe", max_new_tokens=440)
+                ids = asr.generate(feats, language=None if args.language == "auto" else args.language, task="transcribe", max_new_tokens=440)
             parts.append(proc.batch_decode(ids, skip_special_tokens=True)[0].strip())
         trans[key] = " ".join(parts); cache.write_text(json.dumps(trans, indent=1, ensure_ascii=False)); return trans[key]
 
@@ -100,8 +107,18 @@ def main():
         others = [embs[o]["A"] for o in sids if o != r["id"]]
         r["cos_A_other"] = float(np.mean([float(e["A"] @ o) for o in others])) if others else float("nan")
 
+    # ---- production fingerprint: long-term average spectrum (dB, 48 kHz mono, 2048-pt) distance to A, and L/R correlation ----
+    def ltas(path):
+        x, sr = sf.read(path, dtype="float32", always_2d=True); lr = float(np.corrcoef(x[:, 0], x[:, -1])[0, 1]) if x.shape[1] > 1 else 1.0
+        m = torch.tensor(x.mean(1), device=dev); S = torch.stft(m, 2048, hop_length=1024, window=torch.hann_window(2048, device=dev), return_complex=True).abs().pow(2).mean(1)
+        return 10 * torch.log10(S + 1e-10), lr
+    for r in rows:
+        LA, lrA = ltas(files[r["id"]]["A"]); r["stereo_A"] = lrA
+        for k, pth in files[r["id"]].items():
+            if k == "A": continue
+            L, lr = ltas(pth); n = min(len(L), len(LA)); r[f"ltas_{k}"] = float((L[:n] - LA[:n]).abs().mean()); r[f"stereo_{k}"] = lr
     json.dump(rows, open(root / "eval.json", "w"), indent=1)
-    keys = [k for k in rows[0] if k.startswith(("wer", "cos"))]
+    keys = [k for k in rows[0] if k.startswith(("wer", "cos", "ltas", "stereo"))]
     print("\nmean over %d songs:" % len(rows))
     for k in keys:
         vals = [r[k] for r in rows if k in r and not np.isnan(r[k])]

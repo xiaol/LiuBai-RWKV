@@ -77,6 +77,8 @@ def main():
     ap.add_argument("--true-tokens", action="store_true", help="with --minted: render from the stored true tokens instead of the head")
     ap.add_argument("--head-ckpt", default="", help="our R1 checkpoint (scripts/train_inverse_tokenizer.py) instead of the v4 head")
     ap.add_argument("--tag", default="", help="extra tag for output file names")
+    ap.add_argument("--v4-head", default=str(HEAD_PT), help="v4-architecture head .pt ({'model': sd}), e.g. Mothersuperior v5/v8/v9 via tools/ms_convert.py")
+    ap.add_argument("--manifest", default="", help="tools/ingest_lrc_corpus.py jsonl: round-trip those songs (audio_path) instead of the shard tar")
     args = ap.parse_args()
     dev = "cuda"; out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     tag = ("lora" if args.nar_lora != "none" else "base") + ("_true" if args.true_tokens else "") + ("_r1" if args.head_ckpt else "") + (f"_{args.tag}" if args.tag else "")
@@ -94,6 +96,9 @@ def main():
                 songs.append(dict(id=r["id"], title=r["source_title"], duration=r["audio_seconds"], caption=r["style"], lyrics=r["lyrics"],
                                   audio_path=d / "audio.flac", true_tokens=np.load(d / "semantic.npy")))
         songs = songs[:args.n]; tar = None
+    elif args.manifest:
+        songs = [json.loads(l) for l in open(args.manifest, encoding="utf-8")]
+        songs = [m for m in songs if not args.ids or m["id"] in args.ids.split(",")][:args.n]; tar = None
     else:
         songs = pick_songs(args.shard, args.n, args.max_sec, [s for s in args.ids.split(",") if s])
         tar = tarfile.open(ROOT / f"data/raw/suno94k/suno-various-94k-{args.shard:05d}.tar")
@@ -148,7 +153,7 @@ def main():
     del mert, vae; torch.cuda.empty_cache()
 
     # ---- stage 2: head -> tokens ----
-    head = Tok().to(dev); head.load_state_dict(torch.load(HEAD_PT, map_location=dev)["model"]); head.eval()
+    head = Tok().to(dev); head.load_state_dict(torch.load(args.v4_head, map_location=dev)["model"]); head.eval()
 
     @torch.no_grad()
     def predict(x):
