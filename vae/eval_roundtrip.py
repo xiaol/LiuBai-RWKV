@@ -30,7 +30,7 @@ def main():
     ap.add_argument("--overlap", type=float, default=1.0); ap.add_argument("--only", default="", help="comma list of song ids")
     args = ap.parse_args(); dev = "cuda"
     ck = torch.load(args.ckpt, map_location="cpu"); a = ck["args"]
-    G = VAE(ch=a["ch"], mults=tuple(int(x) for x in a.get("mults", "1,2,4,8,16,16").split(",")), d=a["d"], n_rwkv=a["n_rwkv"]); G.load_state_dict(ck["G"]); G = G.to(dev).eval()
+    from vae.model import load_vae; G = load_vae(args.ckpt, dev)
     def run(seg):
         with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
             s2 = torch.full((1,), args.noise, device=dev) if args.noise > 0 else None
