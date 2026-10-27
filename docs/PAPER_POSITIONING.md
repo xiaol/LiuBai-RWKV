@@ -43,9 +43,12 @@ on anything measured so far. The comparison is architectural.
 1. **Monotonic lyric cursor for recurrent song generation.** Lyrics never have to be recalled from the state: a moving
    letter window plus a learned advance head binds text to audio in O(1) memory. The model learns its own timing (no
    timestamps at inference, unlike DiffRhythm 1), and the prefix baseline in the same RNN fails.
-2. **Tokenizer-free recurrent song LM.** Causal RWKV-7 over continuous VAE latent blocks with a per-block flow head:
-   no codec tokens, no separate renderer, no KV cache. Enables unbounded length, streaming and state snapshots for
-   section edits (claims need the stateful decoder, see §4).
+2. **Tokenizer-free, single-pass recurrent song LM.** Causal RWKV-7 over continuous VAE latent blocks with a per-block
+   flow head: no discrete semantic tokens and no KV cache. YuE2 is also one model (AR and NAR experts in one MoT), but
+   it is two-pass: the AR stream first finishes the whole discrete sequence (ABC + 32,768-way MERT2 codes, 25 Hz), then
+   the NAR experts run bidirectional flow over the song in chunks (`tools/YuE/src/yue2/nar.py`), so it cannot stream.
+   Ours emits audio block by block: unbounded length, streaming and state snapshots for section edits (claims need the
+   stateful decoder, see §4).
 3. **Latent readability only pays off under guidance.** v2 and v4 latents tie without CFG; with CFG the semantic-first
    latent wins clearly. Explained by CFG sharpening the model's implicit p(lyrics | z), which is better on a latent
    whose lyric content is linearly decodable. Ties into MSVAE, VA-VAE / REPA (reconstruction vs generability).
