@@ -1,0 +1,825 @@
+{
+ "runs": {
+  "3B CFG 1": "out/clm_eval/prod1_30k_c96_cfg1",
+  "3B CFG 3": "out/clm_eval/prod1_30k_c96_cfg3",
+  "3B CFG 5": "out/clm_eval/prod1_30k_c96_cfg5",
+  "208M CFG 1": "out/clm_eval/e1_gated_s0_wkv_20k_c96_cfg1",
+  "208M CFG 3": "out/clm_eval/e1_gated_s0_wkv_20k_c96_cfg3"
+ },
+ "median_cer": {
+  "3B CFG 1": {
+   "own": 0.783703173466953,
+   "swap": 0.7913557213930348
+  },
+  "3B CFG 3": {
+   "own": 0.11064030131826741,
+   "swap": 0.14576098059244125
+  },
+  "3B CFG 5": {
+   "own": 0.08362791055098748,
+   "swap": 0.09422921711057304
+  },
+  "208M CFG 1": {
+   "own": 0.8194326241134752,
+   "swap": 0.7850140056022409
+  },
+  "208M CFG 3": {
+   "own": 0.16666666666666666,
+   "swap": 0.2686924493554328
+  }
+ },
+ "clips": [
+  {
+   "k": 0,
+   "letters": 137,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "000_3b_cfg_1_own.mp3",
+     "cer": 1.0
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "000_3b_cfg_1_swap.mp3",
+     "cer": 1.429
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "000_3b_cfg_3_own.mp3",
+     "cer": 0.143
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "000_3b_cfg_3_swap.mp3",
+     "cer": 1.393
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "000_3b_cfg_5_own.mp3",
+     "cer": 0.143
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "000_3b_cfg_5_swap.mp3",
+     "cer": 0.857
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "000_208m_cfg_1_own.mp3",
+     "cer": 0.694
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "000_208m_cfg_1_swap.mp3",
+     "cer": 0.893
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "000_208m_cfg_3_own.mp3",
+     "cer": 0.214
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "000_208m_cfg_3_swap.mp3",
+     "cer": 0.179
+    }
+   ]
+  },
+  {
+   "k": 1,
+   "letters": 36,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "001_3b_cfg_1_own.mp3",
+     "cer": 0.714
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "001_3b_cfg_1_swap.mp3",
+     "cer": 0.727
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "001_3b_cfg_3_own.mp3",
+     "cer": 0.286
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "001_3b_cfg_3_swap.mp3",
+     "cer": 0.492
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "001_3b_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "001_3b_cfg_5_swap.mp3",
+     "cer": 0.337
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "001_208m_cfg_1_own.mp3",
+     "cer": 1.429
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "001_208m_cfg_1_swap.mp3",
+     "cer": 0.712
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "001_208m_cfg_3_own.mp3",
+     "cer": 0.214
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "001_208m_cfg_3_swap.mp3",
+     "cer": 0.417
+    }
+   ]
+  },
+  {
+   "k": 2,
+   "letters": 349,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "002_3b_cfg_1_own.mp3",
+     "cer": 0.686
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "002_3b_cfg_1_swap.mp3",
+     "cer": 1.0
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "002_3b_cfg_3_own.mp3",
+     "cer": 0.473
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "002_3b_cfg_3_swap.mp3",
+     "cer": 0.472
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "002_3b_cfg_5_own.mp3",
+     "cer": 0.398
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "002_3b_cfg_5_swap.mp3",
+     "cer": 0.356
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "002_208m_cfg_1_own.mp3",
+     "cer": 0.746
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "002_208m_cfg_1_swap.mp3",
+     "cer": 0.722
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "002_208m_cfg_3_own.mp3",
+     "cer": 0.462
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "002_208m_cfg_3_swap.mp3",
+     "cer": 0.539
+    }
+   ]
+  },
+  {
+   "k": 3,
+   "letters": 234,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "003_3b_cfg_1_own.mp3",
+     "cer": 0.867
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "003_3b_cfg_1_swap.mp3",
+     "cer": 1.211
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "003_3b_cfg_3_own.mp3",
+     "cer": 0.5
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "003_3b_cfg_3_swap.mp3",
+     "cer": 0.197
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "003_3b_cfg_5_own.mp3",
+     "cer": 0.322
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "003_3b_cfg_5_swap.mp3",
+     "cer": 0.099
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "003_208m_cfg_1_own.mp3",
+     "cer": 1.106
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "003_208m_cfg_1_swap.mp3",
+     "cer": 3.127
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "003_208m_cfg_3_own.mp3",
+     "cer": 0.583
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "003_208m_cfg_3_swap.mp3",
+     "cer": 0.254
+    }
+   ]
+  },
+  {
+   "k": 4,
+   "letters": 91,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "004_3b_cfg_1_own.mp3",
+     "cer": 0.423
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "004_3b_cfg_1_swap.mp3",
+     "cer": 0.536
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "004_3b_cfg_3_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "004_3b_cfg_3_swap.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "004_3b_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "004_3b_cfg_5_swap.mp3",
+     "cer": 0.027
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "004_208m_cfg_1_own.mp3",
+     "cer": 0.662
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "004_208m_cfg_1_swap.mp3",
+     "cer": 0.902
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "004_208m_cfg_3_own.mp3",
+     "cer": 0.099
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "004_208m_cfg_3_swap.mp3",
+     "cer": 0.009
+    }
+   ]
+  },
+  {
+   "k": 5,
+   "letters": 147,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "005_3b_cfg_1_own.mp3",
+     "cer": 0.411
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "005_3b_cfg_1_swap.mp3",
+     "cer": 0.255
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "005_3b_cfg_3_own.mp3",
+     "cer": 0.027
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "005_3b_cfg_3_swap.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "005_3b_cfg_5_own.mp3",
+     "cer": 0.045
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "005_3b_cfg_5_swap.mp3",
+     "cer": 0.064
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "005_208m_cfg_1_own.mp3",
+     "cer": 0.473
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "005_208m_cfg_1_swap.mp3",
+     "cer": 0.436
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "005_208m_cfg_3_own.mp3",
+     "cer": 0.054
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "005_208m_cfg_3_swap.mp3",
+     "cer": 0.043
+    }
+   ]
+  },
+  {
+   "k": 6,
+   "letters": 125,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "006_3b_cfg_1_own.mp3",
+     "cer": 0.617
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "006_3b_cfg_1_swap.mp3",
+     "cer": 0.704
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "006_3b_cfg_3_own.mp3",
+     "cer": 0.053
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "006_3b_cfg_3_swap.mp3",
+     "cer": 0.042
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "006_3b_cfg_5_own.mp3",
+     "cer": 0.085
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "006_3b_cfg_5_swap.mp3",
+     "cer": 0.085
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "006_208m_cfg_1_own.mp3",
+     "cer": 0.415
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "006_208m_cfg_1_swap.mp3",
+     "cer": 1.085
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "006_208m_cfg_3_own.mp3",
+     "cer": 0.17
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "006_208m_cfg_3_swap.mp3",
+     "cer": 0.113
+    }
+   ]
+  },
+  {
+   "k": 7,
+   "letters": 95,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "007_3b_cfg_1_own.mp3",
+     "cer": 0.803
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "007_3b_cfg_1_swap.mp3",
+     "cer": 0.825
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "007_3b_cfg_3_own.mp3",
+     "cer": 0.042
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "007_3b_cfg_3_swap.mp3",
+     "cer": 0.016
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "007_3b_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "007_3b_cfg_5_swap.mp3",
+     "cer": 0.063
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "007_208m_cfg_1_own.mp3",
+     "cer": 0.606
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "007_208m_cfg_1_swap.mp3",
+     "cer": 1.032
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "007_208m_cfg_3_own.mp3",
+     "cer": 0.056
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "007_208m_cfg_3_swap.mp3",
+     "cer": 0.143
+    }
+   ]
+  },
+  {
+   "k": 8,
+   "letters": 84,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "008_3b_cfg_1_own.mp3",
+     "cer": 0.635
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "008_3b_cfg_1_swap.mp3",
+     "cer": 0.54
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "008_3b_cfg_3_own.mp3",
+     "cer": 0.159
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "008_3b_cfg_3_swap.mp3",
+     "cer": 0.062
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "008_3b_cfg_5_own.mp3",
+     "cer": 0.063
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "008_3b_cfg_5_swap.mp3",
+     "cer": 0.009
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "008_208m_cfg_1_own.mp3",
+     "cer": 0.698
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "008_208m_cfg_1_swap.mp3",
+     "cer": 0.575
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "008_208m_cfg_3_own.mp3",
+     "cer": 0.175
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "008_208m_cfg_3_swap.mp3",
+     "cer": 0.088
+    }
+   ]
+  },
+  {
+   "k": 9,
+   "letters": 147,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "009_3b_cfg_1_own.mp3",
+     "cer": 0.743
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "009_3b_cfg_1_swap.mp3",
+     "cer": 4.333
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "009_3b_cfg_3_own.mp3",
+     "cer": 0.053
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "009_3b_cfg_3_swap.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "009_3b_cfg_5_own.mp3",
+     "cer": 0.08
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "009_3b_cfg_5_swap.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "009_208m_cfg_1_own.mp3",
+     "cer": 0.929
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "009_208m_cfg_1_swap.mp3",
+     "cer": 1.741
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "009_208m_cfg_3_own.mp3",
+     "cer": 0.204
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "009_208m_cfg_3_swap.mp3",
+     "cer": 0.481
+    }
+   ]
+  },
+  {
+   "k": 10,
+   "letters": 35,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "010_3b_cfg_1_own.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "010_3b_cfg_1_swap.mp3",
+     "cer": 0.738
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "010_3b_cfg_3_own.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "010_3b_cfg_3_swap.mp3",
+     "cer": 0.398
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "010_3b_cfg_5_own.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "010_3b_cfg_5_swap.mp3",
+     "cer": 0.408
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "010_208m_cfg_1_own.mp3",
+     "cer": 0.926
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "010_208m_cfg_1_swap.mp3",
+     "cer": 0.764
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "010_208m_cfg_3_own.mp3",
+     "cer": 0.296
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "010_208m_cfg_3_swap.mp3",
+     "cer": 0.775
+    }
+   ]
+  },
+  {
+   "k": 11,
+   "letters": 256,
+   "clips": [
+    {
+     "label": "3B CFG 1",
+     "cond": "own",
+     "file": "011_3b_cfg_1_own.mp3",
+     "cer": 0.827
+    },
+    {
+     "label": "3B CFG 1",
+     "cond": "swap",
+     "file": "011_3b_cfg_1_swap.mp3",
+     "cer": 6.727
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "own",
+     "file": "011_3b_cfg_3_own.mp3",
+     "cer": 0.445
+    },
+    {
+     "label": "3B CFG 3",
+     "cond": "swap",
+     "file": "011_3b_cfg_3_swap.mp3",
+     "cer": 0.364
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "own",
+     "file": "011_3b_cfg_5_own.mp3",
+     "cer": 0.298
+    },
+    {
+     "label": "3B CFG 5",
+     "cond": "swap",
+     "file": "011_3b_cfg_5_swap.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "own",
+     "file": "011_208m_cfg_1_own.mp3",
+     "cer": 0.78
+    },
+    {
+     "label": "208M CFG 1",
+     "cond": "swap",
+     "file": "011_208m_cfg_1_swap.mp3",
+     "cer": 8.364
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "own",
+     "file": "011_208m_cfg_3_own.mp3",
+     "cer": 0.639
+    },
+    {
+     "label": "208M CFG 3",
+     "cond": "swap",
+     "file": "011_208m_cfg_3_swap.mp3",
+     "cer": 0.273
+    }
+   ]
+  }
+ ]
+}
