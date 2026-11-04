@@ -1,0 +1,825 @@
+{
+ "runs": {
+  "MSVAE full-rank 5k CFG 1": "out/clm_eval/msvae_full1_5k_c96_cfg1",
+  "MSVAE full-rank 5k CFG 3": "out/clm_eval/msvae_full1_5k_c96_cfg3",
+  "MSVAE full-rank 5k CFG 5": "out/clm_eval/msvae_full1_5k_c96_cfg5",
+  "prod1 v5 LoRA 30k CFG 3": "out/clm_eval/prod1_30k_c96_cfg3",
+  "prod1 v5 LoRA 30k CFG 5": "out/clm_eval/prod1_30k_c96_cfg5"
+ },
+ "median_cer": {
+  "MSVAE full-rank 5k CFG 1": {
+   "own": 0.9443313609467456,
+   "swap": 0.8594020261922412
+  },
+  "MSVAE full-rank 5k CFG 3": {
+   "own": 0.6888504753673292,
+   "swap": 0.7215747391245426
+  },
+  "MSVAE full-rank 5k CFG 5": {
+   "own": 0.5477272727272727,
+   "swap": 0.6217619986850755
+  },
+  "prod1 v5 LoRA 30k CFG 3": {
+   "own": 0.11064030131826741,
+   "swap": 0.14576098059244125
+  },
+  "prod1 v5 LoRA 30k CFG 5": {
+   "own": 0.08362791055098748,
+   "swap": 0.09422921711057304
+  }
+ },
+ "clips": [
+  {
+   "k": 0,
+   "letters": 137,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "000_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.867
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "000_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 3.143
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "000_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.816
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "000_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 1.0
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "000_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.643
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "000_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.536
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "000_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.143
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "000_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 1.393
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "000_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.143
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "000_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.857
+    }
+   ]
+  },
+  {
+   "k": 1,
+   "letters": 36,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "001_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 1.75
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "001_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.78
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "001_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.714
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "001_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.72
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "001_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.643
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "001_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.739
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "001_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.286
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "001_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.492
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "001_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "001_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.337
+    }
+   ]
+  },
+  {
+   "k": 2,
+   "letters": 349,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "002_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.731
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "002_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.772
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "002_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.731
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "002_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.772
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "002_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.648
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "002_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.75
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "002_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.473
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "002_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.472
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "002_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.398
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "002_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.356
+    }
+   ]
+  },
+  {
+   "k": 3,
+   "letters": 234,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "003_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 1.178
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "003_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.789
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "003_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.933
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "003_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 1.141
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "003_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.794
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "003_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.338
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "003_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.5
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "003_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.197
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "003_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.322
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "003_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.099
+    }
+   ]
+  },
+  {
+   "k": 4,
+   "letters": 91,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "004_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 1.31
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "004_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.732
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "004_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.479
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "004_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.679
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "004_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.408
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "004_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.402
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "004_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "004_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "004_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "004_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.027
+    }
+   ]
+  },
+  {
+   "k": 5,
+   "letters": 147,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "005_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.732
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "005_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.691
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "005_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.473
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "005_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.926
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "005_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.464
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "005_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.713
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "005_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.027
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "005_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "005_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.045
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "005_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.064
+    }
+   ]
+  },
+  {
+   "k": 6,
+   "letters": 125,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "006_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.926
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "006_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.831
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "006_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.5
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "006_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.521
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "006_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.511
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "006_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.549
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "006_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.053
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "006_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.042
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "006_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.085
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "006_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.085
+    }
+   ]
+  },
+  {
+   "k": 7,
+   "letters": 95,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "007_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.915
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "007_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 1.079
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "007_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.577
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "007_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.667
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "007_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.606
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "007_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.444
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "007_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.042
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "007_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.016
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "007_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "007_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.063
+    }
+   ]
+  },
+  {
+   "k": 8,
+   "letters": 84,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "008_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.794
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "008_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.805
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "008_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.762
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "008_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.611
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "008_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.667
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "008_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.425
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "008_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.159
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "008_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.062
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "008_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.063
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "008_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.009
+    }
+   ]
+  },
+  {
+   "k": 9,
+   "letters": 147,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "009_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.965
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "009_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 4.0
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "009_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.726
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "009_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 1.0
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "009_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.46
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "009_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.481
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "009_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.053
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "009_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.0
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "009_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.08
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "009_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.074
+    }
+   ]
+  },
+  {
+   "k": 10,
+   "letters": 35,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "010_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 0.593
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "010_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 0.827
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "010_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.444
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "010_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 0.738
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "010_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 0.481
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "010_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.969
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "010_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "010_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.398
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "010_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.074
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "010_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.408
+    }
+   ]
+  },
+  {
+   "k": 11,
+   "letters": 256,
+   "clips": [
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "own",
+     "file": "011_msvae_full_rank_5k_cfg_1_own.mp3",
+     "cer": 1.209
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 1",
+     "cond": "swap",
+     "file": "011_msvae_full_rank_5k_cfg_1_swap.mp3",
+     "cer": 1.182
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "own",
+     "file": "011_msvae_full_rank_5k_cfg_3_own.mp3",
+     "cer": 0.775
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 3",
+     "cond": "swap",
+     "file": "011_msvae_full_rank_5k_cfg_3_swap.mp3",
+     "cer": 1.576
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "own",
+     "file": "011_msvae_full_rank_5k_cfg_5_own.mp3",
+     "cer": 1.089
+    },
+    {
+     "label": "MSVAE full-rank 5k CFG 5",
+     "cond": "swap",
+     "file": "011_msvae_full_rank_5k_cfg_5_swap.mp3",
+     "cer": 0.818
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "own",
+     "file": "011_prod1_v5_lora_30k_cfg_3_own.mp3",
+     "cer": 0.445
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 3",
+     "cond": "swap",
+     "file": "011_prod1_v5_lora_30k_cfg_3_swap.mp3",
+     "cer": 0.364
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "own",
+     "file": "011_prod1_v5_lora_30k_cfg_5_own.mp3",
+     "cer": 0.298
+    },
+    {
+     "label": "prod1 v5 LoRA 30k CFG 5",
+     "cond": "swap",
+     "file": "011_prod1_v5_lora_30k_cfg_5_swap.mp3",
+     "cer": 0.0
+    }
+   ]
+  }
+ ]
+}
