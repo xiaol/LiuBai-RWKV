@@ -50,6 +50,39 @@ def wkv7(r, w_raw, k, v, kk, a, reverse=False):
     return y.flip(1) if reverse else y
 
 
+def wkv7_ref(r, w_raw, k, v, kk, a, reverse=False):
+    """fp32 reference recurrence of wkv7 (CPU / tests), same args -> y [B,T,H,N]. Mat-vec as broadcast mul + sum: the einsum
+    (bmm) backward on CPU is ~300x slower at these shapes."""
+    B, T, H, N = r.shape; w = torch.exp(-math.exp(-0.5) * torch.sigmoid(w_raw))            # = the kernel's W_SCALE
+    S = r.new_zeros(B, H, N, N, dtype=torch.float32); ys = []
+    for t in (range(T - 1, -1, -1) if reverse else range(T)):
+        kt, at = kk[:, t], a[:, t]
+        sa = (S * kt.unsqueeze(-2)).sum(-1)                                                # removal read from the pre-decay state (official RWKV-7)
+        S = S * w[:, t].unsqueeze(-2) - sa.unsqueeze(-1) * (kt * at).unsqueeze(-2) + v[:, t].unsqueeze(-1) * k[:, t].unsqueeze(-2)
+        ys.append((S * r[:, t].unsqueeze(-2)).sum(-1))
+    if reverse: ys = ys[::-1]
+    return torch.stack(ys, 1)
+
+
+def init_gate(g1, g2, generator=None):
+    """official RWKV-7 output-gate init: g1 = 0, g2 = orthogonal x 0.1. With o zero-init, g2 must not also be zero: o's grad
+    is scaled by g = g2(sigmoid(g1 x)) and g2's by o, so both stay exactly 0 forever (the bug in every pre-2026-10-31 model)"""
+    nn.init.zeros_(g1.weight); nn.init.orthogonal_(g2.weight, gain=0.1, generator=generator)
+
+
+@torch.no_grad()
+def revive_wkv(*mods, seed=0):
+    """warm start from a pre-2026-10-31 checkpoint: re-init the gate of every time-mix whose o and g2 are both exactly 0 (dead).
+    Output unchanged (o stays 0), WKV trains from here. Fixed seed: identical on every DDP rank. -> number revived"""
+    gen = torch.Generator().manual_seed(seed); n = 0
+    for m in mods:
+        for tm in m.modules():
+            if hasattr(tm, "g2") and hasattr(tm, "o") and not tm.o.weight.any() and not tm.g2.weight.any():
+                w = torch.empty_like(tm.g2.weight, device="cpu"); nn.init.orthogonal_(w, gain=0.1, generator=gen)   # CPU draw
+                tm.g1.weight.zero_(); tm.g2.weight.copy_(w); n += 1
+    return n
+
+
 def token_shift(x, reverse=False):
     """x [B,T,C] -> previous frame (next frame if reverse), zero at the edge."""
     return F.pad(x, (0, 0, 0, 1))[:, 1:] if reverse else F.pad(x, (0, 0, 1, 0))[:, :-1]
@@ -64,8 +97,8 @@ class TimeMix(nn.Module):
         s.a1, s.a2 = nn.Linear(d, 64, bias=False), nn.Linear(64, d)      # in-context learning-rate LoRA
         s.g1, s.g2 = nn.Linear(d, 128, bias=False), nn.Linear(128, d, bias=False)
         s.k_k = nn.Parameter(torch.full((d,), 0.85)); s.ln_x = nn.GroupNorm(s.h, d, eps=64e-5)
-        nn.init.zeros_(s.o.weight); nn.init.constant_(s.w2.bias, 0.5)
-        for m in (s.w2, s.a2, s.g2): nn.init.zeros_(m.weight)
+        nn.init.zeros_(s.o.weight); nn.init.constant_(s.w2.bias, 0.5); init_gate(s.g1, s.g2)
+        for m in (s.w2, s.a2): nn.init.zeros_(m.weight)
 
     def forward(s, x):
         B, T, C = x.shape; H, N = s.h, s.n
@@ -80,15 +113,7 @@ class TimeMix(nn.Module):
         if x.is_cuda:
             y = wkv7(r, w_raw, k, v, kk, a, s.reverse).float().reshape(B * T, C)
         else:                                                                               # reference recurrence (CPU / tests)
-            w = torch.exp(-0.6065 * torch.sigmoid(w_raw))
-            S = x.new_zeros(B, H, N, N, dtype=torch.float32); ys = []
-            for t in (range(T - 1, -1, -1) if s.reverse else range(T)):
-                kt, at = kk[:, t], a[:, t]
-                sa = torch.einsum("bhij,bhj->bhi", S, kt)                                  # removal read from the pre-decay state (official RWKV-7)
-                S = S * w[:, t].unsqueeze(-2) - sa.unsqueeze(-1) * (kt * at).unsqueeze(-2) + v[:, t].unsqueeze(-1) * k[:, t].unsqueeze(-2)
-                ys.append(torch.einsum("bhij,bhj->bhi", S, r[:, t]))
-            if s.reverse: ys = ys[::-1]
-            y = torch.stack(ys, 1).reshape(B * T, C)
+            y = wkv7_ref(r, w_raw, k, v, kk, a, s.reverse).reshape(B * T, C)
         y = s.ln_x(y).view(B, T, C).to(x.dtype)
         return s.o(y * g)
 

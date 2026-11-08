@@ -11,6 +11,11 @@ latent: VAE.encode_local (MERT branch on <= --enc-win s windows with --enc-ahead
 loss weighting: flow error on the MERT-aligned dims [0, sem) x --sem-w (weights renormalised to mean 1)
 eval : teacher-forced flow loss on held-out crops with own / swapped (another crop's letters, own timing) / null lyrics at a
        fixed t grid and fixed noise -> binding gaps; advance accuracy. Generation + Whisper gate: vae/eval_cursor_lm.py
+asr  : --asr-pca P (gated only): the latent the LM predicts = VAE 64 + Qwen3-ASR stream (vae/asr_stream.py, same bounded
+       lookahead, PCA P); flow loss = sum of weighted dim errors / 64, so the 64 VAE dims get the same loss as without it;
+       ASR dims weighted --asr-w (default = the MERT dims' weight); eval adds asr_* losses / gaps; decode reads dims [0, 64)
+head : --head mlp = CursorLM's FlowHead on h_i; --head gated = vae/gated_nar.py GatedCursorLM (the K noisy copies of every block
+       ride in the same sequence as read-only NAR rows of the backbone, docs/VAE_PLAN.md revision 2026-10-27)
 usage: train_cursor_lm.py --mode cursor --out out/clm/cursor1
 """
 import argparse, json, math, os, random, sys, time
@@ -22,6 +27,7 @@ from vae.model import VAE  # noqa: E402
 from vae.data import Crops, collate  # noqa: E402
 from vae.align_letters import LetterAligner  # noqa: E402
 from vae.cursor_lm import CursorLM, cursor_arrays, windows, PAD, NULL  # noqa: E402
+from vae.gated_nar import GatedCursorLM  # noqa: E402
 
 
 def lyric_inputs(M, al, NB, drop, roll=0):
@@ -58,14 +64,29 @@ def main():
     ap.add_argument("--enc", default="local", choices=["local", "full"]); ap.add_argument("--enc-win", type=float, default=3.0)
     ap.add_argument("--enc-ahead", type=float, default=0.64); ap.add_argument("--enc-keep", type=int, default=2)
     ap.add_argument("--sem-w", type=float, default=1.0, help="flow-loss weight of the semantic dims [0, VAE.sem) relative to the rest")
+    ap.add_argument("--head", default="mlp", choices=["mlp", "gated"]); ap.add_argument("--lora", type=int, default=64)
+    ap.add_argument("--iso", action="store_true", help="gated: no in-block shifts (ablation)"); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--lattn", action="store_true", help="gated: per-layer local attention of F rows on cursor letters + block i-1 + own frames")
+    ap.add_argument("--asr-pca", default="", help="gated: add the Qwen3-ASR stream projected by this file (mean, P: pca<k>.pt or lin<k>.pt from vae/probe_asr_stream.py)")
+    ap.add_argument("--asr-w", type=float, default=0.0, help="flow-loss weight of the ASR stream as a group: per-dim weight = w * 32 / dims (0: w = the MERT dims' weight)")
     ap.add_argument("--workers", type=int, default=8); ap.add_argument("--eval-every", type=int, default=2500)
     args = ap.parse_args(); dev = "cuda"; out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     json.dump(vars(args), open(out / "config.json", "w"), indent=1); torch.backends.cuda.matmul.allow_tf32 = True
     from vae.model import load_vae; V = load_vae(args.vae, dev)                  # attaches MERT for sem (v4) VAEs
-    LA = LetterAligner(dev); ekw = dict(blk=args.blk, keep=args.enc_keep, win=args.enc_win, ahead=args.enc_ahead)
+    LA = LetterAligner(dev, sr=V.sr); ekw = dict(blk=args.blk, keep=args.enc_keep, win=args.enc_win, ahead=args.enc_ahead)
     encode = (lambda x: V.encode_local(x, **ekw)[0]) if args.enc == "local" and V.sem else (lambda x: V.encode(x)[0])
     K_sem = V.sem or 0; dw = torch.ones(64, device=dev); dw[:K_sem] = args.sem_w; dw = dw / dw.mean()   # flow-loss dim weights
-    M = CursorLM(blk=args.blk, d=args.d, n=args.n, mode=args.mode, head_d=args.head_d, head_n=args.head_n).to(dev)
+    LAT = 64
+    if args.asr_pca:                                             # + Qwen3-ASR stream with the same lookahead bound
+        assert args.head == "gated" and args.enc == "local" and V.sem
+        from vae.asr_stream import AsrStream; Q = AsrStream(pca=args.asr_pca, dev=dev); LAT = 64 + Q.dim; enc64 = encode
+        def encode(x):
+            mu = enc64(x); return torch.cat([mu, Q.local(x, V.sr, mu.shape[1], blk=args.blk, keep=args.enc_keep, ahead=args.enc_ahead).to(mu.dtype)], -1)
+        dw = torch.cat([dw, torch.full((Q.dim,), (args.asr_w or float(dw[0])) * 32 / Q.dim, device=dev)])   # group weight independent of width
+    torch.manual_seed(args.seed); gated = args.head == "gated"; assert not gated or args.mode == "cursor"
+    M = (GatedCursorLM(latent=LAT, blk=args.blk, d=args.d, n=args.n, lora=args.lora, iso=args.iso, lattn=args.lattn) if gated else
+         CursorLM(blk=args.blk, d=args.d, n=args.n, mode=args.mode, head_d=args.head_d, head_n=args.head_n)).to(dev)
+    M.ckpt = gated                                               # gated: K noisy copies of every block -> 17x the positions
     opt = torch.optim.AdamW(M.parameters(), lr=args.lr, betas=(0.9, 0.99), weight_decay=0.01)
     ema = {k: v.detach().clone() for k, v in M.state_dict().items()}; random.seed(0)   # Crops mixes global random into its seeds
     step = 0; ckp = out / "last.pt"
@@ -73,11 +94,11 @@ def main():
         sd = torch.load(ckp, map_location=dev); M.load_state_dict(sd["M"]); opt.load_state_dict(sd["opt"]); ema = sd["ema"]; step = sd["step"]
         lat_m, lat_s = sd["lat_m"].to(dev), sd["lat_s"].to(dev); print("resumed", step, flush=True)
     else:                                                       # per-channel latent stats from 128 training crops (fixed for the run)
-        sit = iter(Crops(args.manifest, holdout=0, seed=999, seg=args.seg)); fs = []
+        sit = iter(Crops(args.manifest, holdout=0, seed=999, seg=args.seg, sr=V.sr)); fs = []
         with torch.no_grad():
             for _ in range(8):
                 xb = collate([next(sit) for _ in range(16)])[0].to(dev)
-                with torch.autocast("cuda", dtype=torch.bfloat16): fs.append(encode(xb).float().reshape(-1, 64))
+                with torch.autocast("cuda", dtype=torch.bfloat16): fs.append(encode(xb).float().reshape(-1, LAT))
         f = torch.cat(fs); lat_m, lat_s = f.mean(0), f.std(0).clamp_min(1e-3)
     nrm = lambda z: (z - lat_m) / lat_s
     print(f"cursor LM ({args.mode}) {sum(p.numel() for p in M.parameters()) / 1e6:.1f}M", flush=True)
@@ -89,50 +110,56 @@ def main():
         NB = mu.shape[1] // args.blk; mu = mu[:, :NB * args.blk]
         return x, nrm(mu).reshape(mu.shape[0], NB, -1), NB
 
-    def flow_loss(h, z, fm, a_c, gen=None, tgrid=None, dims=None):
-        """masked flow MSE, dims weighted by dw; dims=slice -> unweighted error on those dims only (eval)"""
-        B, NB, D = z.shape; K = args.K
-        c = M.cond(h, a_c.to(dev) if a_c is not None else None)[:, :, None].expand(-1, -1, K, -1)
+    def flow_err(z_in, lyr, z, a_c, gen=None, tgrid=None):
+        """context z_in (noisy in training), target blocks z, K noise / t draws per block -> h [B,NB,d], squared velocity
+        error [B,NB,K,blk,LAT]"""
+        B, NB, D = z.shape; K = args.K; a_c = a_c.to(dev) if a_c is not None else None
         zr = z[:, :, None].expand(B, NB, K, D)
         t = torch.sigmoid(torch.randn(B, NB, K, device=dev, generator=gen)) if tgrid is None else tgrid.view(1, 1, K).expand(B, NB, K)
         n = torch.randn(zr.shape, device=dev, generator=gen); xt = (1 - t[..., None]) * n + t[..., None] * zr
-        e2 = ((M.head(xt, t, c).float() - (zr - n)) ** 2).view(B, NB, K, args.blk, -1)
-        err = e2[..., dims].mean(-1) if dims is not None else (e2 * dw).mean(-1)
-        w = fm[:, :, None].expand(B, NB, K, args.blk)
-        return (err * w).sum() / w.sum().clamp_min(1)
+        if gated:
+            h, v = M.velocity(z_in, lyr, a_c, xt.reshape(B, NB * K, D), t.reshape(B, NB * K), range(NB), reps=K); v = v.view(B, NB, K, D)
+        else:
+            h = M.hidden(z_in, lyr); v = M.head(xt, t, M.cond(h, a_c)[:, :, None].expand(-1, -1, K, -1))
+        return h, ((v.float() - (zr - n)) ** 2).view(B, NB, K, args.blk, -1)
+
+    def masked(err, fm):
+        w = fm[:, :, None].expand_as(err); return (err * w).sum() / w.sum().clamp_min(1)
 
     def adv_loss(h, a_t, valid):
         if M.mode != "cursor" or not valid.any(): return torch.zeros((), device=dev), 0.0
         lg = M.adv(h).float()[valid]; tg = a_t.to(dev)[valid]
         return F.cross_entropy(lg, tg), (lg.argmax(-1) == tg).float().mean().item()
 
-    random.seed(1); vd = Crops(args.val_manifest, holdout=0, seed=12345, seg=args.seg, with_lines=True); vd.rows = [r for r in vd.rows if len(r["lines"]) >= 4]; vit = iter(vd)
+    random.seed(1); vd = Crops(args.val_manifest, holdout=0, seed=12345, seg=args.seg, with_lines=True, sr=V.sr); vd.rows = [r for r in vd.rows if len(r["lines"]) >= 4]; vit = iter(vd)
     val = [collate([next(vit) for _ in range(args.bs)]) for _ in range(3)]
 
     @torch.no_grad()
     def evaluate():
         live = {k: v.clone() for k, v in M.state_dict().items()}; M.load_state_dict(ema); M.eval()
         tgrid = torch.tensor([0.3, 0.5, 0.7, 0.9], device=dev)[:args.K] if args.K <= 4 else None
-        r = {k: [] for k in ("fl_own", "fl_swap", "fl_null", "sem_own", "sem_swap", "sem_null", "adv_acc", "adv_ce")}
+        r = {k: [] for k in ("fl_own", "fl_swap", "fl_null", "sem_own", "sem_swap", "sem_null", "adv_acc", "adv_ce")
+             + (("asr_own", "asr_swap", "asr_null") if LAT > 64 else ())}
         for wav, *_, lines in val:
             x, z, NB = prep(wav); al = LA(x, lines, NB * args.blk); B = z.shape[0]
             fm = torch.from_numpy(np.stack([m[:NB * args.blk] for _, _, m in al])).to(dev).view(B, NB, args.blk).float()
             for name, roll, drop in (("own", 0, False), ("swap", 1, False), ("null", 0, True)):
                 lyr, a_c, a_t = lyric_inputs(M, al, NB, [drop] * B, roll)
                 with torch.autocast("cuda", dtype=torch.bfloat16):
-                    h = M.hidden(z, lyr.to(dev))
-                    g = torch.Generator(device=dev).manual_seed(7)
-                    r[f"fl_{name}"].append(flow_loss(h, z, fm, a_c, gen=g, tgrid=tgrid, dims=slice(None)).item())
-                    g = torch.Generator(device=dev).manual_seed(7)                      # same noise: lyric-dim-only error
-                    r[f"sem_{name}"].append(flow_loss(h, z, fm, a_c, gen=g, tgrid=tgrid, dims=slice(0, K_sem or 64)).item())
+                    h, e2 = flow_err(z, lyr.to(dev), z, a_c, gen=torch.Generator(device=dev).manual_seed(7), tgrid=tgrid)
+                    r[f"fl_{name}"].append(masked(e2[..., :64].mean(-1), fm).item())                    # VAE dims (comparable across runs)
+                    if LAT > 64: r[f"asr_{name}"].append(masked(e2[..., 64:].mean(-1), fm).item())
+                    r[f"sem_{name}"].append(masked(e2[..., :K_sem or 64].mean(-1), fm).item())   # lyric (MERT) dims only
                     if name == "own":
                         l, acc = adv_loss(h, a_t, fm.min(-1).values > 0); r["adv_ce"].append(float(l)); r["adv_acc"].append(acc)
         M.load_state_dict(live); M.train()
         r = {k: float(np.mean(v)) for k, v in r.items()}
         r["gap_swap"] = r["fl_swap"] - r["fl_own"]; r["gap_null"] = r["fl_null"] - r["fl_own"]
-        r["sgap_swap"] = r["sem_swap"] - r["sem_own"]; r["sgap_null"] = r["sem_null"] - r["sem_own"]; return r
+        r["sgap_swap"] = r["sem_swap"] - r["sem_own"]; r["sgap_null"] = r["sem_null"] - r["sem_own"]
+        if LAT > 64: r["agap_swap"] = r["asr_swap"] - r["asr_own"]; r["agap_null"] = r["asr_null"] - r["asr_own"]
+        return r
 
-    ds = Crops(args.manifest, holdout=0, seed=31 + step, seg=args.seg, with_lines=True); rng = np.random.default_rng(0)
+    ds = Crops(args.manifest, holdout=0, seed=31 + step, seg=args.seg, with_lines=True, sr=V.sr); rng = np.random.default_rng(0)
     voc = [r for r in ds.rows if len(r["lines"]) >= 4]; ins = [r for r in ds.rows if not r["lines"]]; ds.rows = voc
     if args.p_instr > 0:
         k = min(len(ins), int(len(voc) * args.p_instr / (1 - args.p_instr))); ds.rows = voc + [ins[i] for i in rng.choice(len(ins), k, replace=False)]
@@ -148,8 +175,7 @@ def main():
         drop = (torch.rand(B) < args.p_lyr).tolist(); lyr, a_c, a_t = lyric_inputs(M, al, NB, drop)
         sig = (torch.rand(B, 1, 1, device=dev) * args.ctx_noise).sqrt(); z_ctx = z + sig * torch.randn_like(z)
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            h = M.hidden(z_ctx, lyr.to(dev))
-            lf = flow_loss(h, z, fm, a_c)
+            h, e2 = flow_err(z_ctx, lyr.to(dev), z, a_c); lf = masked((e2 * dw).sum(-1) / 64, fm)
             valid = (fm.min(-1).values > 0) & ~torch.tensor(drop, device=dev)[:, None]
             la, acc = adv_loss(h, a_t, valid)
             loss = lf + args.adv_w * la

@@ -7,9 +7,12 @@ plus the two RWKV-specific training signals of the pilot (docs/VAE_PLAN.md):
                      the latent stays predictable for an autoregressive LM (no frame-level noise the LM could never learn).
 
 Pilot rate: 24 kHz stereo, hop 1920 -> 12.5 Hz, latent 64.  Strides 2*2*4*4*5*6 = 1920 (same as YuE2-Vae at 48 kHz).
+v5 (48 kHz): one more stride-2 stage at the outside, strides 2*2*2*4*4*5*6 = 3840 -> the same 12.5 Hz latent; MERT always
+gets 24 kHz mono (_mono24), so the semantic half is computed exactly as in v4.
 """
 import math
 import torch
+import torchaudio
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.parametrizations import weight_norm
@@ -54,8 +57,9 @@ class DecBlock(nn.Module):
 
 class VAE(nn.Module):
     def __init__(s, ch=32, mults=(1, 2, 4, 8, 16, 16), strides=(2, 2, 4, 4, 5, 6), latent=64, d=512, n_rwkv=4, audio_ch=2,
-                 sem=0, sem_bound=0.5, sem_layer=12):
+                 sem=0, sem_bound=0.5, sem_layer=12, sr=24000):
         super().__init__(); s.hop = math.prod(strides); s.latent = latent; s.sem, s.sem_bound, s.sem_layer = sem, sem_bound, sem_layer
+        s.sr = sr; s.local_kw = None        # local_kw = dict(win=, ahead=, keep=): encode() uses bounded-lookahead MERT (v5 trains so)
         if sem:                             # v4: semantic-first posterior for dims [0, sem) (MSVAE-style), base = frozen MERT-v2
             s.sem_in = nn.Sequential(nn.Linear(2048, d), nn.GELU(), nn.Linear(d, d))      # 2 MERT frames (25 Hz) per latent frame
             s.sem_out = nn.Linear(d, 2 * sem); s.sem_gate = nn.Linear(d, sem)
@@ -71,6 +75,10 @@ class VAE(nn.Module):
 
     def attach_mert(s, mert): s._mert[0] = mert; return s
 
+    def _mono24(s, wav):                    # [B,2,S] at s.sr -> [B,S'] 24 kHz mono (MERT-v2's input rate)
+        x = wav.float().mean(1)
+        return x if s.sr == 24000 else torchaudio.functional.resample(x, s.sr, 24000)
+
     def _mert_layer(s, x):
         """MERT2Model(x, output_hidden_states=True).hidden_states[sem_layer], running only the layers up to it (identical, half the cost)"""
         M = s._mert[0]; mel = M.feature_extractor(x)
@@ -84,8 +92,9 @@ class VAE(nn.Module):
         """Bounded-lookahead MERT features [B,T,2048]: the frames of blocks [j, j+keep) come from MERT run on the audio
         [end of block j+keep - win, end of block j+keep + ahead] only (instance-normalised over that window), so no latent
         frame sees more than (keep - 1) blocks + `ahead` s past its own block. mert_feats() attends over the whole crop."""
-        B, C, S = wav.shape; L = blk * s.hop; nB = -(-T // blk); W = max(keep * L, int(round(win * 24000)) // L * L)
-        A = int(round(ahead * 24000)) // L * L; x = F.pad(wav.float().mean(1), (W, A + L * keep))          # left pad: zeros
+        B = wav.shape[0]; hop = s.hop * 24000 // s.sr; L = blk * hop; nB = -(-T // blk)                  # 24 kHz samples
+        W = max(keep * L, int(round(win * 24000)) // L * L)
+        A = int(round(ahead * 24000)) // L * L; x = F.pad(s._mono24(wav), (W, A + L * keep))                # left pad: zeros
         st = [(j + keep) * L for j in range(0, nB, keep)]           # window [end - W, end + A] of chunk j, in padded coordinates
         segs = torch.stack([x[:, a:a + W + A] for a in st], 1).reshape(-1, W + A)                         # [B*nw, W+A]
         hs = []
@@ -93,29 +102,25 @@ class VAE(nn.Module):
             with torch.autocast("cuda", dtype=torch.bfloat16): h = s._mert_layer(segs[i:i + bs]).float()
             hs.append((h - h.mean(1, keepdim=True)) / (h.std(1, keepdim=True) + 1e-4))
         h = torch.cat(hs)                                                                                    # [B*nw, ~25 Hz, 1024]
-        f = 2 * (W + A) // s.hop; h = F.interpolate(h.transpose(1, 2), size=f, mode="linear", align_corners=False).transpose(1, 2)
-        c0 = 2 * (W - keep * L) // s.hop; h = h[:, c0:c0 + 2 * keep * blk]                                  # the window's own blocks
+        f = 2 * (W + A) // hop; h = F.interpolate(h.transpose(1, 2), size=f, mode="linear", align_corners=False).transpose(1, 2)
+        c0 = 2 * (W - keep * L) // hop; h = h[:, c0:c0 + 2 * keep * blk]                                    # the window's own blocks
         h = h.reshape(B, -1, 2 * keep * blk, 1024).flatten(1, 2)[:, :2 * T]
         return h.reshape(B, T, 2048)
 
     def encode_local(s, wav, **kw):
         """encode() with the MERT branch replaced by mert_feats_local (bounded lookahead); the acoustic path is unchanged
         (its influence decays to ~0 within ~0.6 s, measured). Use the same kw for training latents and generation prompts."""
-        h = s.enc_in(s.enc_conv(wav)).transpose(1, 2)
-        for b in s.enc_rwkv: h = b(h)
-        mu, logvar = s.enc_out(h).chunk(2, -1)
-        if s.sem:
-            k = s.sem; hs = s.sem_in(s.mert_feats_local(wav, mu.shape[1], **kw).to(h.dtype))
-            mu_s, lv_s = s.sem_out(hs).chunk(2, -1)
-            corr = s.sem_bound * torch.tanh(mu[..., :k]) * torch.sigmoid(s.sem_gate(hs))
-            mu = torch.cat([mu_s + corr, mu[..., k:]], -1); logvar = torch.cat([lv_s, logvar[..., k:]], -1)
-        return mu, logvar.clamp(-12, 6)
+        return s.encode(wav, local=kw)
+
+    def feats(s, wav, T, local=None):       # the MERT input of the semantic half: bounded-lookahead if local (kw dict) else whole crop
+        local = s.local_kw if local is None else local
+        return s.mert_feats_local(wav, T, **local) if local is not None else s.mert_feats(wav, T)
 
     @torch.no_grad()
     def mert_feats(s, wav, T, chunk=30 * 24000):
-        """wav [B,2,S] 24 kHz -> [B,T,2048]: MERT layer sem_layer, instance-normalised per <= 30 s chunk, 2 frames per latent frame"""
+        """wav [B,2,S] -> [B,T,2048]: MERT layer sem_layer (24 kHz input), instance-normalised per <= 30 s chunk, 2 frames per latent frame"""
         M = s._mert[0]; assert M is not None, "sem VAE needs attach_mert() (vae.model.load_vae does it)"
-        x = wav.float().mean(1); out = []
+        x = s._mono24(wav); out = []
         for a in range(0, x.shape[1], chunk):
             c = x[:, a:a + chunk]
             if c.shape[1] < 2400: c = F.pad(c, (0, 2400 - c.shape[1]))
@@ -125,12 +130,12 @@ class VAE(nn.Module):
         h = F.interpolate(h.transpose(1, 2), size=2 * T, mode="linear", align_corners=False).transpose(1, 2)
         return h.reshape(h.shape[0], T, 2048)
 
-    def encode(s, wav):                     # wav [B,2,S] -> mean, logvar [B,T,latent]
+    def encode(s, wav, feats=None, local=None):   # wav [B,2,S] -> mean, logvar [B,T,latent]; feats: precomputed self.feats()
         h = s.enc_in(s.enc_conv(wav)).transpose(1, 2)
         for b in s.enc_rwkv: h = b(h)
         mu, logvar = s.enc_out(h).chunk(2, -1)
         if s.sem:                           # dims [0, sem): MERT base + gated, bounded acoustic correction; rest: acoustic
-            k = s.sem; hs = s.sem_in(s.mert_feats(wav, mu.shape[1]).to(h.dtype))
+            k = s.sem; hs = s.sem_in((s.feats(wav, mu.shape[1], local) if feats is None else feats).to(h.dtype))
             mu_s, lv_s = s.sem_out(hs).chunk(2, -1)
             corr = s.sem_bound * torch.tanh(mu[..., :k]) * torch.sigmoid(s.sem_gate(hs))
             mu = torch.cat([mu_s + corr, mu[..., k:]], -1); logvar = torch.cat([lv_s, logvar[..., k:]], -1)
@@ -141,11 +146,11 @@ class VAE(nn.Module):
         for b in s.dec_rwkv: h = b(h)
         return s.dec_conv(s.dec_proj(h.transpose(1, 2)))
 
-    def forward(s, wav, sample=True, s2=None, blur=None):
+    def forward(s, wav, sample=True, s2=None, blur=None, feats=None):
         """s2 [B] relative noise power, blur [B] side weight a of a [a, 1-2a, a] time kernel: generator-error augmentation
         (v2). Noise is scaled by each sample's own per-channel latent variance (detached), so the encoder cannot escape it by
         growing the latent; it must make the information robust instead."""
-        mu, logvar = s.encode(wav)
+        mu, logvar = s.encode(wav, feats)
         z = mu + torch.randn_like(mu) * (0.5 * logvar).exp() if sample else mu
         if s2 is not None:
             z = z + torch.randn_like(z) * (s2.view(-1, 1, 1) * mu.detach().var(dim=1, keepdim=True)).sqrt()
@@ -178,7 +183,8 @@ class LatentPrior(nn.Module):
 
 
 class STFTDisc(nn.Module):
-    """EnCodec-style multi-scale complex-STFT discriminator (stereo: real/imag of both channels = 4 input planes)."""
+    """EnCodec-style multi-scale complex-STFT discriminator (stereo: real/imag of both channels = 4 input planes).
+    v5 (48 kHz): n_ffts (4096, 2048, 1024, 512)."""
     def __init__(s, n_ffts=(2048, 1024, 512), c=32):
         super().__init__(); s.n_ffts = n_ffts; s.nets = nn.ModuleList()
         for _ in n_ffts:
@@ -208,8 +214,10 @@ def load_vae(path, dev="cuda", mert=None):
     """VAE from a vae/train.py checkpoint (any version); sem VAEs get MERT-v2 attached (pass `mert` to share one model)"""
     ck = torch.load(path, map_location="cpu"); a = ck["args"]
     V = VAE(ch=a["ch"], mults=tuple(int(x) for x in a.get("mults", "1,2,4,8,16,16").split(",")), d=a["d"], n_rwkv=a["n_rwkv"],
-            sem=a.get("sem", 0), sem_bound=a.get("sem_bound", 0.5), sem_layer=a.get("align_layer", 12))
+            sem=a.get("sem", 0), sem_bound=a.get("sem_bound", 0.5), sem_layer=a.get("align_layer", 12),
+            strides=tuple(int(x) for x in a.get("strides", "2,2,4,4,5,6").split(",")), sr=a.get("sr", 24000))
     V.load_state_dict(ck["G"]); V = V.to(dev).eval().requires_grad_(False)
+    if a.get("enc") == "local": V.local_kw = dict(win=a["enc_win"], ahead=a["enc_ahead"], keep=a["enc_keep"])   # trained so (v5)
     if V.sem:
         if mert is None:
             from .align_targets import MertTarget

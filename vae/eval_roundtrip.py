@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Full-song VAE round trip on the gate songs, in the layout tools/yue2_roundtrip_eval.py scores.
 
-For each song dir under --root (made by tools/yue2_roundtrip.py: A_original.flac at 48 kHz): original -> 24 kHz -> VAE encode
+For each song dir under --root (made by tools/yue2_roundtrip.py: A_original.flac at 48 kHz): original -> the VAE rate (24 kHz; v5 48 kHz) -> VAE encode
 (posterior mean, whole song, so the bidirectional RWKV sees the full context) -> decode -> upsampled to 48 kHz ->
 C_roundtrip_<tag>.flac. Also writes C_roundtrip_bw24.flac once (original band-limited to 24 kHz and back): the bandwidth-only
 reference, since every 24 kHz pilot loses everything above 12 kHz by construction.
@@ -36,7 +36,7 @@ def main():
             s2 = torch.full((1,), args.noise, device=dev) if args.noise > 0 else None
             y, mu, _, _ = G(torch.tensor(seg.T[None], device=dev), sample=False, s2=s2); return y[0].float().cpu().numpy().T, mu.shape
     def chunked(x):
-        W = int(args.chunk * 24000) // G.hop * G.hop; O = int(args.overlap * 24000) // G.hop * G.hop; H = W - O
+        W = int(args.chunk * G.sr) // G.hop * G.hop; O = int(args.overlap * G.sr) // G.hop * G.hop; H = W - O
         out = np.zeros_like(x); wsum = np.zeros((len(x), 1), np.float32); fade = np.ones(W, np.float32)
         fade[:O] = np.linspace(0, 1, O); fade[W - O:] = np.linspace(1, 0, O)
         for s0 in range(0, max(1, len(x) - O), H):
@@ -50,12 +50,12 @@ def main():
     only = {x for x in args.only.split(",") if x}
     for d in sorted(p for p in Path(args.root).iterdir() if (p / "A_original.flac").exists() and (not only or p.name in only)):
         x, sr = sf.read(d / "A_original.flac", dtype="float32", always_2d=True)
-        x24 = rs(x, sr, 24000); S = len(x24) - len(x24) % G.hop
-        if not (d / "C_roundtrip_bw24.flac").exists(): sf.write(d / "C_roundtrip_bw24.flac", rs(x24, 24000, 48000), 48000, subtype="PCM_16")
-        if args.chunk > 0: y = chunked(x24[:S]); mu = torch.zeros(1, S // G.hop, 64)
-        else: y, _ = run(x24[:S]); mu = torch.zeros(1, S // G.hop, 64)
-        sf.write(d / f"C_roundtrip_{args.tag}.flac", np.clip(rs(y, 24000, 48000), -1, 1), 48000, subtype="PCM_16")
-        print(d.name, f"{S / 24000:.0f}s latent {tuple(mu.shape)}", flush=True)
+        xv = rs(x, sr, G.sr); S = len(xv) - len(xv) % G.hop                    # at the VAE rate (v5: 48 kHz)
+        if G.sr == 24000 and not (d / "C_roundtrip_bw24.flac").exists(): sf.write(d / "C_roundtrip_bw24.flac", rs(xv, 24000, 48000), 48000, subtype="PCM_16")
+        if args.chunk > 0: y = chunked(xv[:S]); mu = torch.zeros(1, S // G.hop, 64)
+        else: y, _ = run(xv[:S]); mu = torch.zeros(1, S // G.hop, 64)
+        sf.write(d / f"C_roundtrip_{args.tag}.flac", np.clip(rs(y, G.sr, 48000), -1, 1), 48000, subtype="PCM_16")
+        print(d.name, f"{S / G.sr:.0f}s latent {tuple(mu.shape)}", flush=True)
 
 
 if __name__ == "__main__":

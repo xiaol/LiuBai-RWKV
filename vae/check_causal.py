@@ -25,11 +25,11 @@ def main():
     args = ap.parse_args(); dev = "cuda"; torch.manual_seed(0)
     V = load_vae(args.vae, dev); ck = torch.load(args.vae, map_location="cpu")
     ctc = LyricCTC().to(dev).eval(); ctc.load_state_dict(ck["ctc"])
-    it = iter(Crops(str(ROOT / "data/real_corpus/manifest/slim_val.jsonl"), holdout=0, seed=5, seg=24.0))
+    it = iter(Crops(str(ROOT / "data/real_corpus/manifest/slim_val.jsonl"), holdout=0, seed=5, seg=24.0, sr=V.sr))   # at the VAE's rate (v5+: 48 kHz)
     crops = [next(it) for _ in range(args.n)]; ac = torch.autocast("cuda", dtype=torch.bfloat16)
 
     with torch.no_grad(), ac:
-        x = collate(crops[:2])[0].to(dev).float().mean(1)
+        x = V._mono24(collate(crops[:2])[0].to(dev))
         a = V._mert[0](input_values=x, output_hidden_states=True).hidden_states[V.sem_layer].float(); b = V._mert_layer(x).float()
     print(f"exact: max |diff| {float((a - b).abs().max()):.2e} (scale {float(a.abs().mean()):.2f})", flush=True)
 
@@ -40,7 +40,8 @@ def main():
             ref = tg[offs[j]:offs[j + 1]].tolist(); e += edit(hyp, ref); n += len(ref)
         return e, n
 
-    mels = [torchaudio.transforms.MelSpectrogram(24000, n_fft=n, hop_length=n // 4, n_mels=m, power=1.0).to(dev) for n, m in ((512, 40), (1024, 80), (2048, 128))]
+    r = V.sr // 24000                       # same windows in seconds at any rate, as vae/train.py
+    mels = [torchaudio.transforms.MelSpectrogram(V.sr, n_fft=n * r, hop_length=n * r // 4, n_mels=m, power=1.0).to(dev) for n, m in ((512, 40), (1024, 80), (2048, 128))]
 
     def mel(mu, x):                         # vae/train.py mel_db: mean |log-mel difference| in dB over 3 resolutions
         y = V.decode(mu).float(); S = x.shape[-1]; y = torch.nn.functional.pad(y, (0, max(0, S - y.shape[-1])))[..., :S]
@@ -62,7 +63,7 @@ def main():
         res[name] = dict(ctc_cer=E / max(N, 1), mel_db=sum(md) / len(md), rel_diff=sum(rd) / len(rd), sec_per_crop=t / args.n)
         print(name, {k: round(v, 4) for k, v in res[name].items()}, flush=True)
 
-    wav = collate(crops[:4])[0].to(dev); other = collate(crops[4:8])[0].to(dev); S = 12 * 24000
+    wav = collate(crops[:4])[0].to(dev); other = collate(crops[4:8])[0].to(dev); S = 12 * V.sr
     sp = torch.cat([wav[..., :S], other[..., S:]], -1)
     for name in ["full"] + list(cfgs):
         enc = (lambda z: V.encode(z)[0]) if name == "full" else (lambda z, c=cfgs[name]: V.encode_local(z, **c)[0])

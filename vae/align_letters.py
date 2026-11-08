@@ -24,11 +24,20 @@ class LetterAligner(WordAligner):
 
     @torch.no_grad()
     def __call__(s, wav, lines, n_frames):
-        x = s.res(wav.float().mean(1))
+        x = s.res(wav.float().mean(1)); return s.align(s.emissions(x), lines, n_frames, x.shape[1])
+
+    @torch.no_grad()
+    def emissions(s, x):
+        """x [B,S16] 16 kHz mono -> MMS log-probs [B,T_em,labels] with the <star> logit (= 0) appended"""
         with torch.autocast("cuda", dtype=torch.bfloat16):
             em, _ = s.model(x)
         em = em.float(); em = torch.cat([em, torch.zeros_like(em[..., :1])], -1)
-        em = torch.log_softmax(em, -1); T = em.shape[1]; em_per_fr = T / (x.shape[1] / 16000 * s.rate)
+        return torch.log_softmax(em, -1)
+
+    @torch.no_grad()
+    def align(s, em, lines, n_frames, n16):
+        """em from emissions() over n16 samples at 16 kHz -> per sample (ids, starts, mask), see the module docstring"""
+        T = em.shape[1]; em_per_fr = T / (n16 / 16000 * s.rate)
         out = []
         for b, ln in enumerate(lines):
             s.stats["windows"] += 1                                     # LRC end = next line's start: cap long spans (breaks)

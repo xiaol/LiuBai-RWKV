@@ -12,6 +12,10 @@ Per line, in order:
   trailing    kana / Latin line + trailing Han run (>= 3 after a space, >= 6 glued) -> removed, but only in songs where
               that pattern is common (>= 25 % of lines): a translated song, not one Chinese song with an English hook
   title       first 2 lines with " - ", 《》 or equal to the file name  -> dropped
+  notice      copyright / licensing / AI-use notices, "本歌曲来自〖…〗", platform and LRC-tool stamps, URLs, e-mails -> line dropped
+  section     a bare section word ("Hook", "Verse 2", "（chorus）", "Verse 1: name")  -> line dropped
+  gloss       Latin word + (Han gloss) inside a Han line ("Jazz（爵士）")  -> the gloss removed
+  singer      leading (男) / （女） / (合) part labels                    -> label removed
 Val rows whose first 12 cleaned lines also occur in the train manifest are dropped (same song uploaded twice).
 usage: clean_lyrics.py --train data/real_corpus/manifest/pilot_clm_train.jsonl --val data/real_corpus/manifest/slim_val.jsonl
        (writes *_clean.jsonl next to them and prints counts + random before/after examples)
@@ -35,6 +39,21 @@ PAREN = re.compile(r"[(（][^()（）]*[)）]")
 SPLIT = re.compile(r"\s*(?:\s/\s|/|｜|\|)\s*")
 TRAIL_SP = re.compile(rf"(?<=\S)[\s　,，.。!！?？~]+[{HAN}，。、！？\s]{{3,}}$")
 TRAIL_GLUED = re.compile(rf"(?<=[{KANA}a-zA-Z])[{HAN}]{{6,}}[，。、！？]*$")
+# Notices: only lines that state a rule or a source, so sung lines with 微信 / 关注 / 禁止 / 未经允许 stay
+NOTICE = re.compile(r"未经.{0,16}(许可|授权|同意|允许).{0,24}(翻唱|翻录|翻弹|使用|商用|改编|发布|二创|转载|上传)|"
+                    r"(著作权|版权|版税|侵权|著作人|权利人|权利保留).{0,30}|.{0,30}(侵权必究|违者必究|版权所有|版权纠纷)|"
+                    r"人工智能|\bAI\b.{0,12}(训练|生成|学习)|商用|商业使用|非商业|非盈利|购买租赁|私信购买|请评论|填翻授权|正式授权|获得授权|"
+                    r"(用|使用)(这个|此)\s*[Bb]eat|音乐人$|^\W*翻唱\W*$|"
+                    r"本(歌曲|作品|专辑|单曲)(来自|为|经过|声明|由|已)|网易音乐人|飓风计划|云上工作室|音乐人计划|"
+                    r"(伴奏|[Bb]eat).{0,30}(商用|版税|购买|发歌|上传|免费版|评论)|(关注|评论).{0,12}(网易云|微博|公众号|抖音|B站|bilibili|下方)|"
+                    r"[©℗]|https?://|www\.|\b[\w.-]+@[\w-]+\.\w+|\b[\w-]+\.(com|cn|net|org)\b|"
+                    r"LRC ?(generator|editor|by)|[Mm]aker [Tt]ool|lrc[焕by]|歌词(制作|贡献|编辑|校对|翻译)|贡献者|"
+                    r"(独家|短视频|音乐)平台|(出品|发行|宣发|监制|企划)[:：]?$", re.I)
+SECTION = re.compile(r"^\W*(verse|chorus|hook|bridge|intro|outro|pre-?chorus|post-?chorus|refrain|refrão|interlude|breakdown|"
+                     r"drop|rap|副歌|主歌|间奏|桥段|前奏|尾奏|说唱|独白)\W*\d*\W*(x\s*\d+)?\W*$", re.I)
+SECTION_HEAD = re.compile(r"^\W*(verse|chorus|hook|bridge|intro|outro|pre-?chorus|refrain|interlude)\s*\.?\s*\d*\s*[:：]", re.I)
+GLOSS = re.compile(rf"(?<=[A-Za-z'])\s*[(（][{HAN}，、]{{1,10}}[)）]")
+SINGER = re.compile(r"^\s*[(（\[【]\s*(男|女|合|男女|女男|合唱|齐|众|童|男生|女生|童声|all|both|male|female)\s*[)）\]】]\s*", re.I)
 has = lambda pat, t: re.search(f"[{pat}]", t) is not None
 norm = lambda t: re.sub(r"[\W_]+", "", t.lower())
 
@@ -43,7 +62,12 @@ def han_only(t): return has(HAN, t) and not has(KANA, t) and not has(HANG, t) an
 
 
 def clean_line(t, stats):
-    t0 = t; t = TAG.sub(" ", t).strip()
+    t0 = t
+    if NOTICE.search(t): stats["notice"] += 1; return ""
+    if SECTION.match(t) or SECTION_HEAD.match(t): stats["section"] += 1; return ""
+    t2 = SINGER.sub("", t)
+    if t2 != t: stats["singer"] += 1; t = t2
+    t = TAG.sub(" ", t).strip()
     t2 = FURI.sub(r"\2", t)                                   # 心（こころ） -> こころ: the reading is what is sung
     if t2 != t: stats["furigana"] += 1; t = t2
     m = COLON.match(t)
@@ -59,6 +83,9 @@ def clean_line(t, stats):
     if outside.strip() and not has(HAN, outside):
         t2 = PAREN.sub(lambda p: "" if has(HAN, p.group(0)) else p.group(0), t)
         if t2 != t: stats["paren"] += 1; t = t2
+    elif has(HAN, outside):
+        t2 = GLOSS.sub("", t)
+        if t2 != t: stats["gloss"] += 1; t = t2
     if has(HANG, t) and has(HAN, t):
         stats["korean"] += 1; t = re.sub(f"[{HAN}]+", " ", t)
     if t != t0: stats["lines_changed"] += 1

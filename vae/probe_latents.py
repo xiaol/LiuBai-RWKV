@@ -10,7 +10,7 @@ usage: probe_latents.py --vae v2=out/vae/v2/G_s60000.pt --vae v3=out/vae/v3/G_s2
 """
 import argparse, json, math, sys, time
 from pathlib import Path
-import torch, torch.nn.functional as F
+import torch, torch.nn.functional as F, torchaudio
 
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT))
 from vae.model import load_vae  # noqa: E402
@@ -39,13 +39,15 @@ def main():
         mert = MertTarget(args.mert).to(dev)
     names = list(vaes) + [f"{n}[{a}:{b}]" for n, a, b in sl] + ([f"mert_L{args.mert}"] if mert else [])
 
+    SR = max(V.sr for V in vaes.values())                                             # crops at the highest VAE rate (v5+: 48 kHz)
+    rs = lambda c, sr: c if sr == SR else torchaudio.functional.resample(c.float(), SR, sr)
     @torch.no_grad()
     def feats(wav):
         x = wav.to(dev); r = {}
         with torch.autocast("cuda", dtype=torch.bfloat16):                            # micro-batches of 2: runs beside a 35 GB trainer
-            for n, V in vaes.items(): r[n] = torch.cat([V.encode(c)[0].float() for c in x.split(2)])
+            for n, V in vaes.items(): r[n] = torch.cat([V.encode(rs(c, V.sr))[0].float() for c in x.split(2)])
         for n, a, b in sl: r[f"{n}[{a}:{b}]"] = r[n][..., a:b]
-        if mert: T = r[next(iter(vaes))].shape[1]; r[f"mert_L{args.mert}"] = torch.cat([mert(c, T) for c in x.split(2)])   # 2 frames per latent frame
+        if mert: T = r[next(iter(vaes))].shape[1]; r[f"mert_L{args.mert}"] = torch.cat([mert(rs(c, 24000), T) for c in x.split(2)])   # 2 frames per latent frame
         torch.cuda.empty_cache()
         return r
 
@@ -61,7 +63,7 @@ def main():
         return F.ctc_loss(lp[idx].transpose(0, 1), tgt, torch.clamp(cf[idx], max=lp.shape[1]).to(dev), lens[idx].to(dev), blank=0, zero_infinity=True)
 
     import random; random.seed(0)
-    vd = Crops(args.val_manifest, holdout=0, seed=12345); vd.rows = [r for r in vd.rows if len(r["lines"]) >= 4]; vit = iter(vd)
+    vd = Crops(args.val_manifest, holdout=0, seed=12345, sr=SR); vd.rows = [r for r in vd.rows if len(r["lines"]) >= 4]; vit = iter(vd)
     val = [collate([next(vit) for _ in range(16)]) for _ in range(8)]; vin = [(feats(b[0]), b) for b in val]
 
     @torch.no_grad()
@@ -77,7 +79,7 @@ def main():
             res[n] = e / max(c, 1); r.train()
         return res
 
-    ds = Crops(args.manifest, holdout=0, seed=3); ds.rows = [r for r in ds.rows if len(r["lines"]) >= 4]
+    ds = Crops(args.manifest, holdout=0, seed=3, sr=SR); ds.rows = [r for r in ds.rows if len(r["lines"]) >= 4]
     dl = iter(torch.utils.data.DataLoader(ds, batch_size=args.bs, num_workers=args.workers, collate_fn=collate, prefetch_factor=4, persistent_workers=True))
     log = open(out / "log.txt", "a"); t0 = time.time()
     for step in range(1, args.steps + 1):

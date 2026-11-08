@@ -1,5 +1,9 @@
 # RWKV-7 Song LM — Plan
 
+> **2026-10-31: this file is history (YuE2-token-space era, Sept 2026).** The current goal and plan are in
+> **`docs/VAE_PLAN.md` → "Goal and current plan"**: SOTA caption + lyrics → full song beating Suno v6 and YuE2 on
+> WildSongBench; own VAE latent + RWKV-7 block-flow backbone (LiuBai-H), no discrete audio tokens, no audio→token tokenizer.
+
 Goal: a **pure RWKV-7 (attention-free) lyrics+style → song model**, following the YuE
 recipe (text → semantic audio tokens → acoustic rendering), trained on the 4×A100-40GB box.
 Project root: `/root/x/rwkv-music`. Written 2026-09-12. Chronological record: **`docs/STATUS_LOG.md`**.

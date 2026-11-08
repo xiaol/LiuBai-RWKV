@@ -11,7 +11,7 @@ from .model import LETTERS
 
 
 class MMSJudge(torch.nn.Module):
-    def __init__(s):
+    def __init__(s, sr=24000):
         super().__init__()
         from torchaudio.pipelines import MMS_FA
         s.model = MMS_FA.get_model(with_star=False).eval().requires_grad_(False)
@@ -20,7 +20,7 @@ class MMSJudge(torch.nn.Module):
         m = torch.full((len(LETTERS) + 1,), -1, dtype=torch.long)                  # our id (1-based) -> MMS id, -1 = drop
         for i, c in enumerate(LETTERS):
             if c in d: m[i + 1] = d[c]
-        s.register_buffer("map", m); s.resample = torchaudio.transforms.Resample(24000, 16000)
+        s.register_buffer("map", m); s.resample = torchaudio.transforms.Resample(sr, 16000)
 
     def targets(s, tg, lens):
         """our flat ids + lengths -> MMS flat ids + lengths (spaces dropped)"""
@@ -35,12 +35,12 @@ class MMSJudge(torch.nn.Module):
         em, _ = s.model(x)
         return F.log_softmax(em.float(), -1)
 
-    def ctc(s, lp, tg, lens, ok, cf_sec):
+    def ctc(s, lp, tg, lens, ok, cf_sec, seg=8.0):
         """CTC of the selected samples; cf_sec = seconds of audio the targets cover (from the 50 Hz ctc_frames / 50)."""
         idx = ok.nonzero().flatten()
         if len(idx) == 0: return None
         mt, ml = s.targets(tg, lens); offs = torch.cat([torch.zeros(1, dtype=torch.long), ml.cumsum(0)])
         tgt = torch.cat([mt[offs[i]:offs[i + 1]] for i in idx.tolist()])
-        fps = lp.shape[1] / 8.0                                                       # frames per second of the 8 s crop
+        fps = lp.shape[1] / seg                                                       # frames per second of the seg-s crop
         il = torch.clamp((cf_sec[idx] * fps).long(), max=lp.shape[1]).to(lp.device)
         return F.ctc_loss(lp[idx].transpose(0, 1), tgt, il, ml[idx].to(lp.device), blank=s.blank, zero_infinity=True)

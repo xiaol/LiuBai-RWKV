@@ -1,6 +1,6 @@
 """Training crops for the VAE pilot from the NetEase manifest (tools/ingest_lrc_corpus.py rows: audio_path, duration, lines).
 
-Crop = SEG seconds of 24 kHz stereo. 80 % of crops start just before a random LRC line (so most crops contain singing); the CTC
+Crop = SEG seconds of 24 kHz (or `sr`) stereo. 80 % of crops start just before a random LRC line (so most crops contain singing); the CTC
 target is the romanised text of every line that starts inside the crop and ends (next line's start) before the crop end + 0.3 s,
 i.e. lines that are sung completely inside it. Crops whose window has partial lines still train the codec; `ctc_ok` marks the
 ones with >= 1 complete line; the CTC loss only covers frames up to the end of the last complete line (`ctc_frames`, 50 Hz).
@@ -43,29 +43,30 @@ def romanise(text):
 def encode_text(s): return [L2I[c] for c in s if c in L2I]
 
 
-def read_crop(path, t0, seg):
+def read_crop(path, t0, seg, out_sr=SR):
     info = sf.info(path); sr = info.samplerate
     a0 = int(t0 * sr); n = int(seg * sr) + 64
     x, _ = sf.read(path, start=a0, stop=min(a0 + n, info.frames), dtype="float32", always_2d=True)
     x = np.repeat(x, 2, 1) if x.shape[1] == 1 else x[:, :2]
-    if sr != SR: g = gcd(sr, SR); x = resample_poly(x, SR // g, sr // g, axis=0).astype(np.float32)
-    S = int(seg * SR); x = x[:S]
+    if sr != out_sr: g = gcd(sr, out_sr); x = resample_poly(x, out_sr // g, sr // g, axis=0).astype(np.float32)
+    S = int(seg * out_sr); x = x[:S]
     if len(x) < S: x = np.pad(x, ((0, S - len(x)), (0, 0)))
     return x.T
 
 
 class Crops(torch.utils.data.IterableDataset):
-    def __init__(s, manifest, seg=8.0, holdout=1000, p_line=0.8, seed=0, max_rows=0, with_lines=False, rate=12.5):
+    def __init__(s, manifest, seg=8.0, holdout=1000, p_line=0.8, seed=0, max_rows=0, with_lines=False, rate=12.5, sr=SR):
         rows = [json.loads(l) for l in open(manifest, encoding="utf-8")][holdout:]
         if max_rows: rows = rows[:max_rows]
-        s.rows = [dict(audio_path=r["audio_path"], duration=r["duration"], lines=[(l["t0"], l["t1"], l["text"]) for l in r.get("lines") or []])
-                  for r in rows if r.get("duration", 0) > seg + 2]
-        s.seg, s.p_line, s.seed, s.with_lines, s.rate = seg, p_line, seed, with_lines, rate
+        s.rows = [dict(audio_path=r["audio_path"], duration=r["duration"], lines=[(l["t0"], l["t1"], l["text"]) for l in r.get("lines") or []],
+                       w=r.get("w", 1.0)) for r in rows if r.get("duration", 0) > seg + 2]
+        s.seg, s.p_line, s.seed, s.with_lines, s.rate, s.sr = seg, p_line, seed, with_lines, rate, sr
+        s.cw = None if all(r["w"] == 1.0 for r in s.rows) else list(np.cumsum([r["w"] for r in s.rows]))   # optional row weights "w"
 
     def __iter__(s):
         wi = torch.utils.data.get_worker_info(); rng = random.Random(s.seed * 1000 + (wi.id if wi else 0) + random.randrange(1 << 30))
         while True:
-            r = rng.choice(s.rows); L = r["lines"]
+            r = rng.choice(s.rows) if s.cw is None else rng.choices(s.rows, cum_weights=s.cw)[0]; L = r["lines"]
             if L and rng.random() < s.p_line:
                 l0 = rng.choice(L); t0 = max(0.0, min(l0[0] - rng.uniform(0.1, 1.2), r["duration"] - s.seg - 0.1))
             else: t0 = rng.uniform(0, r["duration"] - s.seg - 0.1)
@@ -77,7 +78,7 @@ class Crops(torch.utils.data.IterableDataset):
                 full.append(l)
             text = romanise(" ".join(l[2] for l in full)); tgt = encode_text(text)
             ctc_frames = int(min(s.seg, (full[-1][1] if full else t0) - t0 + 0.3) * 50)   # CTC sees only [t0, end of last full line] (50 Hz)
-            try: wav = read_crop(r["audio_path"], t0, s.seg)
+            try: wav = read_crop(r["audio_path"], t0, s.seg, s.sr)
             except Exception: continue
             if np.abs(wav).max() < 1e-4: continue
             ok = bool(full) and len(tgt) > 0 and len(tgt) <= ctc_frames // 2

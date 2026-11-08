@@ -48,6 +48,15 @@ def main():
     ap.add_argument("--ch", type=int, default=32); ap.add_argument("--d", type=int, default=512); ap.add_argument("--n-rwkv", type=int, default=4)
     ap.add_argument("--mults", default="1,2,4,8,16,16", help="conv channel multipliers per stage (YuE2-Vae: ch 64, 1,2,4,8,16,32)")
     ap.add_argument("--workers", type=int, default=10); ap.add_argument("--eval-every", type=int, default=2000); ap.add_argument("--seed", type=int, default=0)
+    # v5: 48 kHz, one extra outer stride-2 stage (same 12.5 Hz latent), init from a 24 kHz checkpoint, anchored to its latent
+    ap.add_argument("--sr", type=int, default=SR); ap.add_argument("--strides", default="2,2,4,4,5,6", help="v5 at 48 kHz: 2,2,2,4,4,5,6")
+    ap.add_argument("--enc", default="global", choices=["global", "local"], help="local: semantic half from bounded-lookahead MERT "
+                    "(VAE.mert_feats_local), as the cursor LM encodes; the decoder then trains on exactly those latents")
+    ap.add_argument("--enc-win", type=float, default=3.0); ap.add_argument("--enc-ahead", type=float, default=0.64); ap.add_argument("--enc-keep", type=int, default=2)
+    ap.add_argument("--teacher", default="", help="frozen VAE (e.g. v4); its mu on the 24 kHz-resampled crop anchors ours")
+    ap.add_argument("--anchor-w", type=float, default=0.0, help="weight of the normalised MSE between our mu and the teacher's")
+    ap.add_argument("--anchor-until", type=int, default=0, help="> 0: anchor weight decays linearly to 0 at this step (0 = constant)")
+    ap.add_argument("--freeze-inner", type=int, default=0, help="steps during which only stages new versus --init train (LR 0 for the rest)")
     args = ap.parse_args(); out = Path(args.out)
     ddp = "LOCAL_RANK" in os.environ
     if ddp:
@@ -57,28 +66,65 @@ def main():
     dev = "cuda"; main_proc = rank == 0
     if main_proc: out.mkdir(parents=True, exist_ok=True); json.dump(vars(args) | dict(world=world), open(out / "config.json", "w"), indent=1)
     torch.manual_seed(args.seed + rank); random.seed(args.seed + rank); torch.backends.cuda.matmul.allow_tf32 = True; torch.backends.cudnn.allow_tf32 = True
-    mults = tuple(int(x) for x in args.mults.split(","))
-    G = VAE(ch=args.ch, mults=mults, d=args.d, n_rwkv=args.n_rwkv, sem=args.sem, sem_bound=args.sem_bound, sem_layer=args.align_layer).to(dev); D = STFTDisc().to(dev)
+    mults = tuple(int(x) for x in args.mults.split(",")); strides = tuple(int(x) for x in args.strides.split(",")); r = args.sr // SR
+    G = VAE(ch=args.ch, mults=mults, d=args.d, n_rwkv=args.n_rwkv, sem=args.sem, sem_bound=args.sem_bound, sem_layer=args.align_layer,
+            strides=strides, sr=args.sr).to(dev)
+    if args.enc == "local": G.local_kw = dict(win=args.enc_win, ahead=args.enc_ahead, keep=args.enc_keep)
+    D = STFTDisc(n_ffts=(2048, 1024, 512) if r == 1 else (4096, 2048, 1024, 512)).to(dev)
     ctc = LyricCTC().to(dev); prior = LatentPrior().to(dev)
     from vae.align_targets import MertTarget, ChromaTarget, AlignHead, cos_loss
     K = args.align_split; use_al = args.align_w > 0 or args.chroma_w > 0
     heads = torch.nn.ModuleDict(dict(mert=AlignHead(K, 1024), chroma=AlignHead(64 - K, 12))).to(dev)
-    TM = MertTarget(args.align_layer).to(dev) if (args.align_w > 0 or args.sem) else None; TC = ChromaTarget().to(dev)
+    TM = MertTarget(args.align_layer).to(dev) if (args.align_w > 0 or args.sem) else None; TC = ChromaTarget(sr=args.sr, n_fft=4096 * r, hop=960 * r).to(dev)
     if args.sem: G.attach_mert(TM.mert)                # one frozen MERT for the posterior base and the alignment target
-    optG = torch.optim.AdamW([dict(params=list(G.parameters()) + list(ctc.parameters()) + list(prior.parameters())),
+    to24 = (lambda w: w) if args.sr == 24000 else (lambda w: torchaudio.functional.resample(w.float(), args.sr, 24000))
+    def mert_target(x, T, feats=None):                 # [B,2T,1024]; sem VAEs reuse the posterior's MERT features (identical, no 2nd pass)
+        if args.sem: return (G_core.feats(x, T) if feats is None else feats).reshape(x.shape[0], 2 * T, 1024)
+        return TM(to24(x), T)
+    Tch = None
+    if args.teacher:
+        from vae.model import load_vae
+        Tch = load_vae(args.teacher, dev, mert=TM.mert if TM is not None else None)
+        if main_proc: print(f"teacher {args.teacher}: sr {Tch.sr}, hop {Tch.hop}", flush=True)
+    n_old = len(torch.load(args.init, map_location="cpu", mmap=True)["args"].get("strides", "2,2,4,4,5,6").split(",")) if args.init else len(strides)
+    n_extra = len(strides) - n_old                      # stages new versus --init (v5 from v4: the outer 48 -> 24 kHz stage)
+    def is_new(name):
+        p = name.split(".")
+        return n_extra > 0 and ((p[0] == "enc_conv" and int(p[1]) <= n_extra) or (p[0] == "dec_conv" and int(p[1]) >= n_old))
+    newp = [p for n, p in G.named_parameters() if is_new(n)]; oldp = [p for n, p in G.named_parameters() if not is_new(n)]
+    optG = torch.optim.AdamW(([dict(params=newp)] if newp else []) + [dict(params=oldp + list(ctc.parameters()) + list(prior.parameters()), inner=True),
                               dict(params=list(heads.parameters()), mult=10.0)], lr=args.lr, betas=(0.8, 0.99), weight_decay=0.0)   # fresh heads: 10x LR
     optD = torch.optim.AdamW(D.parameters(), lr=args.lr, betas=(0.8, 0.99), weight_decay=0.0)
     n_par = lambda m: sum(p.numel() for p in m.parameters()) / 1e6
     if main_proc: print(f"VAE {n_par(G):.1f}M (enc conv {n_par(G.enc_conv):.1f}M, dec conv {n_par(G.dec_conv):.1f}M) D {n_par(D):.1f}M ctc {n_par(ctc):.1f}M prior {n_par(prior):.1f}M", flush=True)
     step = 0; ck = out / "last.pt"
     if args.init and not ck.exists():
-        sd = torch.load(args.init, map_location=dev); miss = G.load_state_dict(sd["G"], strict=not args.sem)
-        if args.sem and main_proc: print("init: new params", [k for k in miss.missing_keys][:8], flush=True)
+        sd = torch.load(args.init, map_location=dev); g = sd["G"]
+        if n_extra:                                     # 24 kHz init: inner stages shift by n_extra; the first conv and the output
+            def mv(k):                                  # Snake/conv keep their role (reused when the shapes match), new stages fresh
+                p = k.split(".")
+                if p[0] == "enc_conv" and int(p[1]) > 0: p[1] = str(int(p[1]) + n_extra)
+                if p[0] == "dec_conv" and int(p[1]) >= n_old: p[1] = str(int(p[1]) + n_extra)
+                return ".".join(p)
+            own = G.state_dict(); g = {mv(k): v for k, v in g.items()}; g = {k: v for k, v in g.items() if k in own and own[k].shape == v.shape}
+        miss = G.load_state_dict(g, strict=not (args.sem or n_extra))
+        if (args.sem or n_extra) and main_proc: print("init: new params", sorted({".".join(k.split(".")[:2]) for k in miss.missing_keys}), flush=True)
         ctc.load_state_dict(sd["ctc"]); prior.load_state_dict(sd["prior"])
-        if "D" in sd: D.load_state_dict(sd["D"])
+        if "heads" in sd: heads.load_state_dict(sd["heads"])
+        if "D" in sd:
+            dsd = sd["D"]
+            if len(D.n_ffts) != 3:                      # old D scales (2048, 1024, 512) -> same n_fft in the new D, others fresh
+                dsd = {k.replace(f"nets.{i}.", f"nets.{D.n_ffts.index(n)}.", 1): v for k, v in dsd.items() for i, n in enumerate((2048, 1024, 512)) if k.startswith(f"nets.{i}.")}
+            D.load_state_dict(dsd, strict=len(D.n_ffts) == 3)
         if main_proc: print("init from", args.init, "(D too)" if "D" in sd else "(fresh D)", flush=True)
+        from vae.rwkv import revive_wkv                 # pre-2026-10-31 checkpoints: dead time-mix (o = g2 = 0), revive the gates
+        # decoder + readers only: the ENCODER's time-mix stays dead (o = g2 = 0 is an exact fixed point), so its acoustic path stays
+        # local. A live backward WKV would let every latent frame see the whole crop's future, breaking encode_local's bounded
+        # lookahead (cursor LM prompts, precompute's chunk margin); vae/check_causal.py must keep showing acoustic leak 0
+        nrv = revive_wkv(G.dec_rwkv, ctc, prior)
+        if main_proc: print(f"init: revived {nrv} dead WKV time-mix gates (decoder, ctc, prior; encoder kept local)", flush=True)
     from vae.mms_judge import MMSJudge
-    J = MMSJudge().to(dev) if (args.mms_w > 0 or main_proc) else None
+    J = MMSJudge(args.sr).to(dev) if (args.mms_w > 0 or main_proc) else None
     if ck.exists():
         sd = torch.load(ck, map_location=dev); G.load_state_dict(sd["G"]); D.load_state_dict(sd["D"]); ctc.load_state_dict(sd["ctc"]); prior.load_state_dict(sd["prior"])
         if "heads" in sd: heads.load_state_dict(sd["heads"])
@@ -95,8 +141,14 @@ def main():
                 if p_.grad is None: p_.grad = torch.zeros_like(p_)
                 dist.all_reduce(p_.grad, op=dist.ReduceOp.AVG)
 
-    mels = [torchaudio.transforms.MelSpectrogram(SR, n_fft=n, hop_length=n // 4, n_mels=m, power=1.0).to(dev) for n, m in ((512, 40), (1024, 80), (2048, 128))]
-    wins = {n: torch.hann_window(n, device=dev) for n in (2048, 1024, 512, 256)}
+    # same windows in seconds at any rate (n_fft x sr/24k)
+    mels = [torchaudio.transforms.MelSpectrogram(args.sr, n_fft=n * r, hop_length=n * r // 4, n_mels=m, power=1.0).to(dev) for n, m in ((512, 40), (1024, 80), (2048, 128))]
+    wins = {n * r: torch.hann_window(n * r, device=dev) for n in (2048, 1024, 512, 256)}
+    def anchor(mu, x, feats):                           # normalised MSE to the frozen teacher's mu on the same crop at its rate
+        with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
+            mt = Tch.encode(x if Tch.sr == args.sr else torchaudio.functional.resample(x.float(), args.sr, Tch.sr), feats=feats)[0].float()
+        assert mt.shape == mu.shape, (mt.shape, mu.shape)
+        return ((mu - mt) ** 2 / (mt.var(dim=(0, 1), keepdim=True) + 1e-4)).mean()
     def recon_losses(y, x):                     # [B,2,S] float32
         y, x = y.reshape(-1, y.shape[-1]).float(), x.reshape(-1, x.shape[-1]).float()
         mel = sum((torch.log(m(y) + 1e-5) - torch.log(m(x) + 1e-5)).abs().mean() for m in mels) / len(mels)
@@ -127,7 +179,7 @@ def main():
         return lp, le
 
     # fixed validation crops from the held-out shard-0 rows
-    vd = Crops(args.val_manifest or args.manifest, seg=args.seg, holdout=0, max_rows=1000, seed=12345); vd.rows = vd.rows[:1000]
+    vd = Crops(args.val_manifest or args.manifest, seg=args.seg, holdout=0, max_rows=1000, seed=12345, sr=args.sr); vd.rows = vd.rows[:1000]
     vit = iter(vd); val = [next(vit) for _ in range(48)]
     @torch.no_grad()
     def evaluate():
@@ -137,7 +189,8 @@ def main():
             wav, tg, lens, ok, cf = collate(val[i:i + 8]); x = wav.to(dev)
             with torch.autocast("cuda", dtype=torch.bfloat16): y, mu, lv, z = G(x, sample=False)
             m, s_ = recon_losses(y, x); mel_db += m.item() * 20 / math.log(10) / 6; st_ += s_.item() / 6
-            if TM is not None: al["al_mert"] += (1 - cos_loss(heads["mert"](mu[..., :K].float()), TM(x, mu.shape[1])).item()) / 6
+            if TM is not None: al["al_mert"] += (1 - cos_loss(heads["mert"](mu[..., :K].float()), mert_target(x, mu.shape[1])).item()) / 6
+            if Tch is not None: al["anchor"] = al.get("anchor", 0.0) + anchor(mu.float(), x, G.feats(x, mu.shape[1]) if args.sem else None).item() / 6
             al["al_chroma"] += (1 - cos_loss(heads["chroma"](mu[..., K:].float()), TC(x, mu.shape[1])).item()) / 6
             tgt = mu[:, 1:].float(); pr += (((prior(mu.float()) - tgt) ** 2) / (tgt.var(dim=(0, 1), keepdim=True) + 1e-4)).mean().item() / 6
             lp = ctc(mu.float()); offs = torch.cat([torch.zeros(1, dtype=torch.long), lens.cumsum(0)])
@@ -165,7 +218,7 @@ def main():
     if step == 0 and main_proc:
         e = evaluate(); print("EVAL step 0 " + " ".join(f"{k} {v:.4f}" for k, v in e.items()), flush=True)
 
-    dl = torch.utils.data.DataLoader(Crops(args.manifest, seg=args.seg, holdout=0 if args.val_manifest else 1000, seed=args.seed + step + 7919 * rank), batch_size=args.bs, num_workers=args.workers,
+    dl = torch.utils.data.DataLoader(Crops(args.manifest, seg=args.seg, holdout=0 if args.val_manifest else 1000, seed=args.seed + step + 7919 * rank, sr=args.sr), batch_size=args.bs, num_workers=args.workers,
                                      collate_fn=collate, prefetch_factor=4, persistent_workers=True)
     log = open(out / "log.txt", "a") if main_proc else None; t0 = time.time(); acc = {}
     for wav, tg, lens, ok, cf in dl:
@@ -174,31 +227,34 @@ def main():
         x = wav.to(dev, non_blocking=True)
         lr = args.lr * min(1, step / 1000) * (0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * step / args.steps)))
         for o in (optG, optD):
-            for g in o.param_groups: g["lr"] = lr * g.get("mult", 1.0)
+            for g in o.param_groups: g["lr"] = lr * g.get("mult", 1.0) * (0.0 if g.get("inner") and step <= args.freeze_inner else 1.0)
         B = x.shape[0]; s2 = bl = None
         if args.noise_max > 0:
             pert = torch.rand(B, device=dev) < args.noise_p
             s2 = torch.rand(B, device=dev) * args.noise_max * pert
             bl = torch.rand(B, device=dev) * 0.25 * (pert & (torch.rand(B, device=dev) < args.blur_p))
+        feats = G_core.feats(x, x.shape[-1] // G_core.hop) if args.sem else None    # MERT once: posterior, align target, teacher
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            y, mu, lv, z = G(x, s2=s2, blur=bl)
+            y, mu, lv, z = G(x, s2=s2, blur=bl, feats=feats)
         mu = mu.float(); y = y.float()
         mel, st = recon_losses(y, x); lkl = kl(mu, lv.float())
+        lan = anchor(mu, x, feats) if Tch is not None else torch.zeros((), device=dev)
+        aw = args.anchor_w * (max(0.0, 1 - step / args.anchor_until) if args.anchor_until else 1.0)
         lm = torch.zeros((), device=dev)
         if args.mms_w > 0:
             sel = ok.clone(); sel[args.mms_n:] = False
             if sel.any():
                 il = sel.nonzero().flatten().tolist(); offs = torch.cat([torch.zeros(1, dtype=torch.long), lens.cumsum(0)])
-                tg_s = torch.cat([tg[offs[i]:offs[i + 1]] for i in il]); lm_ = J.ctc(J(y[il]), tg_s, lens[il], torch.ones(len(il), dtype=torch.bool), cf[il].float() / 50)
+                tg_s = torch.cat([tg[offs[i]:offs[i + 1]] for i in il]); lm_ = J.ctc(J(y[il]), tg_s, lens[il], torch.ones(len(il), dtype=torch.bool), cf[il].float() / 50, args.seg)
                 if lm_ is not None: lm = lm_
         lc, _ = ctc_loss(mu, tg, lens, ok, cf, grad=args.ctc_w > 0)
         lpr, lpe = prior_terms(mu, z.float(), enc_grad=args.prior_w > 0 and step > args.prior_start)
         la = lch = torch.zeros((), device=dev)
         if use_al:                                     # on the sampled (and perturbed) latent, as MSVAE aligns the posterior sample
             zf = z.float(); T = zf.shape[1]
-            if args.align_w > 0: la = cos_loss(heads["mert"](zf[..., :K]), TM(x, T))
+            if args.align_w > 0: la = cos_loss(heads["mert"](zf[..., :K]), mert_target(x, T, feats))
             if args.chroma_w > 0: lch = cos_loss(heads["chroma"](zf[..., K:]), TC(x, T))
-        loss = args.mel_w * mel + args.stft_w * st + args.kl_w * lkl + (args.ctc_w if args.ctc_w > 0 else 1.0) * lc + lpr + args.prior_w * lpe + args.mms_w * lm + args.align_w * la + args.chroma_w * lch
+        loss = args.mel_w * mel + args.stft_w * st + args.kl_w * lkl + (args.ctc_w if args.ctc_w > 0 else 1.0) * lc + lpr + args.prior_w * lpe + args.mms_w * lm + args.align_w * la + args.chroma_w * lch + aw * lan
         gan = step > args.gan_start
         if gan:
             with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -215,7 +271,7 @@ def main():
                 dr = D(x); df = D(y.detach())
             ld = sum(F.relu(1 - a.float()).mean() + F.relu(1 + b.float()).mean() for (a, _), (b, _) in zip(dr, df)) / len(dr)
             optD.zero_grad(set_to_none=True); ld.backward(); avg_grads([D]); torch.nn.utils.clip_grad_norm_(D.parameters(), args.clip); optD.step()
-        for k, v in dict(mel=mel, stft=st, kl=lkl, ctc=lc, prior=lpr, prior_enc=lpe, mms=lm, al=la, chroma=lch, gn=gn).items(): acc[k] = acc.get(k, 0) + float(v)
+        for k, v in dict(mel=mel, stft=st, kl=lkl, ctc=lc, prior=lpr, prior_enc=lpe, mms=lm, al=la, chroma=lch, anchor=lan, gn=gn).items(): acc[k] = acc.get(k, 0) + float(v)
         if gan: acc["adv"] = acc.get("adv", 0) + float(adv); acc["fm"] = acc.get("fm", 0) + float(fm); acc["d"] = acc.get("d", 0) + float(ld)
         if step % 50 == 0 and main_proc:
             msg = f"step {step} " + " ".join(f"{k} {v / 50:.4f}" for k, v in acc.items()) + f" lr {lr:.2e} {time.time() - t0:.0f}s mem {torch.cuda.max_memory_allocated() / 2**30:.1f}G"
