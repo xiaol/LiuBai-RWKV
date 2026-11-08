@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LiuBai whole-song generation (RWKV-7 5.1B on MSVAE latents)</title><style>
+body{font:15px/1.45 system-ui,sans-serif;max-width:1000px;margin:2rem auto;padding:0 1rem;color:#222;background:#fafafa}
+.clip{background:#fff;border:1px solid #e3e3e3;border-radius:8px;padding:.6rem 1rem;margin:.8rem 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.5rem} .grid div{font-size:.9em}
+audio{width:100%} table{border-collapse:collapse} td,th{border:1px solid #ddd;padding:.2rem .6rem;text-align:right}
+</style></head><body><h1>LiuBai whole-song generation (RWKV-7 5.1B on MSVAE latents)</h1>
+<p>Whole songs generated from a text prompt only (song metadata + timed lyrics, chat template), no audio prompt, CFG 3, 24 flow steps,
+decoded by MSVAE to 48 kHz stereo. 16 held-out songs (not cherry-picked). Number = per-line letter CER of Qwen3-ASR-1.7B
+on each line's timed window against the lyrics the model was given (lower is better; &gt; 1 = many inserted words).
+<b>recon ceiling</b> = the same scorer on the real songs' own MSVAE latents decoded (scores only).
+Only generated audio is published; titles, lyrics and the original recordings are commercial and stay local. Model: s1 = 3B RWKV-7 + full-rank NAR deltas (5.1B), init msvae_full1 20k, 20k whole-song steps.</p>
+<table><tr><th>run</th><th>CER mean</th><th>median</th><th>thirds</th><th>dB</th><th>silent</th></tr>
+<tr><th>s1 20k</th><td>1.178</td><td>1.064</td><td>0.95 / 1.23 / 1.38</td><td>-17.8</td><td>0.06</td></tr>
+<tr><th>recon ceiling</th><td>0.511</td><td>0.536</td><td>0.48 / 0.53 / 0.52</td><td>-14.6</td><td>0.01</td></tr>
+</table>
+<div class="clip"><b>song 000</b> (cmn, 259 s, 40 lines)<div class="grid">
+<div>s1 20k: CER 2.30 (thirds 1.10 / 2.03 / 3.99), -15.2 dB<audio controls preload="none" src="000_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.13 (thirds 0.10 / 0.15 / 0.14), -15.9 dB</div>
+</div></div>
+<div class="clip"><b>song 001</b> (cmn, 244 s, 66 lines)<div class="grid">
+<div>s1 20k: CER 0.96 (thirds 0.89 / 0.90 / 1.10), -14.3 dB<audio controls preload="none" src="001_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.46 (thirds 0.42 / 0.43 / 0.56), -17.7 dB</div>
+</div></div>
+<div class="clip"><b>song 002</b> (cmn, 199 s, 44 lines)<div class="grid">
+<div>s1 20k: CER 0.47 (thirds 0.39 / 0.52 / 0.49), -14.5 dB<audio controls preload="none" src="002_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.29 (thirds 0.28 / 0.28 / 0.31), -14.2 dB</div>
+</div></div>
+<div class="clip"><b>song 003</b> (cmn, 180 s, 46 lines)<div class="grid">
+<div>s1 20k: CER 1.15 (thirds 0.79 / 1.14 / 1.49), -15.6 dB<audio controls preload="none" src="003_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.68 (thirds 0.37 / 0.68 / 0.94), -13.6 dB</div>
+</div></div>
+<div class="clip"><b>song 004</b> (cmn, 211 s, 40 lines)<div class="grid">
+<div>s1 20k: CER 1.10 (thirds 0.83 / 1.39 / 1.17), -13.9 dB<audio controls preload="none" src="004_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.28 (thirds 0.26 / 0.26 / 0.32), -16.9 dB</div>
+</div></div>
+<div class="clip"><b>song 005</b> (cmn, 202 s, 45 lines)<div class="grid">
+<div>s1 20k: CER 1.03 (thirds 0.67 / 1.26 / 1.14), -13.9 dB<audio controls preload="none" src="005_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.31 (thirds 0.25 / 0.38 / 0.31), -16.8 dB</div>
+</div></div>
+<div class="clip"><b>song 006</b> (cmn, 256 s, 30 lines)<div class="grid">
+<div>s1 20k: CER 1.20 (thirds 0.66 / 1.73 / 1.24), -25.5 dB<audio controls preload="none" src="006_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.12 (thirds 0.13 / 0.14 / 0.04), -23.6 dB</div>
+</div></div>
+<div class="clip"><b>song 007</b> (eng, 280 s, 42 lines)<div class="grid">
+<div>s1 20k: CER 1.43 (thirds 1.26 / 1.25 / 1.85), -18.5 dB<audio controls preload="none" src="007_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.67 (thirds 0.85 / 0.72 / 0.42), -18.0 dB</div>
+</div></div>
+<div class="clip"><b>song 008</b> (eng, 172 s, 53 lines)<div class="grid">
+<div>s1 20k: CER 1.01 (thirds 0.69 / 1.26 / 1.14), -19.8 dB<audio controls preload="none" src="008_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.30 (thirds 0.38 / 0.25 / 0.26), -18.5 dB</div>
+</div></div>
+<div class="clip"><b>song 009</b> (eng, 239 s, 80 lines)<div class="grid">
+<div>s1 20k: CER 0.92 (thirds 0.90 / 0.99 / 0.88), -11.4 dB<audio controls preload="none" src="009_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.45 (thirds 0.38 / 0.49 / 0.47), -11.1 dB</div>
+</div></div>
+<div class="clip"><b>song 010</b> (eng, 222 s, 30 lines)<div class="grid">
+<div>s1 20k: CER 0.83 (thirds 0.86 / 0.83 / 0.74), -42.7 dB<audio controls preload="none" src="010_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.74 (thirds 0.73 / 0.73 / 0.80), -12.0 dB</div>
+</div></div>
+<div class="clip"><b>song 011</b> (jpn, 281 s, 26 lines)<div class="grid">
+<div>s1 20k: CER 0.86 (thirds 0.88 / 0.78 / 0.92), -20.6 dB<audio controls preload="none" src="011_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.72 (thirds 0.50 / 0.81 / 0.89), -12.3 dB</div>
+</div></div>
+<div class="clip"><b>song 012</b> (jpn, 245 s, 47 lines)<div class="grid">
+<div>s1 20k: CER 1.06 (thirds 1.10 / 1.01 / 1.09), -15.3 dB<audio controls preload="none" src="012_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.85 (thirds 0.88 / 0.93 / 0.74), -12.1 dB</div>
+</div></div>
+<div class="clip"><b>song 013</b> (kor, 219 s, 41 lines)<div class="grid">
+<div>s1 20k: CER 2.17 (thirds 1.98 / 2.37 / 2.14), -10.7 dB<audio controls preload="none" src="013_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.69 (thirds 0.68 / 0.74 / 0.63), -10.1 dB</div>
+</div></div>
+<div class="clip"><b>song 014</b> (kor, 227 s, 63 lines)<div class="grid">
+<div>s1 20k: CER 1.28 (thirds 1.14 / 1.27 / 1.54), -17.3 dB<audio controls preload="none" src="014_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.88 (thirds 0.87 / 0.79 / 0.98), -10.6 dB</div>
+</div></div>
+<div class="clip"><b>song 015</b> (yue, 199 s, 63 lines)<div class="grid">
+<div>s1 20k: CER 1.06 (thirds 1.07 / 1.00 / 1.14), -16.3 dB<audio controls preload="none" src="015_s1_20k.mp3"></audio></div>
+<div>recon ceiling: CER 0.61 (thirds 0.54 / 0.69 / 0.58), -10.2 dB</div>
+</div></div>
+</body></html>
